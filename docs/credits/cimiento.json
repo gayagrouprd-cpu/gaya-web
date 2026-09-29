@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/hero",
+    "credit": "Yifan Lai",
+    "alt": "Estructura de hormigón en obra gris: columnas, vigas y muros de bloque entre luz y sombra",
+    "source": "https://www.pexels.com/photo/31358274/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/p1",
+    "credit": "Max Vakhtbovych",
+    "alt": "Casa contemporánea de volumen gris con corredera de vidrio abierta al jardín",
+    "source": "https://www.pexels.com/photo/7587880/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/p2",
+    "credit": "Jan van der Wolf",
+    "alt": "Volumen blanco escalonado de un edificio, con aristas vivas contra un cielo profundo",
+    "source": "https://www.pexels.com/photo/11623647/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/p3",
+    "credit": "Francesco Ungaro",
+    "alt": "Salón en plena remodelación: muros picados, mezcladora de cemento y suelo por nivelar",
+    "source": "https://www.pexels.com/photo/15798784/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/p4",
+    "credit": "Andy Coffie",
+    "alt": "Nave industrial de chapa que se alarga junto a un solar, bajo cielo cubierto",
+    "source": "https://www.pexels.com/photo/30762655/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/p5",
+    "credit": "Pixabay",
+    "alt": "Esquina de una estructura de hormigón con puntales de encofrado bajo cada losa",
+    "source": "https://www.pexels.com/photo/7931/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/p6",
+    "credit": "Engin Akyurt",
+    "alt": "Edificio de planta curva en obra: losas de hormigón, columnas y una grúa torre al fondo",
+    "source": "https://www.pexels.com/photo/1463917/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/despues",
+    "credit": "Max Vakhtbovych",
+    "alt": "Casa de dos plantas terminada: revestimiento de madera, fachada clara y jardín delantero",
+    "source": "https://www.pexels.com/photo/7031594/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "cimiento",
+    "file": "ref/cimiento/img/antes",
+    "credit": "Max Vakhtbovych",
+    "alt": "La misma casa en obra gris: volúmenes sin terminaciones ni color",
+    "source": "https://www.pexels.com/photo/7031594/",
+    "license": "Pexels"
+  }
+]

@@ -65,6 +65,35 @@ button {
   color: var(--on-accent);
 }
 
+/* Transiciones nativas entre páginas (navegadores que las soportan; el resto navega normal) */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-group(ref-stage) {
+  animation-duration: 520ms;
+  animation-timing-function: var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Icono en línea (Lucide) */
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+  stroke-width: 1.75;
+}
+
 /* Foco: visible al instante (nunca se anima) */
 :focus-visible {
   outline: 3px solid var(--accent);

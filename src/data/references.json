@@ -9,6 +9,17 @@
   },
   "refs": [
     {
+      "slug": "_test", "order": 99, "wave": -1, "launch": false, "status": "built", "dev": true,
+      "name": "Prueba", "type": "P", "mode": "light", "icon": "info",
+      "sector": { "es": "Solo desarrollo", "en": "Dev only" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.96 0.006 250)", "surface2": "oklch(0.92 0.008 250)",
+        "ink": "oklch(0.22 0.02 260)", "muted": "oklch(0.42 0.02 255)",
+        "accent": "oklch(0.52 0.19 262)", "onAccent": "oklch(0.98 0.005 262)"
+      }
+    },
+    {
       "slug": "fogon", "order": 1, "wave": 0, "launch": true, "status": "planned",
       "name": "Fogón", "type": "R", "mode": "dark", "icon": "utensils",
       "sector": { "es": "Restaurante", "en": "Restaurant" },

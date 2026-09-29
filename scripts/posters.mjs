@@ -2,6 +2,7 @@
 // Capturas de las referencias (Chrome real, fuentes cargadas, movimiento reducido, modo ?still).
 // Por referencia genera en public/posters/:
 //   <slug>-<hash>-desktop.avif|webp   1440x900  (primera vista de escritorio)
+//   <slug>-<hash>-thumb.avif|webp     640x400   (miniatura ligera)
 //   <slug>-<hash>-mobile.avif|webp    390x844 @2x
 //   <slug>-<hash>-strip.avif|webp     tira de página completa a 900 px de ancho (efecto de recorrido en las tarjetas)
 //   <slug>-<hash>-og.jpg              1200x630 <= 300 KB (vista previa al compartir por WhatsApp)
@@ -109,6 +110,9 @@ async function capture(browser, base, ref) {
 
   const desktop = await shot({ width: 1440, height: 900 });
   sizes.desktop = await toAvifWebp(desktop, `${stem}-desktop`);
+  // Miniatura ligera (tarjetas de la portada y de la galería)
+  const thumbBuf = await sharp(desktop).resize(640, 400, { fit: 'cover', position: 'top' }).toBuffer();
+  sizes.thumb = await toAvifWebp(thumbBuf, `${stem}-thumb`, { avifQ: 40, webpQ: 68 });
   const mobile = await shot({ width: 390, height: 844, dpr: 2, mobile: true });
   sizes.mobile = await toAvifWebp(mobile, `${stem}-mobile`);
 

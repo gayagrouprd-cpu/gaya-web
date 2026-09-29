@@ -1,1 +1,34 @@
-{}
+{
+  "_test": {
+    "srcHash": "62b1f0b149b9ecdeda562024bfb9a750b2495cd3be97efeebd78f16940da1241",
+    "hash": "62b1f0b149",
+    "lang": "es",
+    "sizes": {
+      "desktop": {
+        "avifKB": 7.9,
+        "webpKB": 13.6
+      },
+      "thumb": {
+        "avifKB": 2.3,
+        "webpKB": 3.7
+      },
+      "mobile": {
+        "avifKB": 14.3,
+        "webpKB": 22.2
+      },
+      "strip": {
+        "avifKB": 6.2,
+        "webpKB": 11.1,
+        "h": 900
+      },
+      "og": {
+        "KB": 14.5,
+        "q": 84
+      },
+      "social": {
+        "KB": 42.2
+      }
+    },
+    "capturedAt": "2026-09-29T12:44:38.688Z"
+  }
+}

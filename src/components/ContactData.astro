@@ -1,0 +1,21 @@
+---
+// Bloque de datos (JSON, no se ejecuta) con todo lo necesario para armar el mensaje de WhatsApp en el navegador.
+import brand from '../../brand.json';
+import { builtRefs } from '../lib/refs';
+import { url, type Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const data = {
+  e164: brand.contact.whatsapp.e164,
+  one: brand.whatsappMessage.reference[lang],
+  many: brand.whatsappMessage.references[lang],
+  refs: Object.fromEntries(
+    builtRefs().map((r) => [r.slug, { name: r.name, sector: r.sector[lang].toLowerCase(), url: url(lang, 'ref', { slug: r.slug }) }]),
+  ),
+};
+---
+
+<script type="application/json" id="gaya-contact" set:html={JSON.stringify(data)} />

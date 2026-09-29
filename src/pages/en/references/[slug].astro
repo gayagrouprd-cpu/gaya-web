@@ -1,0 +1,11 @@
+---
+import ViewerView from '../../../components/ViewerView.astro';
+import { builtRefs } from '../../../lib/refs';
+
+export function getStaticPaths() {
+  return builtRefs().map((r) => ({ params: { slug: r.slug } }));
+}
+const { slug } = Astro.params;
+---
+
+<ViewerView lang="en" slug={slug as string} />

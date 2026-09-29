@@ -45,7 +45,8 @@ export function measureRef(slug) {
       codeGz += gz(buf);
     } else if (['.avif', '.webp', '.jpg', '.jpeg', '.png'].includes(ext)) {
       imagesTotal += buf.length;
-      if (/hero/i.test(f)) heroImage = Math.max(heroImage, buf.length);
+      // El presupuesto de la imagen principal se mide sobre el AVIF más ancho (el WebP es solo respaldo)
+      if (/hero/i.test(f) && ext === '.avif') heroImage = Math.max(heroImage, buf.length);
     }
   }
   if (codeGz > BUDGET.refCodeGz) problems.push(`HTML+CSS+JS ${kb(codeGz)} gzip > ${kb(BUDGET.refCodeGz)}`);

@@ -1,0 +1,19 @@
+---
+// Icono Lucide en línea. Decorativo por defecto (aria-hidden): el control que lo usa lleva su propia etiqueta.
+import { lucide, hasIcon, type LucideName } from '../icons';
+
+interface Props {
+  name: LucideName | string;
+  class?: string;
+}
+const { name, class: className = '' } = Astro.props;
+const raw = hasIcon(name) ? lucide[name] : '';
+const svg = raw
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/\sclass="[^"]*"/, '')
+  .replace(/\s(width|height)="24"/g, '')
+  .replace('<svg', `<svg class="icon ${className}" aria-hidden="true" focusable="false"`)
+  .trim();
+---
+
+<Fragment set:html={svg} />

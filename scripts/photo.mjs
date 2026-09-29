@@ -5,18 +5,26 @@
 // Uso:
 //   node scripts/photo.mjs --slug fogon --name hero --id 8218487 [--w 1600,800] [--ar 16:9] [--pos attention]
 //        [--grade none|bw|duotone] [--duotone "#101010,#c9a24d"] [--contrast 1.1] [--brightness 1]
+//        [--q 52] [--wq 74]   calidad AVIF y WebP (baja --q si el AVIF más ancho pasa de 120 KB en imágenes hero)
 //        [--credit "Autor"] [--alt "Texto alternativo"] [--src https://...]
 //   node scripts/photo.mjs --credits        (regenera CREDITS.md desde docs/credits.json)
 //
 // Salida: public/ref/<slug>/img/<name>-<ancho>.avif|webp  y una línea JSON con tamaños y dimensiones.
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CREDITS_JSON = join(ROOT, 'docs', 'credits.json');
+// Un archivo de créditos por referencia (docs/credits/<slug>.json): varios agentes pueden trabajar a la vez sin pisarse.
+const CREDITS_DIR = join(ROOT, 'docs', 'credits');
 const CREDITS_MD = join(ROOT, 'CREDITS.md');
+const readAllCredits = () =>
+  existsSync(CREDITS_DIR)
+    ? readdirSync(CREDITS_DIR)
+        .filter((f) => f.endsWith('.json'))
+        .flatMap((f) => JSON.parse(readFileSync(join(CREDITS_DIR, f), 'utf8')))
+    : [];
 
 const args = Object.fromEntries(
   process.argv
@@ -44,7 +52,7 @@ function writeCreditsMd(list) {
 }
 
 if (args.credits) {
-  const list = existsSync(CREDITS_JSON) ? JSON.parse(readFileSync(CREDITS_JSON, 'utf8')) : [];
+  const list = readAllCredits();
   writeCreditsMd(list);
   console.log(`CREDITS.md regenerado (${list.length} fotos).`);
   process.exit(0);
@@ -109,15 +117,16 @@ const written = [];
 for (const w of widths) {
   const img = sharp(base).resize({ width: w, withoutEnlargement: true });
   const info = await img.clone().toBuffer({ resolveWithObject: true }).then((r) => r.info);
-  const avif = await img.clone().avif({ quality: 52, effort: 6 }).toBuffer();
-  const webp = await img.clone().webp({ quality: 74, effort: 6 }).toBuffer();
+  const avif = await img.clone().avif({ quality: Number(args.q ?? 52), effort: 6 }).toBuffer();
+  const webp = await img.clone().webp({ quality: Number(args.wq ?? 74), effort: 6 }).toBuffer();
   writeFileSync(join(outDir, `${name}-${w}.avif`), avif);
   writeFileSync(join(outDir, `${name}-${w}.webp`), webp);
   written.push({ w: info.width, h: info.height, avifKB: +(avif.length / 1024).toFixed(1), webpKB: +(webp.length / 1024).toFixed(1) });
 }
 
 // Crédito
-const list = existsSync(CREDITS_JSON) ? JSON.parse(readFileSync(CREDITS_JSON, 'utf8')) : [];
+const creditsFile = join(CREDITS_DIR, `${slug}.json`);
+const list = existsSync(creditsFile) ? JSON.parse(readFileSync(creditsFile, 'utf8')) : [];
 const file = `ref/${slug}/img/${name}`;
 const entry = {
   slug,
@@ -130,8 +139,8 @@ const entry = {
 const idx = list.findIndex((c) => c.file === file);
 if (idx > -1) list[idx] = entry;
 else list.push(entry);
-mkdirSync(dirname(CREDITS_JSON), { recursive: true });
-writeFileSync(CREDITS_JSON, JSON.stringify(list, null, 2) + '\n');
-writeCreditsMd(list);
+mkdirSync(CREDITS_DIR, { recursive: true });
+writeFileSync(creditsFile, JSON.stringify(list, null, 2) + '\n');
+writeCreditsMd(readAllCredits());
 
 console.log(JSON.stringify({ slug, name, original: `${meta.width}x${meta.height}`, grade, files: written, credit: entry.credit }));

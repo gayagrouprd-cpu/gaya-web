@@ -1,0 +1,280 @@
+---
+import Base from '../layouts/Base.astro';
+import LIcon from './LIcon.astro';
+import Icon from './Icon.astro';
+import ContactData from './ContactData.astro';
+import { builtRefs, ogPoster, poster, refMail, refWhatsApp, type Ref } from '../lib/refs';
+import { oklchToHex } from '../lib/color.mjs';
+import { path, url, type Lang } from '../routes';
+import { t } from '../i18n/copy';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+}
+const { lang, slug } = Astro.props;
+const c = t(lang).viewer;
+const refs = builtRefs();
+const i = refs.findIndex((r) => r.slug === slug);
+const ref = refs[i] as Ref;
+const prev = refs[(i - 1 + refs.length) % refs.length];
+const next = refs[(i + 1) % refs.length];
+const gallery = path(lang, 'refs');
+const live = `/ref/${ref.slug}/?lang=${lang}`;
+const wa = refWhatsApp(lang, [ref]);
+const mail = refMail(lang, ref);
+const canonical = url(lang, 'ref', { slug: ref.slug });
+---
+
+<Base
+  lang={lang}
+  title={`${ref.name} · ${ref.sector[lang]} · Gaya Group`}
+  description={`${ref.name}: ${ref.sector[lang]}. ${t(lang).gallery.metaDescription}`}
+  routeKey="ref"
+  params={{ slug: ref.slug }}
+  ogImage={ogPoster(ref.slug)}
+  themeColor={oklchToHex(ref.palette.surface)}
+>
+  <div class="viewer" style={`--stage-bg:${ref.palette.surface}`} data-slug={ref.slug} data-prev={path(lang, 'ref', { slug: prev.slug })} data-next={path(lang, 'ref', { slug: next.slug })} data-gallery={gallery} data-canonical={canonical}>
+    <header class="vbar">
+      <a class="vbtn vback" href={gallery} aria-label={c.back}><LIcon name="arrow-left" /></a>
+
+      <div class="vtitle">
+        <h1 class="vname">{ref.name}</h1>
+        <span class="vsector"><LIcon name={ref.icon} />{ref.sector[lang]}</span>
+      </div>
+
+      <div class="vdevices" role="radiogroup" aria-label={c.device}>
+        <button type="button" role="radio" aria-checked="true" data-device="desktop" aria-label={c.desktop} title={c.desktop}><LIcon name="monitor" /></button>
+        <button type="button" role="radio" aria-checked="false" data-device="tablet" aria-label={c.tablet} title={c.tablet}><LIcon name="tablet" /></button>
+        <button type="button" role="radio" aria-checked="false" data-device="phone" aria-label={c.phone} title={c.phone}><LIcon name="smartphone" /></button>
+      </div>
+
+      <nav class="vnav" aria-label={ref.name}>
+        <a class="vbtn" href={path(lang, 'ref', { slug: prev.slug })} aria-label={`${c.prev}: ${prev.name}`} title={prev.name}><LIcon name="chevron-left" /></a>
+        <a class="vbtn" href={path(lang, 'ref', { slug: next.slug })} aria-label={`${c.next}: ${next.name}`} title={next.name}><LIcon name="chevron-right" /></a>
+      </nav>
+
+      <div class="vactions">
+        <button type="button" class="vbtn vfav" data-fav={ref.slug} aria-pressed="false" aria-label={t(lang).gallery.fav(ref.name)} data-label-on={t(lang).gallery.unfav(ref.name)} data-label-off={t(lang).gallery.fav(ref.name)}><LIcon name="heart" /></button>
+        <a class="vbtn" href={live} target="_blank" rel="noopener" aria-label={c.open} title={c.open}><LIcon name="external-link" /></a>
+        <button type="button" class="vbtn" id="copy" aria-label={c.copy} title={c.copy} data-done={c.copied}><LIcon name="link" /></button>
+        <a class="vbtn vmail" href={mail} aria-label={c.email} title={c.email}><LIcon name="mail" /></a>
+        <a class="btn btn--primary vcta" id="cta" data-cta="primary" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /><span>{c.cta}</span></a>
+      </div>
+    </header>
+
+    <main id="contenido" class="stage">
+      <div class="frame" data-device="desktop">
+        <picture class="frame__poster" aria-hidden="true">
+          <source media="(max-width: 47.99rem)" type="image/avif" srcset={poster(ref.slug, 'mobile', 'avif')} />
+          <source media="(max-width: 47.99rem)" type="image/webp" srcset={poster(ref.slug, 'mobile', 'webp')} />
+          <source type="image/avif" srcset={poster(ref.slug, 'desktop', 'avif')} />
+          <img src={poster(ref.slug, 'desktop', 'webp')} alt="" width="1440" height="900" decoding="async" fetchpriority="high" />
+        </picture>
+        <iframe class="frame__live" src={live} title={c.preview(ref.name)} referrerpolicy="no-referrer"></iframe>
+      </div>
+    </main>
+    <p class="sr-only" role="status" id="copy-status"></p>
+  </div>
+
+  <ContactData lang={lang} />
+  <script>
+    import { initViewer } from '../scripts/viewer';
+    initViewer();
+  </script>
+</Base>
+
+<style is:global>
+  /* El visor ocupa toda la pantalla y no tiene menú flotante */
+  body:has(.viewer) {
+    overflow: hidden;
+  }
+</style>
+<style>
+  .viewer {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: var(--surface);
+  }
+  .vbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 3.5rem;
+    padding: var(--space-1) var(--space-3);
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-1));
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    z-index: 2;
+  }
+  .vbtn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: none;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .vbtn:hover {
+      background: color-mix(in oklch, var(--ink) 12%, transparent);
+    }
+  }
+  .vbtn[aria-pressed='true'] {
+    color: var(--accent);
+  }
+  .vbtn[aria-pressed='true'] :global(.icon) {
+    fill: currentColor;
+  }
+  .vbtn.is-done {
+    color: var(--accent-text);
+  }
+  .vtitle {
+    display: grid;
+    min-width: 0;
+    margin-inline-end: auto;
+  }
+  .vname {
+    font-size: var(--text-m);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .vsector {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-s);
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .vsector :global(.icon) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .vdevices,
+  .vmail {
+    display: none;
+  }
+  .vdevices {
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+  }
+  .vdevices button {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.25rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .vdevices button[aria-checked='true'] {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .vnav,
+  .vactions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .vcta {
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
+    margin-inline-start: var(--space-2);
+    font-size: var(--text-s);
+  }
+  .vcta span {
+    display: none;
+  }
+  @media (min-width: 40rem) {
+    .vcta span {
+      display: inline;
+    }
+  }
+  @media (min-width: 48rem) {
+    .vdevices {
+      display: flex;
+    }
+    .vmail {
+      display: inline-grid;
+    }
+  }
+
+  .stage {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    min-height: 0;
+    background: var(--stage-bg);
+    overflow: hidden;
+  }
+  .frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--stage-bg);
+  }
+  @media (min-width: 48rem) {
+    .frame[data-device='tablet'] {
+      width: min(100%, 820px);
+      height: calc(100% - var(--space-5));
+      margin-block: var(--space-3);
+      border: 1px solid color-mix(in oklch, var(--ink) 30%, transparent);
+      border-radius: var(--radius-l);
+      overflow: hidden;
+    }
+    .frame[data-device='phone'] {
+      width: min(100%, 390px);
+      height: calc(100% - var(--space-5));
+      margin-block: var(--space-3);
+      border: 1px solid color-mix(in oklch, var(--ink) 30%, transparent);
+      border-radius: var(--radius-l);
+      overflow: hidden;
+    }
+  }
+  .frame__poster,
+  .frame__live {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .frame__poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .frame__live {
+    background: var(--stage-bg);
+    opacity: 0;
+  }
+  .frame.is-live .frame__live {
+    opacity: 1;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+  .frame.is-live .frame__poster {
+    visibility: hidden;
+    transition: visibility 0s var(--dur-3);
+  }
+</style>

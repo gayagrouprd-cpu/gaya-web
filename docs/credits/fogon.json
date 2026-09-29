@@ -1,0 +1,66 @@
+[
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/hero",
+    "credit": "Mohamed Olwy",
+    "alt": "Un corte de res con marcas de parrilla, en el fuego, con humo subiendo de la plancha",
+    "source": "https://www.pexels.com/photo/36683020/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/brasa",
+    "credit": "Sté Fonseca",
+    "alt": "Brasas al rojo vivo entre troncos de carbón negro",
+    "source": "https://www.pexels.com/photo/6303015/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/pescado",
+    "credit": "Julia Filirovska",
+    "alt": "Pescado asado sobre la parrilla, con la piel dorada y tostada por las brasas",
+    "source": "https://www.pexels.com/photo/8250340/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/carne",
+    "credit": "Valeria Boltneva",
+    "alt": "Unas manos cortan un filete de res rosado sobre un plato oscuro, con su salsa al lado",
+    "source": "https://www.pexels.com/photo/1639558/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/manos",
+    "credit": "Yente Van Eynde",
+    "alt": "Una mano vierte la salsa de una cazuela sobre los platos, en la penumbra de la cocina",
+    "source": "https://www.pexels.com/photo/2403392/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/interior",
+    "credit": "Jonathan Borba",
+    "alt": "Mesa larga puesta a la luz de las velas, en un comedor en penumbra",
+    "source": "https://www.pexels.com/photo/28059309/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/postre",
+    "credit": "Teresa Jang",
+    "alt": "Flan de caramelo brillante sobre un plato, en una mesa de madera oscura",
+    "source": "https://www.pexels.com/photo/18089587/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "fogon",
+    "file": "ref/fogon/img/parrilla",
+    "credit": "Diana",
+    "alt": "Un cocinero da vuelta a la carne con pinzas sobre una parrilla de ladrillo, entre humo",
+    "source": "https://www.pexels.com/photo/37238870/",
+    "license": "Pexels"
+  }
+]

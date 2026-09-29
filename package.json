@@ -18,7 +18,8 @@
     "contrast": "node scripts/contrast.mjs",
     "budgets": "node scripts/budgets.mjs",
     "guard": "node scripts/guard.mjs",
-    "ref:check": "node scripts/ref-check.mjs"
+    "ref:check": "node scripts/ref-check.mjs",
+    "flow": "node scripts/flow-check.mjs"
   },
   "dependencies": {
     "astro": "7.3.5",

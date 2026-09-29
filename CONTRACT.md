@@ -102,6 +102,7 @@ Las fuentes las prepara el orquestador con `npm run fonts -- <paquete>:<ejes>`; 
 - Solo las de `img/` (tu paquete, ya recortadas y optimizadas). Si necesitas otra, pídela en el informe; no descargues nada.
 - `alt` descriptivo y con voz (decorativas: `alt=""`). Una foto decisiva vale más que cinco tibias.
 - Ningún cuadro de color donde debería ir una foto. Si el rubro pide imagen, la usa.
+- Sin `<link rel="preload" as="image" imagesizes=…>`: dentro del iframe del visor se evalúa con el viewport inicial, baja otra variante y la consola avisa. La foto principal lleva `fetchpriority="high"` en el `<img>`.
 
 ## 9. Accesibilidad
 

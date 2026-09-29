@@ -95,7 +95,10 @@ const presentTypes = (Object.keys(types) as RefType[]).filter((k) => refs.some((
     padding: calc(env(safe-area-inset-top, 0px) + 6.5rem) var(--gutter) 8rem;
     max-width: 88rem;
     margin-inline: auto;
-    background: radial-gradient(60rem 30rem at 15% -5%, color-mix(in oklch, var(--glow-1) 40%, transparent), transparent 70%);
+  }
+  /* El resplandor va en el lienzo entero: si va en .gal, el ancho máximo lo corta con un borde visible */
+  :global(body:has(.gal)) {
+    background: radial-gradient(60rem 30rem at 15% -5%, color-mix(in oklch, var(--glow-1) 40%, transparent), transparent 70%) no-repeat, var(--surface);
   }
   .gal__head {
     display: grid;

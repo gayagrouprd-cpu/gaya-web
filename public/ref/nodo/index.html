@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es" data-langs="es,en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Nodo · Pedidos y clientes</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../ref-shared/fonts/hubot-sans.css">
+<link rel="stylesheet" href="../../ref-shared/fonts/jetbrains-mono.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../ref-shared/frame.js"></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#contenido" data-t="skip">Ir al contenido</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-overview" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="9" rx="1.6"/><rect x="13" y="4" width="7" height="5" rx="1.6"/><rect x="13" y="11" width="7" height="9" rx="1.6"/><rect x="4" y="15" width="7" height="5" rx="1.6"/></symbol>
+  <symbol id="i-clients" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.1 2.8-5 5.5-5s4.9 1.9 5.5 5"/><path d="M15.5 5.6a3 3 0 0 1 0 5.8"/><path d="M17.5 14.2c1.6.6 2.7 2.3 3 4.8"/></symbol>
+  <symbol id="i-orders" viewBox="0 0 24 24"><path d="M4.5 8.2 12 4l7.5 4.2v7.6L12 20l-7.5-4.2z"/><path d="m4.5 8.2 7.5 4.2 7.5-4.2"/><path d="M12 12.4V20"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.2"/><path d="m20 20-4.6-4.6"/></symbol>
+  <symbol id="i-nosearch" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.2"/><path d="m20 20-4.6-4.6"/><path d="m8.6 8.6 4.8 4.8"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M12 5v13"/><path d="m7 13.5 5 5 5-5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.9a2 2 0 0 1 3.4 0l7 12.1a2 2 0 0 1-1.7 3H5a2 2 0 0 1-1.7-3z"/><path d="M12 9.5v4"/><path d="M12 16.8v.1"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.2h-4.2"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.3 2.3 3.5 5.2 3.5 8.5s-1.2 6.2-3.5 8.5c-2.3-2.3-3.5-5.2-3.5-8.5S9.7 5.8 12 3.5z"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4.5 7A2.5 2.5 0 0 1 7 4.5h10A2.5 2.5 0 0 1 19.5 7v6.5A2.5 2.5 0 0 1 17 16h-6l-4.5 3.8V16H7a2.5 2.5 0 0 1-2.5-2.5z"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9.5 5.6 4.5h12.8L20 9.5"/><path d="M4 9.5c0 1.4 1.2 2.5 2.7 2.5s2.6-1.1 2.6-2.5c0 1.4 1.2 2.5 2.7 2.5s2.7-1.1 2.7-2.5c0 1.4 1.1 2.5 2.6 2.5S20 10.9 20 9.5"/><path d="M5.5 12v7.5h13V12"/><path d="M10 19.5v-4.2h4v4.2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 4h2.8l1.5 3.9-2 1.4a9.3 9.3 0 0 0 5.8 5.8l1.4-2 3.9 1.5v2.8a2 2 0 0 1-2.2 2A15.6 15.6 0 0 1 4.6 6.2 2 2 0 0 1 6.6 4z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+  <symbol id="i-lang" viewBox="0 0 24 24"><path d="M4 6.5h9M8.5 4.5v2M6.2 6.5c.6 3 2.6 5.3 5.3 6.3M11 6.5c-.7 3.3-2.9 5.8-6.3 6.8"/><path d="m12.5 20 3.5-8.5 3.5 8.5M13.7 17.2h4.6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><circle cx="7" cy="7.5" r="2.4"/><circle cx="17" cy="10" r="2.4"/><circle cx="10" cy="17" r="2.4"/><path d="M9.3 8.1 14.7 9.4M15.2 11.7l-3.4 3.6M7.6 9.8l1.4 4.9"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.2v7.6M8.2 12h7.6"/></symbol>
+  <symbol id="i-userplus" viewBox="0 0 24 24"><circle cx="10" cy="8.5" r="3.2"/><path d="M4 19c.6-3.1 3-5 6-5s5.4 1.9 6 5"/><path d="M18.5 8v6M15.5 11h6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 20.5s6.5-5.6 6.5-10.5a6.5 6.5 0 1 0-13 0c0 4.9 6.5 10.5 6.5 10.5z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4.5 9.5 9 5"/><path d="M4.5 9.5h10a5 5 0 0 1 0 10H11"/></symbol>
+  <symbol id="i-enter" viewBox="0 0 24 24"><path d="M19 5.5V12a3 3 0 0 1-3 3H6"/><path d="m9.5 11.5-3.5 3.5 3.5 3.5"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <a class="brand" href="#resumen" data-view-link="resumen" data-t-aria="brandAria" aria-label="Nodo, ir a Resumen">
+      <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 8.2 15 9.6M15.6 12 12 15.6M7.7 9.9l1.5 5" /><circle cx="7" cy="7.6" r="2.6"/><circle cx="17" cy="10.2" r="2.6"/><circle cx="10.2" cy="17.2" r="2.6"/></svg>
+      <span class="brand__name">Nodo</span>
+    </a>
+    <span class="ws"><span class="ws__sep" aria-hidden="true"></span>Horno Marola</span>
+    <span class="top__spacer"></span>
+    <div class="seg range range--top" role="radiogroup" data-t-aria="range" aria-label="Rango" data-range-group>
+      <button type="button" role="radio" class="seg__opt" data-range="7" aria-checked="false" tabindex="-1">7 d</button>
+      <button type="button" role="radio" class="seg__opt" data-range="30" aria-checked="true" tabindex="0">30 d</button>
+      <button type="button" role="radio" class="seg__opt" data-range="90" aria-checked="false" tabindex="-1">90 d</button>
+    </div>
+    <button type="button" class="search-btn" id="open-pal" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" data-t-aria="search" aria-label="Buscar">
+      <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      <span class="search-btn__t" data-t="search">Buscar</span>
+      <kbd class="kbd" id="kbd-k">Ctrl K</kbd>
+    </button>
+    <div class="seg lang" role="radiogroup" data-t-aria="lang" aria-label="Idioma">
+      <button type="button" role="radio" class="seg__opt" data-lang="es" aria-checked="true" tabindex="0" aria-label="Español (ES)">ES</button>
+      <button type="button" role="radio" class="seg__opt" data-lang="en" aria-checked="false" tabindex="-1" aria-label="English (EN)">EN</button>
+    </div>
+    <button type="button" class="btn btn--accent top__cta" data-cta="primary" data-open-sheet aria-haspopup="dialog" data-t="cta">Quiero una app así</button>
+  </header>
+
+  <nav class="rail" data-t-aria="views" aria-label="Vistas">
+    <ul class="rail__list">
+      <li><a class="nav" href="#resumen" data-view-link="resumen" aria-current="page"><svg class="ic" aria-hidden="true"><use href="#i-overview"/></svg><span class="nav__t" data-t="resumen">Resumen</span></a></li>
+      <li><a class="nav" href="#clientes" data-view-link="clientes"><svg class="ic" aria-hidden="true"><use href="#i-clients"/></svg><span class="nav__t" data-t="clientes">Clientes</span><span class="nav__n" id="nav-clients"></span></a></li>
+      <li><a class="nav" href="#pedidos" data-view-link="pedidos"><svg class="ic" aria-hidden="true"><use href="#i-orders"/></svg><span class="nav__t" data-t="pedidos">Pedidos</span><span class="nav__badge" id="nav-orders"></span></a></li>
+    </ul>
+    <div class="me">
+      <span class="avatar avatar--me" aria-hidden="true">LM</span>
+      <span class="me__t"><span class="me__name">Lucía Marte</span><span class="me__role" data-t="role">Administración</span></span>
+    </div>
+  </nav>
+
+  <main class="main" id="contenido">
+    <div class="vhead">
+      <div class="vhead__t">
+        <h1 id="view-title" tabindex="-1">Resumen</h1>
+        <p class="vhead__meta"><span class="mono" id="view-meta">30 d</span><span class="tag" data-t="sample">Datos de ejemplo</span></p>
+      </div>
+      <div class="vhead__side">
+        <button type="button" class="chip-filter" id="chan-chip" hidden><span id="chan-chip-t"></span><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+        <div class="seg range range--inline" role="radiogroup" data-t-aria="range" aria-label="Rango" data-range-group>
+          <button type="button" role="radio" class="seg__opt" data-range="7" aria-checked="false" tabindex="-1">7 d</button>
+          <button type="button" role="radio" class="seg__opt" data-range="30" aria-checked="true" tabindex="0">30 d</button>
+          <button type="button" role="radio" class="seg__opt" data-range="90" aria-checked="false" tabindex="-1">90 d</button>
+        </div>
+      </div>
+    </div>
+    <noscript><p class="noscript">Nodo necesita JavaScript para mostrar los datos de ejemplo.</p></noscript>
+
+    <section class="view view--resumen" data-view="resumen" aria-labelledby="view-title">
+      <div class="dash">
+        <section class="panel rev" aria-labelledby="rev-h">
+          <div class="progress" aria-hidden="true"></div>
+          <div class="rev__head">
+            <div class="rev__kpi">
+              <h2 class="panel__title" id="rev-h" data-t="revenue">Ingresos</h2>
+              <p class="rev__value"><span class="cur">RD$</span><span class="num skel" id="k-rev">0</span></p>
+              <p class="delta" id="k-rev-d"><span class="delta__v">+0.0 %</span><span class="delta__vs" data-t="vsPrev">vs. periodo anterior</span></p>
+            </div>
+            <ul class="legend" aria-hidden="true">
+              <li><span class="sw sw--now"></span><span data-t="legendNow">Este periodo</span></li>
+              <li><span class="sw sw--prev"></span><span data-t="legendPrev">Periodo anterior</span></li>
+            </ul>
+          </div>
+          <div class="chart" id="chart" tabindex="0" role="group" data-t-aria="chartLabel" aria-label="Gráfica de ingresos por día" aria-describedby="chart-sum">
+            <svg class="chart__svg" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="g-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="stop-a"/><stop offset="1" class="stop-b"/></linearGradient>
+                <clipPath id="clip-plot"><rect id="clip-r" x="0" y="0" width="0" height="0"/></clipPath>
+              </defs>
+              <g class="grid"></g>
+              <g clip-path="url(#clip-plot)">
+                <path class="area"/>
+                <path class="line line--prev"/>
+                <path class="line line--main"/>
+                <g class="dots"></g>
+              </g>
+              <g class="grid ylab"></g>
+              <line class="xhair" x1="0" x2="0" y1="0" y2="0"/>
+              <circle class="dot dot--prev" r="3.5" cx="-20" cy="-20"/>
+              <circle class="dot dot--main" r="4.5" cx="-20" cy="-20"/>
+            </svg>
+            <div class="chart__x" aria-hidden="true"></div>
+            <div class="tip" id="tip" aria-hidden="true">
+              <span class="tip__d mono" id="tip-d"></span>
+              <span class="tip__v" id="tip-v"></span>
+              <span class="tip__r mono"><span id="tip-o"></span></span>
+              <span class="tip__r mono"><span class="sw sw--prev sw--tip"></span><span id="tip-p"></span></span>
+            </div>
+          </div>
+          <p class="sr" id="chart-sum"></p>
+        </section>
+
+        <section class="panel kpis" data-t-aria="kpis" aria-label="Indicadores">
+          <div class="kpi kpi--orders">
+            <div class="kpi__main">
+              <h2 class="kpi__label" data-t="orders">Pedidos</h2>
+              <p class="kpi__value"><span class="num skel" id="k-ord">0</span></p>
+              <p class="delta delta--sm" id="k-ord-d"><span class="delta__v">+0.0 %</span><span class="delta__vs mono"></span></p>
+            </div>
+            <div class="wd" id="wd" aria-hidden="true">
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">L</span></span>
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">M</span></span>
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">X</span></span>
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">J</span></span>
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">V</span></span>
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">S</span></span>
+              <span class="wd__col"><span class="wd__track"><span class="wd__bar"></span></span><span class="wd__l">D</span></span>
+            </div>
+          </div>
+          <div class="kpi kpi--ticket">
+            <h2 class="kpi__label" data-t="ticket">Ticket medio</h2>
+            <p class="kpi__value kpi__value--md"><span class="cur cur--sm">RD$</span><span class="num skel" id="k-tic">0</span></p>
+            <p class="delta delta--sm" id="k-tic-d"><span class="delta__v">+0.0 %</span><span class="delta__vs mono"></span></p>
+          </div>
+          <div class="kpi kpi--clients">
+            <h2 class="kpi__label" data-t="activeClients">Clientes activos</h2>
+            <p class="kpi__value kpi__value--md"><span class="num skel" id="k-act">0</span><span class="kpi__of" id="k-act-of"></span></p>
+            <div class="ratio" aria-hidden="true"><span class="ratio__fill" id="k-act-bar"></span></div>
+            <p class="kpi__foot" id="k-act-new"></p>
+          </div>
+        </section>
+
+        <section class="panel chan-panel" aria-labelledby="chan-h">
+          <div class="progress" aria-hidden="true"></div>
+          <div class="panel__head">
+            <h2 class="panel__title" id="chan-h" data-t="byChannel">Por canal</h2>
+            <div class="seg seg--words" role="radiogroup" data-t-aria="metric" aria-label="Métrica" id="chan-metric">
+              <button type="button" role="radio" class="seg__opt" data-m="orders" aria-checked="true" tabindex="0" data-t="orders">Pedidos</button>
+              <button type="button" role="radio" class="seg__opt" data-m="revenue" aria-checked="false" tabindex="-1" data-t="revenue">Ingresos</button>
+            </div>
+          </div>
+          <div class="chan" id="chan" role="group" aria-labelledby="chan-h"></div>
+          <div class="state state--error" id="chan-err" role="alert" hidden>
+            <svg class="ic state__ic" aria-hidden="true"><use href="#i-alert"/></svg>
+            <p class="state__t" data-t="errChan">No se pudieron cargar los canales.</p>
+            <button type="button" class="btn btn--ghost" id="chan-retry"><svg class="ic" aria-hidden="true"><use href="#i-retry"/></svg><span data-t="retry">Reintentar</span></button>
+          </div>
+        </section>
+
+        <section class="panel act-panel" aria-labelledby="act-h">
+          <div class="panel__head">
+            <h2 class="panel__title" id="act-h" data-t="activity">Actividad</h2>
+            <span class="live"><span class="live__dot" aria-hidden="true"></span><span data-t="today">Hoy</span></span>
+          </div>
+          <ol class="act" id="act"></ol>
+        </section>
+      </div>
+    </section>
+
+    <section class="view view--clientes" data-view="clientes" aria-labelledby="view-title" hidden>
+      <div class="panel tbl-panel">
+        <div class="toolbar">
+          <label class="field-search">
+            <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <span class="sr" data-t="clientsSearch">Buscar clientes</span>
+            <input type="search" id="cq" autocomplete="off" spellcheck="false" data-t-ph="clientsSearch" placeholder="Buscar clientes">
+          </label>
+          <div class="seg seg--filter" role="radiogroup" data-t-aria="status" aria-label="Estado" id="cfilter">
+            <button type="button" role="radio" class="seg__opt" data-f="all" aria-checked="true" tabindex="0"><span data-t="all">Todos</span><span class="seg__n mono"></span></button>
+            <button type="button" role="radio" class="seg__opt" data-f="active" aria-checked="false" tabindex="-1"><span data-t="fActive">Activos</span><span class="seg__n mono"></span></button>
+            <button type="button" role="radio" class="seg__opt" data-f="new" aria-checked="false" tabindex="-1"><span data-t="fNew">Nuevos</span><span class="seg__n mono"></span></button>
+            <button type="button" role="radio" class="seg__opt" data-f="inactive" aria-checked="false" tabindex="-1"><span data-t="fInactive">Inactivos</span><span class="seg__n mono"></span></button>
+          </div>
+          <span class="toolbar__count mono" id="ccount" role="status"></span>
+        </div>
+        <table class="tbl" id="ctable">
+          <caption class="sr" data-t="clientes">Clientes</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="th-name" data-sort="name"><button type="button" class="sort"><span data-t="thClient">Cliente</span><svg class="ic sort__ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+              <th scope="col" class="th-area" data-sort="area"><button type="button" class="sort"><span data-t="thArea">Barrio</span><svg class="ic sort__ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+              <th scope="col" class="th-num th-orders" data-sort="orders"><button type="button" class="sort"><span id="th-orders">Pedidos · 30 d</span><svg class="ic sort__ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+              <th scope="col" class="th-num th-spent" data-sort="spent" aria-sort="descending"><button type="button" class="sort"><span id="th-spent">Gastado · 30 d</span><svg class="ic sort__ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+              <th scope="col" class="th-last" data-sort="last"><button type="button" class="sort"><span data-t="thLast">Último pedido</span><svg class="ic sort__ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+              <th scope="col" class="th-status" data-sort="status"><button type="button" class="sort"><span data-t="status">Estado</span><svg class="ic sort__ic" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+            </tr>
+          </thead>
+          <tbody id="cbody"></tbody>
+        </table>
+        <div class="state state--empty" id="cempty" hidden>
+          <svg class="ic state__ic" aria-hidden="true"><use href="#i-nosearch"/></svg>
+          <p class="state__t" id="cempty-t"></p>
+          <button type="button" class="btn btn--ghost" id="cempty-btn"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="view view--pedidos" data-view="pedidos" aria-labelledby="view-title" hidden>
+      <div class="board" id="board">
+        <section class="col" data-col="nuevo" aria-labelledby="col-nuevo"><div class="col__head"><h2 class="col__t" id="col-nuevo"><span class="ring" data-ring="1" aria-hidden="true"></span><span data-t="osNuevo">Nuevo</span></h2><span class="col__n mono"></span></div><ol class="col__list"></ol></section>
+        <section class="col" data-col="prep" aria-labelledby="col-prep"><div class="col__head"><h2 class="col__t" id="col-prep"><span class="ring" data-ring="2" aria-hidden="true"></span><span data-t="osPrep">Preparando</span></h2><span class="col__n mono"></span></div><ol class="col__list"></ol></section>
+        <section class="col" data-col="listo" aria-labelledby="col-listo"><div class="col__head"><h2 class="col__t" id="col-listo"><span class="ring" data-ring="3" aria-hidden="true"></span><span data-t="osListo">Listo</span></h2><span class="col__n mono"></span></div><ol class="col__list"></ol></section>
+        <section class="col" data-col="entregado" aria-labelledby="col-entregado"><div class="col__head"><h2 class="col__t" id="col-entregado"><span class="ring" data-ring="4" aria-hidden="true"></span><span data-t="osEntregado">Entregado</span></h2><span class="col__n mono"></span></div><ol class="col__list"></ol></section>
+      </div>
+    </section>
+
+    <div class="endcap">
+      <button type="button" class="btn btn--accent" data-open-sheet aria-haspopup="dialog" data-t="cta">Quiero una app así</button>
+    </div>
+  </main>
+</div>
+
+<div class="toasts" id="toasts" role="region" data-t-aria="notices" aria-label="Avisos"></div>
+<div class="sr" id="announce" aria-live="polite" aria-atomic="true"></div>
+
+<dialog class="pal" id="pal" data-t-aria="palLabel" aria-label="Comandos">
+  <div class="pal__field">
+    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+    <input type="text" id="pal-q" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" data-t-aria="palPh" aria-label="Buscar comandos y clientes" data-t-ph="palPh" placeholder="Buscar comandos y clientes">
+    <button type="button" class="kbd kbd--btn" id="pal-esc" data-t-aria="close" aria-label="Cerrar"><span class="kbd__t" aria-hidden="true">Esc</span><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="pal__list" id="pal-list" role="listbox" data-t-aria="results" aria-label="Resultados"></div>
+  <div class="pal__empty" id="pal-empty" hidden><svg class="ic" aria-hidden="true"><use href="#i-nosearch"/></svg><span id="pal-empty-t"></span></div>
+</dialog>
+
+<dialog class="drawer" id="drawer" aria-labelledby="dr-name">
+  <div class="drawer__bar">
+    <button type="button" class="icon-btn" id="dr-prev" data-t-aria="prevClient" aria-label="Cliente anterior"><svg class="ic" aria-hidden="true"><use href="#i-up"/></svg></button>
+    <button type="button" class="icon-btn" id="dr-next" data-t-aria="nextClient" aria-label="Cliente siguiente"><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg></button>
+    <span class="drawer__pos mono" id="dr-pos"></span>
+    <button type="button" class="icon-btn" id="dr-close" data-t-aria="close" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="drawer__body" id="dr-body"></div>
+  <div class="sr" id="dr-live" aria-live="polite"></div>
+</dialog>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheet-h">
+  <form class="sheet__form" id="lead" novalidate>
+    <div class="sheet__head">
+      <h2 class="sheet__h" id="sheet-h" data-t="cta">Quiero una app así</h2>
+      <button type="button" class="icon-btn" data-close-sheet data-t-aria="close" aria-label="Cerrar"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="field">
+      <label for="f-name" data-t="fName">Nombre</label>
+      <input id="f-name" name="name" type="text" autocomplete="name" aria-describedby="f-name-e">
+      <p class="field__err" id="f-name-e" hidden></p>
+    </div>
+    <div class="field">
+      <label for="f-contact" data-t="fContact">Correo o teléfono</label>
+      <input id="f-contact" name="contact" type="text" autocomplete="email" aria-describedby="f-contact-e">
+      <p class="field__err" id="f-contact-e" hidden></p>
+    </div>
+    <fieldset class="field picks">
+      <legend data-t="fManage">¿Qué quieres gestionar?</legend>
+      <label class="pick"><input type="checkbox" name="m" value="pedidos" checked><span data-t="mOrders">Pedidos</span></label>
+      <label class="pick"><input type="checkbox" name="m" value="clientes" checked><span data-t="mClients">Clientes</span></label>
+      <label class="pick"><input type="checkbox" name="m" value="inventario"><span data-t="mStock">Inventario</span></label>
+      <label class="pick"><input type="checkbox" name="m" value="citas"><span data-t="mAppts">Citas</span></label>
+      <label class="pick"><input type="checkbox" name="m" value="pagos"><span data-t="mPay">Pagos</span></label>
+      <label class="pick"><input type="checkbox" name="m" value="entregas"><span data-t="mDeliv">Entregas</span></label>
+    </fieldset>
+    <div class="sheet__actions">
+      <button type="button" class="btn btn--ghost" data-close-sheet data-t="cancel">Cancelar</button>
+      <button type="submit" class="btn btn--accent" id="f-send"><span class="spin" aria-hidden="true"></span><span id="f-send-t" data-t="send">Enviar</span></button>
+    </div>
+  </form>
+  <div class="sheet__done" id="sheet-done" hidden>
+    <span class="done__ic" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span>
+    <h2 class="sheet__h" id="sheet-done-h" tabindex="-1"></h2>
+    <p class="done__p" data-t="doneP">Es una demostración: no se envió nada.</p>
+    <button type="button" class="btn btn--ghost" data-close-sheet data-t="close">Cerrar</button>
+  </div>
+</dialog>
+</body>
+</html>

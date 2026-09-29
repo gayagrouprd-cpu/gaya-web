@@ -55,7 +55,10 @@ export function initViewer() {
   window.addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-    if (['Escape', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !(e.target as HTMLElement)?.closest('[role="radiogroup"]')) onKey(e.key);
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key === 'Escape') onKey(e.key);
+    // Dentro del conmutador de tamaño las flechas cambian de tamaño, no de referencia
+    else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !t?.closest('[role="radiogroup"]')) onKey(e.key);
   });
   window.addEventListener('message', (e) => {
     if (e.origin !== location.origin || e.source !== iframe?.contentWindow) return;

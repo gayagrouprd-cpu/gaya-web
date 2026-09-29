@@ -1,36 +1,4 @@
 {
-  "_test": {
-    "srcHash": "62b1f0b149b9ecdeda562024bfb9a750b2495cd3be97efeebd78f16940da1241",
-    "hash": "62b1f0b149",
-    "lang": "es",
-    "sizes": {
-      "desktop": {
-        "avifKB": 7.9,
-        "webpKB": 13.6
-      },
-      "thumb": {
-        "avifKB": 2.3,
-        "webpKB": 3.7
-      },
-      "mobile": {
-        "avifKB": 14.3,
-        "webpKB": 22.2
-      },
-      "strip": {
-        "avifKB": 6.2,
-        "webpKB": 11.1,
-        "h": 900
-      },
-      "og": {
-        "KB": 14.5,
-        "q": 84
-      },
-      "social": {
-        "KB": 42.2
-      }
-    },
-    "capturedAt": "2026-09-29T12:44:38.688Z"
-  },
   "cimiento": {
     "srcHash": "656662345f116fbfbb5602bb528e9bb94024a83ff19ee3abf6ccfbc3f6a506b1",
     "hash": "656662345f",
@@ -49,9 +17,9 @@
         "webpKB": 66.4
       },
       "strip": {
-        "avifKB": 154.5,
-        "webpKB": 239,
-        "h": 5934
+        "avifKB": 81.2,
+        "webpKB": 134.6,
+        "h": 3409
       },
       "og": {
         "KB": 65.4,
@@ -61,11 +29,11 @@
         "KB": 119.3
       }
     },
-    "capturedAt": "2026-09-29T13:36:33.600Z"
+    "capturedAt": "2026-09-29T13:51:57.558Z"
   },
   "fogon": {
-    "srcHash": "639e793df703e8d2e520996c91e51f65795567e38a4b62fe939c109239d4f6f9",
-    "hash": "639e793df7",
+    "srcHash": "cf7b6d29e295c7c5fe51807bfa7811ec55654f4842672ee1cb40fa214a344cf7",
+    "hash": "cf7b6d29e2",
     "lang": "es",
     "sizes": {
       "desktop": {
@@ -81,9 +49,9 @@
         "webpKB": 75.6
       },
       "strip": {
-        "avifKB": 164.9,
-        "webpKB": 262.2,
-        "h": 6000
+        "avifKB": 121.3,
+        "webpKB": 213.7,
+        "h": 4985
       },
       "og": {
         "KB": 86.9,
@@ -93,6 +61,38 @@
         "KB": 162.1
       }
     },
-    "capturedAt": "2026-09-29T13:41:05.822Z"
+    "capturedAt": "2026-09-29T13:51:27.342Z"
+  },
+  "nodo": {
+    "srcHash": "bbdf278644db907bba2da895ca66cc5d192dd4a1d4d8c7d6dbc85d477b3d953c",
+    "hash": "bbdf278644",
+    "lang": "es",
+    "sizes": {
+      "desktop": {
+        "avifKB": 31.7,
+        "webpKB": 48
+      },
+      "thumb": {
+        "avifKB": 9.5,
+        "webpKB": 14.2
+      },
+      "mobile": {
+        "avifKB": 29.2,
+        "webpKB": 46.2
+      },
+      "strip": {
+        "avifKB": 16.5,
+        "webpKB": 25.3,
+        "h": 648
+      },
+      "og": {
+        "KB": 53.9,
+        "q": 84
+      },
+      "social": {
+        "KB": 90.1
+      }
+    },
+    "capturedAt": "2026-09-29T13:52:06.120Z"
   }
 }

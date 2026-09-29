@@ -4,7 +4,7 @@
 //   <slug>-<hash>-desktop.avif|webp   1440x900  (primera vista de escritorio)
 //   <slug>-<hash>-thumb.avif|webp     640x400   (miniatura ligera)
 //   <slug>-<hash>-mobile.avif|webp    390x844 @2x
-//   <slug>-<hash>-strip.avif|webp     tira de página completa a 900 px de ancho (efecto de recorrido en las tarjetas)
+//   <slug>-<hash>-strip.avif|webp     tira: página de escritorio completa reducida a 900 px de ancho (recorrido en las tarjetas)
 //   <slug>-<hash>-og.jpg              1200x630 <= 300 KB (vista previa al compartir por WhatsApp)
 //   <slug>-<hash>-social.jpg          1080x1350 (recorte listo para redes)
 // y anota todo en src/data/posters.json con el hash del código fuente (srcHash).
@@ -116,7 +116,8 @@ async function capture(browser, base, ref) {
   const mobile = await shot({ width: 390, height: 844, dpr: 2, mobile: true });
   sizes.mobile = await toAvifWebp(mobile, `${stem}-mobile`);
 
-  let strip = await shot({ width: 900, height: 900, fullPage: true });
+  // La tira es la página de escritorio completa reducida a 900 px: la primera vista coincide con la captura de escritorio
+  let strip = await sharp(await shot({ width: 1440, height: 900, fullPage: true })).resize({ width: 900 }).toBuffer();
   const meta = await sharp(strip).metadata();
   if (meta.height > 6000) strip = await sharp(strip).extract({ left: 0, top: 0, width: meta.width, height: 6000 }).toBuffer();
   sizes.strip = { ...(await toAvifWebp(strip, `${stem}-strip`, { avifQ: 42, webpQ: 70 })), h: Math.min(meta.height, 6000) };

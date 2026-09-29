@@ -198,9 +198,6 @@ export function initHero(hero: HTMLElement) {
   if (!canvas || !content) return;
   const params = new URLSearchParams(location.search);
   const still = params.has('still');
-  // Iluminación pedida por URL (selector provisional del Hito 1): se aplica antes de leer los colores.
-  const pal = params.get('paleta');
-  if (pal && ['guayaba', 'cobalto', 'plata'].includes(pal)) document.documentElement.dataset.paleta = pal;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
 
@@ -290,10 +287,7 @@ export function initHero(hero: HTMLElement) {
   }
 
   // Estado
-  let look = readLook();
-  let from = look;
-  let to = look;
-  let mixStart = -1;
+  const look = readLook();
   const restPos = { x: REST.x, y: REST.y };
   const lens = { x: REST.x, y: REST.y };
   const target = { x: REST.x, y: REST.y };
@@ -398,25 +392,6 @@ export function initHero(hero: HTMLElement) {
     energy = Math.max(0, energy - dt / 1.3);
     if (!still) time += dt * (0.1 + energy * 0.85) * look.flow;
 
-    // Mezcla de colores entre iluminaciones
-    let col = look;
-    let mixing = false;
-    if (mixStart >= 0) {
-      const m = Math.min(1, (now - mixStart) / 700);
-      const e = m * m * (3 - 2 * m);
-      col = {
-        glow: from.glow.map((c, i) => c.map((v, j) => v + (to.glow[i][j] - v) * e)) as number[][],
-        gloss: from.gloss + (to.gloss - from.gloss) * e,
-        prism: from.prism + (to.prism - from.prism) * e,
-        flow: from.flow + (to.flow - from.flow) * e,
-      };
-      mixing = m < 1;
-      if (!mixing) {
-        look = to;
-        mixStart = -1;
-      }
-    }
-
     // Ondas
     for (let i = ripples.length - 1; i >= 0; i--) if ((now - ripples[i].t0) / 1000 > 3.2) ripples.splice(i, 1);
 
@@ -452,11 +427,11 @@ export function initHero(hero: HTMLElement) {
     gl!.uniform1f(UB.uIntro, intro);
     gl!.uniform1f(UB.uZoom, zoom);
     gl!.uniform4f(UB.uSafe, safe[0], safe[1], safe[2], safe[3]);
-    gl!.uniform3fv(UB.uC0, col.glow[0]);
-    gl!.uniform3fv(UB.uC1, col.glow[1]);
-    gl!.uniform3fv(UB.uC2, col.glow[2]);
-    gl!.uniform3fv(UB.uC3, col.glow[3]);
-    gl!.uniform3f(UB.uLook, col.gloss, col.prism, 0);
+    gl!.uniform3fv(UB.uC0, look.glow[0]);
+    gl!.uniform3fv(UB.uC1, look.glow[1]);
+    gl!.uniform3fv(UB.uC2, look.glow[2]);
+    gl!.uniform3fv(UB.uC3, look.glow[3]);
+    gl!.uniform3f(UB.uLook, look.gloss, look.prism, 0);
     gl!.drawArrays(gl!.TRIANGLES, 0, 3);
 
     dbg.draws++;
@@ -477,7 +452,7 @@ export function initHero(hero: HTMLElement) {
         if (median > budget * 1.5) downgrade();
       }
     }
-    return { busy: intro < 1.4 || energy > 0.012 || lensDist > 0.0008 || ripples.length > 0 || mixing || interacting };
+    return { busy: intro < 1.4 || energy > 0.012 || lensDist > 0.0008 || ripples.length > 0 || interacting };
   }
 
   async function downgrade() {
@@ -584,14 +559,6 @@ export function initHero(hero: HTMLElement) {
     e.preventDefault();
     stop();
     usePoster();
-  });
-
-  // Cambio de iluminación en vivo (selector provisional del hito 1)
-  window.addEventListener('gaya:palette', () => {
-    from = look;
-    to = readLook();
-    mixStart = performance.now();
-    wake();
   });
 
   // Arranque

@@ -1,9 +1,32 @@
 /* Tokens de gaya.com.do — OKLCH. Espejo verificable: tokens.json (npm run contrast).
-   Las tres «iluminaciones» no son recolores: cambian el matiz de la luz Y su comportamiento
-   (brillo, flujo, dispersión). El shader lee estas mismas variables. */
+   Iluminación elegida: COBALTO — luz fría de pantalla bajo el agua, azul eléctrico que se vuelve hielo.
+   El shader de la portada lee estas mismas variables (--glow-*). Para cambiar la marca, se editan solo estos valores. */
 
 :root {
   color-scheme: dark;
+
+  /* Color */
+  --surface: oklch(0.13 0.05 268);
+  --surface-2: oklch(0.18 0.06 268);
+  --ink: oklch(0.96 0.01 250);
+  --muted: oklch(0.77 0.04 255);
+  --line: oklch(0.96 0.01 250 / 0.16);
+  --accent: oklch(0.62 0.24 265);
+  --accent-text: oklch(0.82 0.13 250);
+  --on-accent: oklch(0.13 0.05 268);
+  /* Párrafo sobre la luz: más claro que --muted para mantener ≥ 4,5:1 aunque la lente pase cerca */
+  --lead: color-mix(in oklch, var(--ink) 84%, var(--muted));
+
+  /* Luz del shader: fondo, cuerpo, luz, chispa · brillo, dispersión prismática, flujo */
+  --glow-0: oklch(0.13 0.05 268);
+  --glow-1: oklch(0.38 0.2 266);
+  --glow-2: oklch(0.66 0.22 258);
+  --glow-3: oklch(0.94 0.05 225);
+  --glow-gloss: 0.6;
+  --glow-prism: 0.9;
+  --glow-flow: 0.7;
+  --hero-poster-land: url('/hero/cobalto-land.webp');
+  --hero-poster-port: url('/hero/cobalto-port.webp');
 
   /* Espacio (base 4 pt) */
   --space-1: 0.25rem;
@@ -23,7 +46,7 @@
   --text-l: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
   --text-xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
   --text-2xl: clamp(2.25rem, 1.6rem + 3vw, 3.75rem);
-  --text-display: clamp(2.75rem, 1.6rem + 5.2vw, 6rem); /* tope 6 rem */
+  --text-display: clamp(2.5rem, 1.5rem + 4.6vw, 5.5rem); /* tope < 6 rem */
   --lh-tight: 1.02;
   --lh-snug: 1.2;
   --lh-body: 1.55;
@@ -52,80 +75,4 @@
   /* Layout */
   --gutter: clamp(1rem, 4vw, 2.5rem);
   --max: 76rem;
-
-  /* Párrafo sobre la luz: más claro que --muted para mantener ≥ 4,5:1 aunque la lente pase cerca */
-  --lead: color-mix(in oklch, var(--ink) 84%, var(--muted));
-}
-
-/* ───────── Iluminación 1 · GUAYABA ─────────
-   Luz de neón tropical sobre vino casi negro: rosa-rojo guayaba con chispas de oro.
-   Brillante y glossy, flujo vivo. */
-:root,
-:root[data-paleta='guayaba'] {
-  --surface: oklch(0.13 0.035 8);
-  --surface-2: oklch(0.18 0.045 8);
-  --ink: oklch(0.95 0.015 20);
-  --muted: oklch(0.76 0.04 15);
-  --line: oklch(0.95 0.015 20 / 0.16);
-  --accent: oklch(0.7 0.21 12);
-  --accent-text: oklch(0.76 0.19 12);
-  --on-accent: oklch(0.14 0.035 8);
-
-  --glow-0: oklch(0.13 0.035 8);
-  --glow-1: oklch(0.4 0.17 12);
-  --glow-2: oklch(0.72 0.2 18);
-  --glow-3: oklch(0.93 0.09 85);
-  --glow-gloss: 0.9;
-  --glow-flow: 1;
-  --glow-prism: 0.35;
-  --hero-poster-land: url('/hero/guayaba-land.webp');
-  --hero-poster-port: url('/hero/guayaba-port.webp');
-}
-
-/* ───────── Iluminación 2 · COBALTO ─────────
-   Luz fría de pantalla bajo el agua: azul eléctrico que se vuelve hielo.
-   Más lenta, más vidrio, dispersión prismática marcada. */
-:root[data-paleta='cobalto'] {
-  --surface: oklch(0.13 0.05 268);
-  --surface-2: oklch(0.18 0.06 268);
-  --ink: oklch(0.96 0.01 250);
-  --muted: oklch(0.77 0.04 255);
-  --line: oklch(0.96 0.01 250 / 0.16);
-  --accent: oklch(0.62 0.24 265);
-  --accent-text: oklch(0.82 0.13 250);
-  --on-accent: oklch(0.13 0.05 268);
-
-  --glow-0: oklch(0.13 0.05 268);
-  --glow-1: oklch(0.38 0.2 266);
-  --glow-2: oklch(0.66 0.22 258);
-  --glow-3: oklch(0.94 0.05 225);
-  --glow-gloss: 0.6;
-  --glow-flow: 0.7;
-  --glow-prism: 0.9;
-  --hero-poster-land: url('/hero/cobalto-land.webp');
-  --hero-poster-port: url('/hero/cobalto-port.webp');
-}
-
-/* ───────── Iluminación 3 · PLATA ─────────
-   Mercurio líquido: cromo negro casi sin color; solo una chispa ámbar en la lente.
-   Máximo brillo especular, dispersión mínima. */
-:root[data-paleta='plata'] {
-  --surface: oklch(0.13 0.008 250);
-  --surface-2: oklch(0.18 0.01 250);
-  --ink: oklch(0.95 0.005 250);
-  --muted: oklch(0.75 0.01 250);
-  --line: oklch(0.95 0.005 250 / 0.16);
-  --accent: oklch(0.86 0.005 250);
-  --accent-text: oklch(0.86 0.005 250);
-  --on-accent: oklch(0.13 0.008 250);
-
-  --glow-0: oklch(0.12 0.008 250);
-  --glow-1: oklch(0.36 0.012 250);
-  --glow-2: oklch(0.82 0.008 250);
-  --glow-3: oklch(0.86 0.14 75);
-  --glow-gloss: 1;
-  --glow-flow: 0.85;
-  --glow-prism: 0.12;
-  --hero-poster-land: url('/hero/plata-land.webp');
-  --hero-poster-port: url('/hero/plata-port.webp');
 }

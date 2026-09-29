@@ -50,6 +50,10 @@ if (arg('nogl', false)) {
     };
   });
 }
+if (arg('savedata', false)) {
+  // Simula «ahorro de datos» activado
+  await page.addInitScript(() => Object.defineProperty(navigator, 'connection', { value: { saveData: true, effectiveType: '3g' }, configurable: true }));
+}
 const logs = [];
 page.on('console', (m) => ['error', 'warning'].includes(m.type()) && logs.push(`${m.type()}: ${m.text()}`));
 page.on('pageerror', (e) => logs.push(`excepción: ${e.message}`));

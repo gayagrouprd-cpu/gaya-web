@@ -1,0 +1,159 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import brand from '../../brand.json';
+import { READY } from '../data/site';
+import { path, otherLang, type Lang, type RouteKey, type RouteParams } from '../routes';
+import { t } from '../i18n/copy';
+
+interface Props {
+  lang: Lang;
+  routeKey?: RouteKey;
+  params?: RouteParams;
+}
+const { lang, routeKey = 'home', params = {} } = Astro.props;
+const c = t(lang).nav;
+const home = path(lang, 'home');
+const other = otherLang(lang);
+const switchHref = path(other, routeKey, params);
+const wa = `https://wa.me/${brand.contact.whatsapp.e164}?text=${encodeURIComponent(brand.whatsappMessage.generic[lang])}`;
+
+// Los enlaces aparecen solo cuando existe su destino.
+const links = [
+  READY.refs && { href: path(lang, 'refs'), label: c.refs },
+  READY.services && { href: `${home}#servicios`, label: c.services },
+  READY.process && { href: `${home}#proceso`, label: c.process },
+  READY.contact && { href: `${home}#contacto`, label: c.contact },
+].filter(Boolean) as Array<{ href: string; label: string }>;
+---
+
+<header class="nav" data-nav>
+  <div class="nav__pill">
+    <Logo href={home} label={`${brand.name}`} />
+    {
+      links.length > 0 && (
+        <nav class="nav__links" aria-label={c.label}>
+          {links.map((l) => (
+            <a href={l.href}>{l.label}</a>
+          ))}
+        </nav>
+      )
+    }
+    <div class="nav__end">
+      <a class="nav__lang" href={switchHref} hreflang={other} lang={other} aria-label={other === 'en' ? 'English' : 'Español'}>{other.toUpperCase()}</a>
+      <a class="nav__wa" href={wa} target="_blank" rel="noopener" aria-label={c.whatsapp}>
+        <Icon name="whatsapp" />
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    z-index: var(--z-nav);
+    inset-inline: 0;
+    top: calc(env(safe-area-inset-top, 0px) + var(--space-3));
+    display: flex;
+    justify-content: center;
+    padding-inline: var(--space-4);
+    pointer-events: none;
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+  .nav[data-hidden='true'] {
+    transform: translateY(-160%);
+  }
+  .nav__pill {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: min(100%, 62rem);
+    min-height: 3.5rem;
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklch, var(--surface) 68%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+    backdrop-filter: blur(16px) saturate(1.15);
+  }
+  .nav__links {
+    display: none;
+    margin-inline: auto;
+    gap: var(--space-1);
+  }
+  .nav__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-size: var(--text-s);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .nav__links a:hover {
+      color: var(--ink);
+      background: color-mix(in oklch, var(--ink) 9%, transparent);
+    }
+  }
+  @media (min-width: 52rem) {
+    .nav__links {
+      display: flex;
+    }
+  }
+  .nav__end {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+  }
+  .nav__links + .nav__end {
+    margin-inline-start: 0;
+  }
+  .nav__lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-size: var(--text-s);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: color var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .nav__lang:hover {
+      color: var(--ink);
+      background: color-mix(in oklch, var(--ink) 9%, transparent);
+    }
+  }
+  .nav__wa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    transition: transform var(--dur-2) var(--ease-out), filter var(--dur-2) var(--ease-out);
+  }
+  .nav__wa :global(svg) {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+  @media (hover: hover) {
+    .nav__wa:hover {
+      filter: brightness(1.1);
+      transform: scale(1.05);
+    }
+  }
+</style>

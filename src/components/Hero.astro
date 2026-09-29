@@ -1,0 +1,177 @@
+---
+import Icon from './Icon.astro';
+import brand from '../../brand.json';
+import { READY } from '../data/site';
+import { path, type Lang } from '../routes';
+import { t } from '../i18n/copy';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = t(lang).hero;
+const wa = `https://wa.me/${brand.contact.whatsapp.e164}?text=${encodeURIComponent(brand.whatsappMessage.generic[lang])}`;
+---
+
+<section class="hero" data-hero="idle" aria-labelledby="hero-title">
+  <div class="hero__stage" aria-hidden="true">
+    <div class="hero__poster"></div>
+    <canvas class="hero__gl"></canvas>
+  </div>
+  <div class="hero__content">
+    <h1 id="hero-title">
+      {
+        c.words.map((w, i) => (
+          <>
+            <span class:list={['w', { 'is-accent': i === c.accentWord }]} style={`--i:${i}`}>
+              {w}
+            </span>{' '}
+          </>
+        ))
+      }
+    </h1>
+    <p class="hero__lead">{c.lead}</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" data-cta="primary" href={wa} target="_blank" rel="noopener">
+        <Icon name="whatsapp" />
+        {c.primary}
+      </a>
+      {
+        READY.refs && (
+          <a class="btn btn--ghost" href={path(lang, 'refs')}>
+            {c.secondary}
+            <Icon name="arrow-right" />
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initHero } from '../scripts/hero';
+  const hero = document.querySelector<HTMLElement>('.hero');
+  if (hero) initHero(hero);
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: end;
+    min-height: 100svh;
+    padding: var(--space-10) var(--gutter) var(--space-8);
+    overflow: clip;
+    touch-action: pan-y;
+  }
+  .hero__stage {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--surface);
+  }
+  .hero__poster {
+    position: absolute;
+    inset: 0;
+    background-color: var(--surface);
+    background-image: var(--hero-poster-land);
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+  }
+  @media (max-aspect-ratio: 1/1) {
+    .hero__poster {
+      background-image: var(--hero-poster-port);
+    }
+  }
+  /* Grano de película: unifica los degradados y evita bandas */
+  .hero__stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/noise.png');
+    background-size: 160px 160px;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .hero[data-hero='poster'] .hero__poster {
+    opacity: 1;
+  }
+  .hero__gl {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+  .hero[data-hero='live'] .hero__gl {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__poster {
+      opacity: 1;
+    }
+    .hero__gl {
+      display: none;
+    }
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: var(--z-content);
+    display: grid;
+    gap: var(--space-5);
+    max-width: 52rem;
+  }
+  h1 {
+    font-size: var(--text-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+    max-width: 12ch;
+  }
+  .w {
+    display: inline-block;
+    animation: rise 1000ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i) * 85ms + 200ms);
+  }
+  .w.is-accent {
+    color: var(--accent-text);
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.5em);
+      filter: blur(10px);
+    }
+  }
+  .hero__lead {
+    max-width: 34rem;
+    color: var(--lead);
+    font-size: var(--text-l);
+    line-height: 1.35;
+    animation: fade 900ms var(--ease-out) 700ms backwards;
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    animation: fade 900ms var(--ease-out) 900ms backwards;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(0.6rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .w,
+    .hero__lead,
+    .hero__actions {
+      animation: none;
+    }
+  }
+</style>

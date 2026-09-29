@@ -1,10 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import PaletteDots from '../components/PaletteDots.astro';
 import brand from '../../brand.json';
+import { PALETTE_PICKER } from '../data/site';
 ---
 
 <Base lang="es" title={`${brand.name} · ${brand.tagline.es}`} routeKey="home">
+  <Nav lang="es" />
   <main id="contenido">
-    <h1>{brand.name}</h1>
+    <Hero lang="es" />
   </main>
+  {PALETTE_PICKER && <PaletteDots lang="es" />}
 </Base>

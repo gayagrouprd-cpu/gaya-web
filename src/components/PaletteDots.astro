@@ -1,0 +1,92 @@
+---
+// Selector PROVISIONAL de iluminación (solo Hito 1). Tres muestras; sin texto instructivo. Se elimina al elegir.
+import type { Lang } from '../routes';
+import { t } from '../i18n/copy';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const names = t(lang).palette;
+const dots = [
+  { key: 'guayaba', label: names.guayaba, a: 'oklch(0.72 0.2 18)', b: 'oklch(0.4 0.17 12)', c: 'oklch(0.93 0.09 85)' },
+  { key: 'cobalto', label: names.cobalto, a: 'oklch(0.66 0.22 258)', b: 'oklch(0.38 0.2 266)', c: 'oklch(0.94 0.05 225)' },
+  { key: 'plata', label: names.plata, a: 'oklch(0.82 0.008 250)', b: 'oklch(0.36 0.012 250)', c: 'oklch(0.86 0.14 75)' },
+];
+---
+
+<div class="dots" role="group" aria-label="Iluminación / Lighting">
+  {
+    dots.map((d) => (
+      <button type="button" class="dot" data-set-paleta={d.key} aria-label={d.label} aria-pressed="false" style={`--a:${d.a};--b:${d.b};--c:${d.c}`}>
+        <span class="dot__swatch"></span>
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .dots {
+    position: fixed;
+    z-index: var(--z-toast);
+    inset-inline-end: var(--space-4);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-4));
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklch, var(--surface) 72%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .dot {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+  }
+  .dot__swatch {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, var(--c), var(--a) 46%, var(--b) 100%);
+    box-shadow: inset 0 0 0 1px color-mix(in oklch, white 22%, transparent);
+    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+  .dot[aria-pressed='true'] .dot__swatch {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  @media (hover: hover) {
+    .dot:hover .dot__swatch {
+      transform: scale(1.12);
+    }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const valid = ['guayaba', 'cobalto', 'plata'];
+  const param = new URLSearchParams(location.search).get('paleta');
+  if (param && valid.includes(param)) root.dataset.paleta = param;
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-paleta]');
+  const paint = () => buttons.forEach((b) => b.setAttribute('aria-pressed', String((root.dataset.paleta ?? 'guayaba') === b.dataset.setPaleta)));
+  paint();
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      root.dataset.paleta = b.dataset.setPaleta;
+      const u = new URL(location.href);
+      u.searchParams.set('paleta', b.dataset.setPaleta ?? 'guayaba');
+      history.replaceState(null, '', u);
+      paint();
+      window.dispatchEvent(new Event('gaya:palette'));
+    }),
+  );
+  window.dispatchEvent(new Event('gaya:palette'));
+</script>

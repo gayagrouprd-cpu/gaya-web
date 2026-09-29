@@ -13,7 +13,7 @@ export function initViewer() {
   iframe?.addEventListener('load', () => frame?.classList.add('is-live'));
 
   // Tamaño (solo emula el ancho del iframe; salta, no se anima)
-  const radios = [...root.querySelectorAll<HTMLButtonElement>('[data-device]')];
+  const radios = [...root.querySelectorAll<HTMLButtonElement>('.vdevices [data-device]')];
   const setDevice = (d: string) => {
     if (frame) frame.dataset.device = d;
     radios.forEach((r) => {

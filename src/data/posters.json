@@ -30,5 +30,69 @@
       }
     },
     "capturedAt": "2026-09-29T12:44:38.688Z"
+  },
+  "cimiento": {
+    "srcHash": "656662345f116fbfbb5602bb528e9bb94024a83ff19ee3abf6ccfbc3f6a506b1",
+    "hash": "656662345f",
+    "lang": "es",
+    "sizes": {
+      "desktop": {
+        "avifKB": 36.3,
+        "webpKB": 54.6
+      },
+      "thumb": {
+        "avifKB": 8.2,
+        "webpKB": 15.4
+      },
+      "mobile": {
+        "avifKB": 44.4,
+        "webpKB": 66.4
+      },
+      "strip": {
+        "avifKB": 154.5,
+        "webpKB": 239,
+        "h": 5934
+      },
+      "og": {
+        "KB": 65.4,
+        "q": 84
+      },
+      "social": {
+        "KB": 119.3
+      }
+    },
+    "capturedAt": "2026-09-29T13:36:33.600Z"
+  },
+  "fogon": {
+    "srcHash": "639e793df703e8d2e520996c91e51f65795567e38a4b62fe939c109239d4f6f9",
+    "hash": "639e793df7",
+    "lang": "es",
+    "sizes": {
+      "desktop": {
+        "avifKB": 46.5,
+        "webpKB": 75.8
+      },
+      "thumb": {
+        "avifKB": 10.3,
+        "webpKB": 20.4
+      },
+      "mobile": {
+        "avifKB": 44.7,
+        "webpKB": 75.6
+      },
+      "strip": {
+        "avifKB": 164.9,
+        "webpKB": 262.2,
+        "h": 6000
+      },
+      "og": {
+        "KB": 86.9,
+        "q": 84
+      },
+      "social": {
+        "KB": 162.1
+      }
+    },
+    "capturedAt": "2026-09-29T13:41:05.822Z"
   }
 }

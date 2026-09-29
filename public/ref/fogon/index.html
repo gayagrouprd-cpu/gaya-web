@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="es" data-langs="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Fogón: cocina dominicana al fuego, de noche, en la Zona Colonial. Menú, comanda y horario.">
+<title>Fogón · restaurante</title>
+<link rel="icon" href="data:,">
+<link rel="preload" as="image" type="image/avif" imagesrcset="img/hero-800.avif 800w, img/hero-1600.avif 1600w" imagesizes="(orientation: portrait) 125vh, 100vw" fetchpriority="high">
+<link rel="preload" href="../../ref-shared/fonts/anybody/anybody-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../ref-shared/fonts/literata/literata-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../ref-shared/fonts/anybody.css">
+<link rel="stylesheet" href="../../ref-shared/fonts/literata.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../ref-shared/frame.js"></script>
+<script src="../../ref-shared/hours.js"></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M13 16H8M14 8H8M16 12H8"/><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.9.6a1.3 1.3 0 0 0 1.4 0l.9-.6a1.3 1.3 0 0 1 1.4 0l.9.6a1.3 1.3 0 0 0 1.4 0l.9-.6a1.3 1.3 0 0 1 1.4 0l.9.6a1.3 1.3 0 0 0 1.4 0l.9-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.9-.6a1.3 1.3 0 0 0-1.4 0l-.9.6a1.3 1.3 0 0 1-1.4 0l-.9-.6a1.3 1.3 0 0 0-1.4 0l-.9.6a1.3 1.3 0 0 1-1.4 0l-.9-.6a1.3 1.3 0 0 0-1.4 0l-.9.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"/></symbol>
+</svg>
+
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<header class="bar" data-bar>
+  <a class="logo" href="#contenido" aria-label="Fogón, inicio">Fogón</a>
+  <a class="bar__order" href="#menu" data-order-link>
+    <span>Pedir</span>
+    <span class="count" data-count hidden>0</span>
+  </a>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <section class="hero" aria-labelledby="hero-t">
+    <picture class="hero__media">
+      <source type="image/avif" srcset="img/hero-800.avif 800w, img/hero-1600.avif 1600w" sizes="(orientation: portrait) 125vh, 100vw">
+      <source type="image/webp" srcset="img/hero-800.webp 800w, img/hero-1600.webp 1600w" sizes="(orientation: portrait) 125vh, 100vw">
+      <img src="img/hero-1600.webp" width="1600" height="900" alt="Un corte de res con marcas de parrilla sobre el fuego, con el humo subiendo de la plancha" fetchpriority="high" decoding="async">
+    </picture>
+    <div class="hero__copy">
+      <h1 id="hero-t">Fogón</h1>
+      <p class="hero__line">Cocinamos con fuego. Carnes, pescado y víveres a la leña, de noche, en la Zona Colonial.</p>
+      <div class="hero__actions">
+        <a class="btn" href="#menu" data-cta="primary">Ver menú</a>
+        <p class="status" data-status><span class="dot" aria-hidden="true"></span><span data-status-text>Martes a domingo, desde las 6:00 p. m.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--fuego" data-reveal aria-labelledby="fuego-t">
+    <picture class="band__media">
+      <source type="image/avif" srcset="img/brasa-600.avif 600w, img/brasa-1200.avif 1200w" sizes="(orientation: portrait) 130vh, 100vw">
+      <source type="image/webp" srcset="img/brasa-600.webp 600w, img/brasa-1200.webp 1200w" sizes="(orientation: portrait) 130vh, 100vw">
+      <img src="img/brasa-1200.webp" width="1200" height="800" alt="Brasas al rojo vivo entre troncos de carbón negro" loading="lazy" decoding="async">
+    </picture>
+    <div class="band__copy">
+      <h2 id="fuego-t"><span class="mask"><span>Fuego</span></span></h2>
+      <p>Leña de guayabo y carbón vegetal. Carnes, víveres y hasta el postre pasan por la brasa.</p>
+      <a class="band__link" href="#menu" data-goto="parrilla">Ver la parrilla <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></a>
+    </div>
+  </section>
+
+  <section class="band band--mar" data-reveal aria-labelledby="mar-t">
+    <picture class="band__media">
+      <source type="image/avif" srcset="img/pescado-600.avif 600w, img/pescado-1200.avif 1200w" sizes="(orientation: portrait) 130vh, 100vw">
+      <source type="image/webp" srcset="img/pescado-600.webp 600w, img/pescado-1200.webp 1200w" sizes="(orientation: portrait) 130vh, 100vw">
+      <img src="img/pescado-1200.webp" width="1200" height="800" alt="Pescado entero asado sobre la parrilla, con la piel dorada y tostada por las brasas" loading="lazy" decoding="async">
+    </picture>
+    <div class="band__copy">
+      <h2 id="mar-t"><span class="mask"><span>Mar</span></span></h2>
+      <p>Pescado entero del día, con la piel tostada al carbón. Si no llegó fresco, no está en la carta.</p>
+      <a class="band__link" href="#menu" data-goto="mar">Ver del mar <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></a>
+    </div>
+  </section>
+
+  <section class="menu" id="menu" aria-labelledby="menu-t">
+    <div class="menu__wrap">
+      <div class="menu__main">
+        <h2 id="menu-t" tabindex="-1">Menú</h2>
+        <div class="filters" role="group" aria-label="Filtrar el menú" data-filters>
+          <button type="button" aria-pressed="true" data-filter="todo">Todo</button>
+          <button type="button" aria-pressed="false" data-filter="entradas">Entradas</button>
+          <button type="button" aria-pressed="false" data-filter="parrilla">Parrilla</button>
+          <button type="button" aria-pressed="false" data-filter="mar">Del mar</button>
+          <button type="button" aria-pressed="false" data-filter="postres">Postres</button>
+          <button type="button" aria-pressed="false" data-filter="bebidas">Bebidas</button>
+        </div>
+
+        <div class="groups" data-groups>
+          <section class="group" data-cat="entradas" aria-labelledby="g-entradas">
+            <h3 id="g-entradas">Entradas</h3>
+            <ul class="dishes">
+              <li class="dish" data-id="yuca" data-price="290">
+                <h4 class="dish__name">Yuca frita con chimichurri</h4>
+                <p class="dish__desc">Crujiente por fuera, suave por dentro, con chimichurri de ajo y cilantro.</p>
+                <p class="dish__price"><span class="cur">RD$</span>290</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Yuca frita con chimichurri"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Yuca frita con chimichurri"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="chicharron" data-price="450">
+                <h4 class="dish__name">Chicharrón de pollo</h4>
+                <p class="dish__desc">Muslo marinado en limón agrio y orégano, frito al momento.</p>
+                <p class="dish__price"><span class="cur">RD$</span>450</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Chicharrón de pollo"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Chicharrón de pollo"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="ensalada" data-price="420">
+                <h4 class="dish__name">Ensalada de aguacate y lechosa</h4>
+                <p class="dish__desc">Aguacate, lechosa verde rallada, cebolla roja y vinagreta de chinola.</p>
+                <p class="dish__price"><span class="cur">RD$</span>420</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Ensalada de aguacate y lechosa"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Ensalada de aguacate y lechosa"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="mofongo" data-price="590">
+                <h4 class="dish__name">Mofongo de cerdo</h4>
+                <p class="dish__desc">Plátano verde pilado con ajo y chicharrón, con caldo de la casa.</p>
+                <p class="dish__price"><span class="cur">RD$</span>590</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Mofongo de cerdo"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Mofongo de cerdo"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+            </ul>
+          </section>
+
+          <section class="group" data-cat="parrilla" aria-labelledby="g-parrilla">
+            <h3 id="g-parrilla">Parrilla</h3>
+            <picture class="group__media">
+              <source type="image/avif" srcset="img/carne-600.avif 600w, img/carne-1200.avif 1200w" sizes="(min-width: 1024px) 58vw, 100vw">
+              <source type="image/webp" srcset="img/carne-600.webp 600w, img/carne-1200.webp 1200w" sizes="(min-width: 1024px) 58vw, 100vw">
+              <img src="img/carne-1200.webp" width="1200" height="800" alt="Unas manos cortan un filete rosado en un plato oscuro, con su salsa al lado" loading="lazy" decoding="async">
+            </picture>
+            <ul class="dishes">
+              <li class="dish" data-id="chuleta" data-price="790">
+                <h4 class="dish__name">Chuleta ahumada</h4>
+                <p class="dish__desc">Chuleta de cerdo ahumada en leña de guayabo, con puré de yautía.</p>
+                <p class="dish__price"><span class="cur">RD$</span>790</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Chuleta ahumada"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Chuleta ahumada"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="pollo" data-price="690">
+                <h4 class="dish__name">Pollo al fogón</h4>
+                <p class="dish__desc">Medio pollo en naranja agria, asado despacio sobre la brasa.</p>
+                <p class="dish__price"><span class="cur">RD$</span>690</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Pollo al fogón"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Pollo al fogón"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="costillas" data-price="1090">
+                <h4 class="dish__name">Costillas glaseadas de guayaba</h4>
+                <p class="dish__desc">Costillas de cerdo con glaseado de pasta de guayaba y ají gustoso.</p>
+                <p class="dish__price"><span class="cur">RD$</span>1,090</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Costillas glaseadas de guayaba"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Costillas glaseadas de guayaba"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="churrasco" data-price="1290">
+                <h4 class="dish__name">Churrasco a la brasa</h4>
+                <p class="dish__desc">Entraña de res, chimichurri y yuca hervida con cebolla.</p>
+                <p class="dish__price"><span class="cur">RD$</span>1,290</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Churrasco a la brasa"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Churrasco a la brasa"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+            </ul>
+          </section>
+
+          <section class="group" data-cat="mar" aria-labelledby="g-mar">
+            <h3 id="g-mar">Del mar</h3>
+            <ul class="dishes">
+              <li class="dish" data-id="pescado" data-price="1190">
+                <h4 class="dish__name">Pescado al carbón con tostones</h4>
+                <p class="dish__desc">Pescado entero del día, piel tostada, tostones y ensalada verde.</p>
+                <p class="dish__price"><span class="cur">RD$</span>1,190</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Pescado al carbón con tostones"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Pescado al carbón con tostones"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="camarones" data-price="980">
+                <h4 class="dish__name">Camarones al ajillo</h4>
+                <p class="dish__desc">A la brasa en su concha, con mantequilla de ajo y pan de agua.</p>
+                <p class="dish__price"><span class="cur">RD$</span>980</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Camarones al ajillo"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Camarones al ajillo"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="pulpo" data-price="1150">
+                <h4 class="dish__name">Pulpo a la leña</h4>
+                <p class="dish__desc">Pulpo tierno, batata asada y aceite de ají.</p>
+                <p class="dish__price"><span class="cur">RD$</span>1,150</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Pulpo a la leña"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Pulpo a la leña"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+            </ul>
+          </section>
+
+          <section class="group group--postres" data-cat="postres" aria-labelledby="g-postres">
+            <h3 id="g-postres">Postres</h3>
+            <picture class="group__media group__media--flan">
+              <source type="image/avif" srcset="img/postre-500.avif 500w, img/postre-1000.avif 1000w" sizes="(min-width: 1024px) 58vw, 100vw">
+              <source type="image/webp" srcset="img/postre-500.webp 500w, img/postre-1000.webp 1000w" sizes="(min-width: 1024px) 58vw, 100vw">
+              <img src="img/postre-1000.webp" width="1000" height="1250" alt="Flan de caramelo brillante sobre un plato, en una mesa de madera oscura" loading="lazy" decoding="async">
+            </picture>
+            <ul class="dishes">
+              <li class="dish" data-id="flan" data-price="320">
+                <h4 class="dish__name">Flan de coco</h4>
+                <p class="dish__desc">Leche de coco, caramelo oscuro y una pizca de sal.</p>
+                <p class="dish__price"><span class="cur">RD$</span>320</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Flan de coco"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Flan de coco"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="batata" data-price="350">
+                <h4 class="dish__name">Batata asada con miel</h4>
+                <p class="dish__desc">Asada en la brasa, con miel de caña y queso de hoja.</p>
+                <p class="dish__price"><span class="cur">RD$</span>350</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Batata asada con miel"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Batata asada con miel"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+            </ul>
+          </section>
+
+          <section class="group" data-cat="bebidas" aria-labelledby="g-bebidas">
+            <h3 id="g-bebidas">Bebidas</h3>
+            <ul class="dishes">
+              <li class="dish" data-id="morir" data-price="250">
+                <h4 class="dish__name">Morir soñando</h4>
+                <p class="dish__desc">Jugo de naranja y leche fría, batido al momento.</p>
+                <p class="dish__price"><span class="cur">RD$</span>250</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Morir soñando"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Morir soñando"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="chinola" data-price="250">
+                <h4 class="dish__name">Jugo de chinola</h4>
+                <p class="dish__desc">Chinola exprimida al momento, bien fría.</p>
+                <p class="dish__price"><span class="cur">RD$</span>250</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Jugo de chinola"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Jugo de chinola"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+              <li class="dish" data-id="mamajuana" data-price="300">
+                <h4 class="dish__name">Mamajuana de la casa</h4>
+                <p class="dish__desc">Una copita, curada con raíces y miel en nuestra barra.</p>
+                <p class="dish__price"><span class="cur">RD$</span>300</p>
+                <div class="stepper"><button type="button" class="step step--dec" data-act="dec" aria-label="Quitar: Mamajuana de la casa"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button><span class="step__n">0</span><button type="button" class="step step--inc" data-act="inc" aria-label="Añadir: Mamajuana de la casa"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button></div>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+
+      <aside class="comanda" id="comanda" aria-labelledby="comanda-t" data-comanda>
+        <div class="comanda__head" data-sheet-head>
+          <span class="handle" aria-hidden="true"></span>
+          <h3 id="comanda-t" tabindex="-1">Comanda</h3>
+          <span class="count" data-count hidden>0</span>
+          <button type="button" class="comanda__close" data-close aria-label="Cerrar comanda"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <fieldset class="mode">
+          <legend class="sr-only">Servicio</legend>
+          <label><input type="radio" name="modo" value="aqui" checked><span>Para comer aquí</span></label>
+          <label><input type="radio" name="modo" value="llevar"><span>Para llevar</span></label>
+        </fieldset>
+        <div class="slot" aria-hidden="true" data-slot></div>
+        <div class="comanda__scroll" data-scroll>
+          <div class="paper" data-paper>
+            <div class="lead" aria-hidden="true"></div>
+            <ol class="lines" aria-label="Platos pedidos" data-lines></ol>
+            <div class="empty" data-empty><svg class="i" aria-hidden="true"><use href="#i-receipt"/></svg><span class="sr-only">Sin platos todavía</span></div>
+            <dl class="sums">
+              <div><dt>Subtotal</dt><dd data-sub>0.00</dd></div>
+              <div><dt>ITBIS 18 %</dt><dd data-itbis>0.00</dd></div>
+              <div data-tip-row><dt>Propina legal 10 %</dt><dd data-tip>0.00</dd></div>
+              <div class="is-total"><dt>Total</dt><dd><span class="cur">RD$</span> <span data-total>0.00</span></dd></div>
+            </dl>
+            <div class="tear" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="comanda__foot" data-foot>
+          <button type="button" class="send" data-send disabled><span data-send-label>Enviar pedido</span></button>
+          <p class="send__error" role="alert" data-error></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="visit" id="visita" aria-labelledby="visit-t">
+    <picture class="visit__media" data-reveal>
+      <source type="image/avif" srcset="img/interior-600.avif 600w, img/interior-1200.avif 1200w" sizes="(min-width: 900px) 55vw, 100vw">
+      <source type="image/webp" srcset="img/interior-600.webp 600w, img/interior-1200.webp 1200w" sizes="(min-width: 900px) 55vw, 100vw">
+      <img src="img/interior-1200.webp" width="1200" height="800" alt="Mesa larga puesta a la luz de las velas, en un comedor en penumbra" loading="lazy" decoding="async">
+    </picture>
+    <div class="visit__body">
+      <h2 id="visit-t">Mesa puesta en la Zona Colonial</h2>
+      <p class="status status--lg" data-status><span class="dot" aria-hidden="true"></span><span data-status-text>Martes a domingo, desde las 6:00 p. m.</span></p>
+      <div class="visit__cols">
+        <div class="visit__block">
+          <h3>Horario</h3>
+          <dl class="hours" data-hours>
+            <div data-days="2 3 4"><dt>Martes a jueves</dt><dd>6:00 – 11:00 p. m.</dd></div>
+            <div data-days="5 6"><dt>Viernes y sábado</dt><dd>6:00 p. m. – medianoche</dd></div>
+            <div data-days="0"><dt>Domingo</dt><dd>1:00 – 9:00 p. m.</dd></div>
+            <div data-days="1"><dt>Lunes</dt><dd>Cerrado</dd></div>
+          </dl>
+        </div>
+        <div class="visit__block">
+          <h3>Dónde</h3>
+          <p class="place"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>Zona Colonial, Santo Domingo</p>
+          <p class="contact">Reservas 809-555-0142<br>reservas@example.com</p>
+          <details class="route">
+            <summary>Cómo llegar</summary>
+            <ol>
+              <li>Deja el carro en el parqueo del Parque Colón.</li>
+              <li>Camina dos cuadras hacia el río por la calle peatonal.</li>
+              <li>Busca el farol encendido y la puerta de caoba. Huele a leña.</li>
+            </ol>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="foot__statement">Prendemos la brasa a las cinco.</p>
+  <p class="foot__small"><span>Fogón</span><span>Zona Colonial, Santo Domingo</span><span>809-555-0142</span><span>hola@example.com</span></p>
+</footer>
+
+<button type="button" class="peek" data-peek aria-controls="comanda" aria-expanded="false">
+  <svg class="i" aria-hidden="true"><use href="#i-receipt"/></svg>
+  <span class="peek__label">Comanda</span>
+  <span class="count" data-count hidden>0</span>
+  <span class="peek__total"><span class="cur">RD$</span> <span data-peek-total>0.00</span></span>
+  <svg class="i peek__chev" aria-hidden="true"><use href="#i-up"/></svg>
+</button>
+<div class="slip" aria-hidden="true" data-slip><span data-slip-q>1</span><span data-slip-name></span><span data-slip-amt></span></div>
+<div class="scrim" data-scrim></div>
+<p class="sr-only" aria-live="polite" data-live></p>
+
+<dialog class="done" aria-labelledby="done-t" data-done>
+  <div class="tear tear--top" aria-hidden="true"></div>
+  <div class="done__paper">
+    <span class="done__check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+    <h2 id="done-t" tabindex="-1"><span class="done__no">Pedido <span data-done-no>#4821</span></span><span class="done__sep"> · </span><span class="done__eta">listo en 25 min</span></h2>
+    <p class="done__meta" data-done-meta>Para comer aquí</p>
+    <ol class="done__lines" data-done-lines></ol>
+    <dl class="sums done__sums" data-done-sums></dl>
+  </div>
+  <div class="tear" aria-hidden="true"></div>
+  <button type="button" class="send done__close" data-done-close>Nuevo pedido</button>
+</dialog>
+</body>
+</html>

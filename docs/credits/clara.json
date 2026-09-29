@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "clara",
+    "file": "ref/clara/img/clinica1",
+    "credit": "Daniel Frank",
+    "alt": "Sillón dental grafito bajo una lámpara, en una sala blanca y ordenada",
+    "source": "https://www.pexels.com/photo/287237/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "clara",
+    "file": "ref/clara/img/clinica2",
+    "credit": "Los Muertos Crew",
+    "alt": "Recepción y sala de espera vacías, con sillones azules de madera y luz pareja",
+    "source": "https://www.pexels.com/photo/8459996/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "clara",
+    "file": "ref/clara/img/detalle",
+    "credit": "Kaboompics (Karola G)",
+    "alt": "Instrumental dental en su soporte, con la bandeja de acero desenfocada al fondo",
+    "source": "https://www.pexels.com/photo/6627668/",
+    "license": "Pexels"
+  }
+]

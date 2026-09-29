@@ -20,7 +20,7 @@
       }
     },
     {
-      "slug": "fogon", "order": 1, "wave": 0, "launch": true, "status": "planned",
+      "slug": "fogon", "order": 1, "wave": 0, "launch": true, "status": "built",
       "name": "Fogón", "type": "R", "mode": "dark", "icon": "utensils",
       "sector": { "es": "Restaurante", "en": "Restaurant" },
       "langs": ["es"],
@@ -31,7 +31,7 @@
       }
     },
     {
-      "slug": "cimiento", "order": 2, "wave": 0, "launch": true, "status": "planned",
+      "slug": "cimiento", "order": 2, "wave": 0, "launch": true, "status": "built",
       "name": "Cimiento", "type": "P", "mode": "light", "icon": "hard-hat",
       "sector": { "es": "Constructora", "en": "Construction" },
       "langs": ["es"],

@@ -1,0 +1,58 @@
+[
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/hero",
+    "credit": "Лена Gromakova",
+    "alt": "Barbería a media luz: sillones de cuero negro frente a espejos con marco de madera y apliques cálidos sobre pared de azulejo.",
+    "source": "https://www.pexels.com/photo/9146943/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/s1",
+    "credit": "RDNE Stock project",
+    "alt": "Navaja de latón abierta, tijeras y peine alineados sobre un paño negro arrugado.",
+    "source": "https://www.pexels.com/photo/7697490/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/s2",
+    "credit": "Natasha Filippovskaya",
+    "alt": "Tijeras de corte y de entresacar junto a una navaja de mango de madera, alineadas sobre el mostrador negro.",
+    "source": "https://www.pexels.com/photo/4730937/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/s3",
+    "credit": "Darina Belonogova",
+    "alt": "Brocha de afeitar dentro de un cuenco de madera y una maquinilla de doble filo sobre una piedra lisa.",
+    "source": "https://www.pexels.com/photo/8789602/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/s4",
+    "credit": "Mathias Reding",
+    "alt": "El barbero, de brazos tatuados, aprieta una toalla caliente contra la cara del cliente, con espejos redondos al fondo.",
+    "source": "https://www.pexels.com/photo/20405689/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/s5",
+    "credit": "RDNE Stock project",
+    "alt": "Máquina, tijeras, navajas, peine y cepillo del oficio, en fila sobre un paño negro.",
+    "source": "https://www.pexels.com/photo/7697712/",
+    "license": "Pexels"
+  },
+  {
+    "slug": "navaja",
+    "file": "ref/navaja/img/s6",
+    "credit": "wal_ 172619",
+    "alt": "Sillones de barbero cromados en fila sobre suelo de damero, vistos desde la puerta.",
+    "source": "https://www.pexels.com/photo/37764947/",
+    "license": "Pexels"
+  }
+]

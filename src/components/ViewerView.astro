@@ -36,7 +36,7 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
   themeColor={oklchToHex(ref.palette.surface)}
 >
   <div class="viewer" style={`--stage-bg:${ref.palette.surface}`} data-slug={ref.slug} data-prev={path(lang, 'ref', { slug: prev.slug })} data-next={path(lang, 'ref', { slug: next.slug })} data-gallery={gallery} data-canonical={canonical}>
-    <header class="vbar">
+    <header class="vbar" aria-label={`Gaya Group · ${ref.name}`}>
       <a class="vbtn vback" href={gallery} aria-label={c.back}><LIcon name="arrow-left" /></a>
 
       <div class="vtitle">
@@ -60,11 +60,11 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
         <a class="vbtn" href={live} target="_blank" rel="noopener" aria-label={c.open} title={c.open}><LIcon name="external-link" /></a>
         <button type="button" class="vbtn" id="copy" aria-label={c.copy} title={c.copy} data-done={c.copied}><LIcon name="link" /></button>
         <a class="vbtn vmail" href={mail} aria-label={c.email} title={c.email}><LIcon name="mail" /></a>
-        <a class="btn btn--primary vcta" id="cta" data-cta="primary" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" /><span>{c.cta}</span></a>
+        <a class="btn btn--primary vcta" id="cta" data-cta="primary" href={wa} target="_blank" rel="noopener" aria-label={c.cta}><Icon name="whatsapp" /><span>{c.cta}</span></a>
       </div>
     </header>
 
-    <main id="contenido" class="stage">
+    <main id="contenido" class="stage" aria-label={c.preview(ref.name)}>
       <div class="frame" data-device="desktop">
         <picture class="frame__poster" aria-hidden="true">
           <source media="(max-width: 47.99rem)" type="image/avif" srcset={poster(ref.slug, 'mobile', 'avif')} />

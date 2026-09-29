@@ -1,0 +1,119 @@
+#!/usr/bin/env node
+// Guardia de red y consola: visita las páginas y FALLA si hay
+//  - cualquier petición a otro origen (cero terceros),
+//  - errores de consola o excepciones de la página,
+//  - subrecursos con estado >= 400 o peticiones fallidas.
+// Uso: node scripts/guard.mjs [--dir dist] [--base http://127.0.0.1:4173] [--urls /,/en/] [--self-test]
+//   sin --urls recorre todas las páginas HTML del directorio servido.
+import { readdirSync, statSync } from 'node:fs';
+import { join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createPagesServer, listen } from './serve-pages.mjs';
+import { launchBrowser, isExternal, scrollThrough } from './lib/browser.mjs';
+
+export function listPages(dir) {
+  const root = resolve(dir);
+  const out = [];
+  (function walk(d) {
+    for (const name of readdirSync(d)) {
+      const p = join(d, name);
+      if (statSync(p).isDirectory()) walk(p);
+      else if (name === 'index.html') out.push('/' + relative(root, d).split(sep).join('/') + '/');
+      else if (name === '404.html' && d === root) out.push('/404.html');
+    }
+  })(root);
+  return out.map((u) => u.replace('//', '/')).sort();
+}
+
+/** Visita una URL y devuelve los hallazgos. */
+export async function guardPage(context, base, path, { viewport, selfTest = false } = {}) {
+  const baseOrigin = new URL(base).origin;
+  const page = await context.newPage();
+  if (viewport) await page.setViewportSize(viewport);
+  const findings = [];
+  const external = new Set();
+  const isNotFoundPage = path === '/404.html';
+
+  await page.route('**/*', (route) => {
+    if (isExternal(route.request().url(), baseOrigin)) return route.abort(); // nada sale de la máquina
+    return route.continue();
+  });
+  page.on('request', (req) => {
+    if (isExternal(req.url(), baseOrigin)) external.add(req.url());
+  });
+  page.on('console', (msg) => {
+    if (['error', 'warning'].includes(msg.type())) findings.push(`consola ${msg.type()}: ${msg.text()}`);
+  });
+  page.on('pageerror', (err) => findings.push(`excepción: ${err.message}`));
+  page.on('response', (res) => {
+    const req = res.request();
+    const status = res.status();
+    if (status >= 400 && !(isNotFoundPage && req.isNavigationRequest())) {
+      findings.push(`HTTP ${status}: ${res.url()}`);
+    }
+  });
+  page.on('requestfailed', (req) => {
+    if (isExternal(req.url(), baseOrigin)) return; // ya se cuenta como externa
+    findings.push(`petición fallida: ${req.url()} (${req.failure()?.errorText ?? '?'})`);
+  });
+
+  if (selfTest) {
+    await page.addInitScript(() => {
+      window.addEventListener('DOMContentLoaded', () => {
+        fetch('https://example.com/autoprueba').catch(() => {});
+        const img = new Image();
+        img.src = 'https://example.org/autoprueba.png';
+      });
+    });
+  }
+
+  await page.goto(base + path, { waitUntil: 'load' });
+  await scrollThrough(page);
+  await page.waitForLoadState('networkidle', { timeout: 6000 }).catch(() => {});
+  await page.waitForTimeout(250);
+  await page.close();
+
+  for (const u of external) findings.push(`PETICIÓN EXTERNA: ${u}`);
+  return findings;
+}
+
+export async function runGuard({ base, paths, selfTest = false, log = true }) {
+  const browser = await launchBrowser();
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
+  const results = [];
+  for (const p of paths) {
+    const findings = await guardPage(context, base, p, { selfTest });
+    results.push({ path: p, findings });
+    if (log) console.log(`${findings.length ? 'FALLA' : 'ok   '}  ${p}${findings.length ? '\n   - ' + findings.join('\n   - ') : ''}`);
+  }
+  await browser.close();
+  return results;
+}
+
+// Ejecución directa
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  const arg = (name, fallback) => {
+    const i = process.argv.indexOf(`--${name}`);
+    return i > -1 ? process.argv[i + 1] : fallback;
+  };
+  const dir = arg('dir', 'dist');
+  const selfTest = process.argv.includes('--self-test');
+  let base = arg('base');
+  let server;
+  if (!base) {
+    server = createPagesServer({ dir });
+    const port = await listen(server, 0);
+    base = `http://127.0.0.1:${port}`;
+  }
+  const paths = arg('urls') ? arg('urls').split(',') : listPages(dir);
+  const results = await runGuard({ base, paths, selfTest });
+  server?.close();
+  const bad = results.filter((r) => r.findings.length).length;
+  if (selfTest) {
+    const caught = results.some((r) => r.findings.some((f) => f.startsWith('PETICIÓN EXTERNA')));
+    console.log(caught ? '\nAutoprueba superada: la guardia detectó la petición externa inyectada.' : '\nAUTOPRUEBA FALLIDA: la guardia no vio la petición externa.');
+    process.exit(caught ? 0 : 1);
+  }
+  console.log(`\n${paths.length} páginas, ${bad} con hallazgos.`);
+  process.exit(bad ? 1 : 0);
+}

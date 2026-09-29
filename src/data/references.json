@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "types": {
+    "P": { "es": "Presencia", "en": "Presence", "icon": "info" },
+    "R": { "es": "Reservas y pedidos", "en": "Bookings & orders", "icon": "calendar-check" },
+    "C": { "es": "Catálogo y portafolio", "en": "Catalog & portfolio", "icon": "layout-grid" },
+    "T": { "es": "Tienda", "en": "Store", "icon": "shopping-bag" },
+    "A": { "es": "App", "en": "App", "icon": "app-window" }
+  },
+  "refs": [
+    {
+      "slug": "fogon", "order": 1, "wave": 0, "launch": true, "status": "planned",
+      "name": "Fogón", "type": "R", "mode": "dark", "icon": "utensils",
+      "sector": { "es": "Restaurante", "en": "Restaurant" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.17 0.012 45)", "surface2": "oklch(0.22 0.014 45)",
+        "ink": "oklch(0.94 0.012 80)", "muted": "oklch(0.76 0.02 70)",
+        "accent": "oklch(0.66 0.19 38)", "onAccent": "oklch(0.17 0.012 45)"
+      }
+    },
+    {
+      "slug": "cimiento", "order": 2, "wave": 0, "launch": true, "status": "planned",
+      "name": "Cimiento", "type": "P", "mode": "light", "icon": "hard-hat",
+      "sector": { "es": "Constructora", "en": "Construction" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.93 0.006 250)", "surface2": "oklch(0.89 0.008 250)",
+        "ink": "oklch(0.22 0.012 255)", "muted": "oklch(0.42 0.015 255)",
+        "accent": "oklch(0.70 0.18 52)", "onAccent": "oklch(0.22 0.012 255)"
+      }
+    },
+    {
+      "slug": "nodo", "order": 3, "wave": 0, "launch": true, "status": "planned",
+      "name": "Nodo", "type": "A", "mode": "light", "icon": "app-window",
+      "sector": { "es": "App / SaaS", "en": "App / SaaS" },
+      "langs": ["es", "en"],
+      "palette": {
+        "surface": "oklch(0.955 0.006 260)", "surface2": "oklch(0.99 0.003 260)",
+        "ink": "oklch(0.22 0.02 265)", "muted": "oklch(0.45 0.02 265)",
+        "accent": "oklch(0.52 0.19 262)", "onAccent": "oklch(0.98 0.005 262)"
+      }
+    },
+    {
+      "slug": "clara", "order": 4, "wave": 1, "launch": true, "status": "planned",
+      "name": "Clara", "type": "P", "mode": "light", "icon": "smile",
+      "sector": { "es": "Clínica dental", "en": "Dental clinic" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.985 0.004 240)", "surface2": "oklch(0.955 0.008 240)",
+        "ink": "oklch(0.25 0.015 250)", "muted": "oklch(0.45 0.015 250)",
+        "accent": "oklch(0.78 0.11 60)", "onAccent": "oklch(0.25 0.015 250)"
+      }
+    },
+    {
+      "slug": "navaja", "order": 5, "wave": 1, "launch": true, "status": "planned",
+      "name": "Navaja", "type": "R", "mode": "dark", "icon": "scissors",
+      "sector": { "es": "Barbería", "en": "Barbershop" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.20 0.012 250)", "surface2": "oklch(0.25 0.014 250)",
+        "ink": "oklch(0.93 0.008 240)", "muted": "oklch(0.74 0.015 245)",
+        "accent": "oklch(0.74 0.11 85)", "onAccent": "oklch(0.2 0.012 250)"
+      }
+    },
+    {
+      "slug": "isla", "order": 6, "wave": 1, "launch": true, "status": "planned",
+      "name": "Isla", "type": "R", "mode": "dark", "icon": "sailboat",
+      "sector": { "es": "Turismo y excursiones", "en": "Tours & excursions" },
+      "langs": ["en", "es"],
+      "palette": {
+        "surface": "oklch(0.18 0.03 175)", "surface2": "oklch(0.23 0.035 175)",
+        "ink": "oklch(0.94 0.012 170)", "muted": "oklch(0.78 0.03 172)",
+        "accent": "oklch(0.72 0.15 30)", "onAccent": "oklch(0.18 0.03 175)"
+      }
+    },
+    {
+      "slug": "faro-legal", "order": 7, "wave": 2, "launch": true, "status": "planned",
+      "name": "Faro Legal", "type": "P", "mode": "light", "icon": "scale",
+      "sector": { "es": "Abogados", "en": "Law firm" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.955 0.010 245)", "surface2": "oklch(0.925 0.012 245)",
+        "ink": "oklch(0.22 0.02 260)", "muted": "oklch(0.42 0.02 255)",
+        "accent": "oklch(0.42 0.14 20)", "onAccent": "oklch(0.97 0.01 20)"
+      }
+    },
+    {
+      "slug": "anaquel", "order": 8, "wave": 2, "launch": true, "status": "planned",
+      "name": "Anaquel", "type": "P", "mode": "light", "icon": "library",
+      "sector": { "es": "Biblioteca", "en": "Library" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.975 0.005 250)", "surface2": "oklch(0.945 0.008 250)",
+        "ink": "oklch(0.22 0.03 260)", "muted": "oklch(0.42 0.025 258)",
+        "accent": "oklch(0.62 0.19 30)", "onAccent": "oklch(0.2 0.03 260)",
+        "spine1": "oklch(0.42 0.13 262)", "spine2": "oklch(0.80 0.15 90)", "spine3": "oklch(0.42 0.09 155)"
+      }
+    },
+    {
+      "slug": "kiosko", "order": 9, "wave": 2, "launch": true, "status": "planned",
+      "name": "Kiosko", "type": "T", "mode": "light", "icon": "shopping-bag",
+      "sector": { "es": "Tienda online", "en": "Online store" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.985 0.004 250)", "surface2": "oklch(0.95 0.006 250)",
+        "ink": "oklch(0.2 0.02 270)", "muted": "oklch(0.42 0.02 268)",
+        "accent": "oklch(0.65 0.20 32)", "onAccent": "oklch(0.2 0.02 270)",
+        "tile2": "oklch(0.80 0.10 230)", "tile3": "oklch(0.88 0.15 95)", "tile4": "oklch(0.85 0.11 165)"
+      }
+    },
+    {
+      "slug": "calma", "order": 10, "wave": 3, "launch": true, "status": "planned",
+      "name": "Calma", "type": "P", "mode": "drench", "icon": "leaf",
+      "sector": { "es": "Masajes y terapias", "en": "Massage & therapy" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.82 0.045 150)", "surface2": "oklch(0.88 0.035 150)",
+        "ink": "oklch(0.25 0.04 155)", "muted": "oklch(0.36 0.04 155)",
+        "accent": "oklch(0.52 0.13 45)", "onAccent": "oklch(0.98 0.01 60)"
+      }
+    },
+    {
+      "slug": "grano", "order": 11, "wave": 3, "launch": false, "status": "planned",
+      "name": "Grano", "type": "R", "mode": "drench", "icon": "coffee",
+      "sector": { "es": "Café y panadería", "en": "Café & bakery" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.80 0.15 85)", "surface2": "oklch(0.86 0.12 88)",
+        "ink": "oklch(0.25 0.05 50)", "muted": "oklch(0.36 0.06 55)",
+        "accent": "oklch(0.48 0.17 262)", "onAccent": "oklch(0.98 0.01 262)"
+      }
+    },
+    {
+      "slug": "impulso", "order": 12, "wave": 3, "launch": false, "status": "planned",
+      "name": "Impulso", "type": "R", "mode": "drench", "icon": "dumbbell",
+      "sector": { "es": "Gimnasio", "en": "Gym" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.90 0.20 125)", "surface2": "oklch(0.85 0.19 125)",
+        "ink": "oklch(0.17 0.02 130)", "muted": "oklch(0.28 0.05 130)",
+        "accent": "oklch(0.55 0.21 27)", "onAccent": "oklch(0.98 0.01 27)"
+      }
+    },
+    {
+      "slug": "velo", "order": 13, "wave": 3, "launch": false, "status": "planned",
+      "name": "Velo", "type": "C", "mode": "dark", "icon": "camera",
+      "sector": { "es": "Eventos y fotografía", "en": "Events & photography" },
+      "langs": ["es"],
+      "palette": {
+        "surface": "oklch(0.15 0.005 260)", "surface2": "oklch(0.20 0.006 260)",
+        "ink": "oklch(0.93 0.005 260)", "muted": "oklch(0.72 0.008 260)",
+        "accent": "oklch(0.93 0.005 260)", "onAccent": "oklch(0.15 0.005 260)"
+      }
+    },
+    {
+      "slug": "horizonte", "order": 14, "wave": 3, "launch": false, "status": "planned",
+      "name": "Horizonte", "type": "C", "mode": "light", "icon": "building-2",
+      "sector": { "es": "Inmobiliaria", "en": "Real estate" },
+      "langs": ["es", "en"],
+      "palette": {
+        "surface": "oklch(0.965 0.006 235)", "surface2": "oklch(0.93 0.008 235)",
+        "ink": "oklch(0.22 0.02 245)", "muted": "oklch(0.42 0.02 243)",
+        "accent": "oklch(0.52 0.09 195)", "onAccent": "oklch(0.98 0.005 195)"
+      }
+    }
+  ],
+  "pairs": [
+    { "fg": "ink", "bg": "surface", "min": 4.5 },
+    { "fg": "ink", "bg": "surface2", "min": 4.5 },
+    { "fg": "muted", "bg": "surface", "min": 4.5 },
+    { "fg": "muted", "bg": "surface2", "min": 4.5 },
+    { "fg": "onAccent", "bg": "accent", "min": 4.5 }
+  ]
+}

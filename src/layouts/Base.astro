@@ -1,0 +1,81 @@
+---
+import brand from '../../brand.json';
+import { alternates, url, type Lang, type RouteKey, type RouteParams } from '../routes';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description?: string;
+  routeKey?: RouteKey;
+  params?: RouteParams;
+  ogImage?: string;
+  noindex?: boolean;
+  themeColor?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  lang,
+  title,
+  description = brand.description[lang],
+  routeKey,
+  params = {},
+  ogImage = '/og-v1.png',
+  noindex = false,
+  themeColor = '#0c0c0f',
+  jsonLd,
+} = Astro.props;
+
+const canonical = routeKey ? url(lang, routeKey, params) : undefined;
+const alts = routeKey ? alternates(routeKey, params) : [];
+const ogAbs = new URL(ogImage, brand.site).href;
+const locale = lang === 'es' ? 'es_DO' : 'en_US';
+
+// Guardia de red del sitio: nada sale de este origen. En desarrollo no se aplica (Vite inyecta código).
+const csp = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "frame-src 'self'",
+  "media-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ');
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp} />}
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="color-scheme" content="dark" />
+    {noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    {alts.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={brand.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogAbs} />
+    <meta property="og:locale" content={locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@GayaGroupRD" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#contenido">{lang === 'es' ? 'Ir al contenido' : 'Skip to content'}</a>
+    <slot />
+  </body>
+</html>

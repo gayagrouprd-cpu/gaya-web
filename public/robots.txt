@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /ref/
+
+Sitemap: https://gaya.com.do/sitemap.xml

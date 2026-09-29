@@ -1,0 +1,51 @@
+{
+  "name": "Gaya Group",
+  "handle": "@gayagrouprd",
+  "domain": "gaya.com.do",
+  "site": "https://gaya.com.do",
+  "city": "Santo Domingo",
+  "country": "DO",
+  "timezone": "America/Santo_Domingo",
+  "founder": { "name": "Giancarlo González", "role": { "es": "Director", "en": "Director" } },
+  "contact": {
+    "whatsapp": { "e164": "18499254426", "display": "+1 849-925-4426" },
+    "email": "hola@gaya.com.do",
+    "phone": "+1-849-925-4426"
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/gayagrouprd/",
+    "facebook": "https://www.facebook.com/profile.php?id=61594615022238",
+    "x": "https://x.com/GayaGroupRD",
+    "tiktok": "https://www.tiktok.com/@gayagrouprd",
+    "youtube": "https://www.youtube.com/@gayagrouprd"
+  },
+  "tagline": {
+    "es": "Tecnología para tu negocio",
+    "en": "Tech for your business"
+  },
+  "description": {
+    "es": "Desarrollo web y apps, marketing digital, soporte IT y automatización con IA. Desde Santo Domingo, República Dominicana, para el mundo.",
+    "en": "Web and app development, digital marketing, IT support and AI automation. From Santo Domingo, Dominican Republic, to the world."
+  },
+  "whatsappMessage": {
+    "generic": {
+      "es": "Hola Gaya Group, quiero información.",
+      "en": "Hi Gaya Group, I would like some information."
+    },
+    "reference": {
+      "es": "Hola Gaya Group, me gustó la referencia «{name}» ({sector}): {url}. Quiero una web así.",
+      "en": "Hi Gaya Group, I liked the «{name}» reference ({sector}): {url}. I'd like a website like that."
+    },
+    "references": {
+      "es": "Hola Gaya Group, me gustaron estas referencias: {list}. Quiero una web así.",
+      "en": "Hi Gaya Group, I liked these references: {list}. I'd like a website like that."
+    }
+  },
+  "emailSubject": {
+    "es": "Quiero una web como la referencia «{name}»",
+    "en": "I'd like a website like the «{name}» reference"
+  },
+  "commitments": {
+    "proposalHours": "24–48"
+  }
+}

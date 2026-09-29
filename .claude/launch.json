@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gaya-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/astro/bin/astro.mjs", "dev", "--host", "127.0.0.1", "--port", "4321"],
+      "port": 4321
+    },
+    {
+      "name": "gaya-pages",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/serve-pages.mjs", "--dir", "dist", "--port", "4173"],
+      "port": 4173
+    }
+  ]
+}

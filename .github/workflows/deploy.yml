@@ -1,0 +1,36 @@
+# Despliegue a GitHub Pages con dominio propio (gaya.com.do).
+# Solo se lanza a mano (workflow_dispatch) hasta que Giancarlo apruebe la publicación:
+# Settings → Pages → Source = «GitHub Actions», y luego Actions → «Deploy to GitHub Pages» → Run workflow.
+# El archivo public/CNAME lo ignora este tipo de despliegue: el dominio se fija en Settings → Pages.
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: withastro/action@v6
+        with:
+          node-version: 24
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

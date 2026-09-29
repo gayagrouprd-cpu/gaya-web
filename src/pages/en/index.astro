@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import brand from '../../../brand.json';
+---
+
+<Base lang="en" title={`${brand.name} · ${brand.tagline.en}`} routeKey="home">
+  <main id="contenido">
+    <h1>{brand.name}</h1>
+  </main>
+</Base>

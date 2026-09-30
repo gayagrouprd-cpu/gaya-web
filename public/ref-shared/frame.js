@@ -5,7 +5,7 @@
  *  - Lee ?lang= y ?still y lo expone en window.GAYA = { lang, langs, still, embedded }.
  *  - Fija <html lang> según el idioma pedido (solo entre los declarados en <html data-langs="es,en">).
  *  - Modo ?still: marca <html data-still> y congela animaciones/transiciones (para las capturas).
- *  - Sello discreto «Sitio de ejemplo · Gaya Group».
+ *  - Sello discreto «Sitio de ejemplo · Gaya Digital».
  *  - Dentro del visor: reenvía Escape y flechas (solo si no las usa la propia web) y evita que un
  *    enlace navegue el marco (los externos se abren en pestaña nueva, los internos a otra ruta se bloquean).
  */
@@ -29,7 +29,7 @@
   if (still) doc.setAttribute('data-still', '');
 
   // Sello «ejemplo»
-  var label = lang === 'en' ? 'Sample site · Gaya Group' : 'Sitio de ejemplo · Gaya Group';
+  var label = lang === 'en' ? 'Sample site · Gaya Digital' : 'Sitio de ejemplo · Gaya Digital';
   function badge() {
     var b = document.createElement('aside');
     b.setAttribute('data-gaya-badge', '');

@@ -1,24 +1,24 @@
 {
   "cimiento": {
-    "srcHash": "656662345f116fbfbb5602bb528e9bb94024a83ff19ee3abf6ccfbc3f6a506b1",
-    "hash": "656662345f",
+    "srcHash": "c3bbcf5b10180b2502554f2e0d3f1ccb9bf6031acaf6f92440f86a26d2ce75ee",
+    "hash": "c3bbcf5b10",
     "lang": "es",
     "sizes": {
       "desktop": {
-        "avifKB": 36.3,
-        "webpKB": 54.6
+        "avifKB": 36.6,
+        "webpKB": 54.5
       },
       "thumb": {
         "avifKB": 8.2,
         "webpKB": 15.4
       },
       "mobile": {
-        "avifKB": 44.4,
+        "avifKB": 44.3,
         "webpKB": 66.4
       },
       "strip": {
-        "avifKB": 81.2,
-        "webpKB": 134.6,
+        "avifKB": 81.6,
+        "webpKB": 134.7,
         "h": 3409
       },
       "og": {
@@ -26,14 +26,14 @@
         "q": 84
       },
       "social": {
-        "KB": 119.3
+        "KB": 119.5
       }
     },
-    "capturedAt": "2026-09-29T13:51:57.558Z"
+    "capturedAt": "2026-09-30T03:40:45.793Z"
   },
   "fogon": {
-    "srcHash": "cf7b6d29e295c7c5fe51807bfa7811ec55654f4842672ee1cb40fa214a344cf7",
-    "hash": "cf7b6d29e2",
+    "srcHash": "e5c85070583a5ffbd6e3c8ca5f8dd5f9aee1b7644f9426868559bf65de740f12",
+    "hash": "e5c8507058",
     "lang": "es",
     "sizes": {
       "desktop": {
@@ -41,48 +41,48 @@
         "webpKB": 75.8
       },
       "thumb": {
-        "avifKB": 10.3,
-        "webpKB": 20.4
+        "avifKB": 10.2,
+        "webpKB": 20.6
       },
       "mobile": {
-        "avifKB": 44.7,
-        "webpKB": 75.6
+        "avifKB": 44.6,
+        "webpKB": 75.7
       },
       "strip": {
         "avifKB": 121.3,
-        "webpKB": 213.7,
+        "webpKB": 213.8,
         "h": 4985
       },
       "og": {
-        "KB": 86.9,
+        "KB": 87,
         "q": 84
       },
       "social": {
-        "KB": 162.1
+        "KB": 162.3
       }
     },
-    "capturedAt": "2026-09-29T13:51:27.342Z"
+    "capturedAt": "2026-09-30T03:40:15.521Z"
   },
   "nodo": {
-    "srcHash": "bbdf278644db907bba2da895ca66cc5d192dd4a1d4d8c7d6dbc85d477b3d953c",
-    "hash": "bbdf278644",
+    "srcHash": "82f6b848077030d9f3b54b51dfa36c81ec3367139a2cfc82bbbb098fb6c9a008",
+    "hash": "82f6b84807",
     "lang": "es",
     "sizes": {
       "desktop": {
-        "avifKB": 31.7,
+        "avifKB": 31.5,
         "webpKB": 48
       },
       "thumb": {
-        "avifKB": 9.5,
-        "webpKB": 14.2
+        "avifKB": 9.6,
+        "webpKB": 14.3
       },
       "mobile": {
         "avifKB": 29.2,
-        "webpKB": 46.2
+        "webpKB": 46.3
       },
       "strip": {
-        "avifKB": 16.5,
-        "webpKB": 25.3,
+        "avifKB": 16.4,
+        "webpKB": 25.1,
         "h": 648
       },
       "og": {
@@ -90,9 +90,9 @@
         "q": 84
       },
       "social": {
-        "KB": 90.1
+        "KB": 91.3
       }
     },
-    "capturedAt": "2026-09-29T13:52:06.120Z"
+    "capturedAt": "2026-09-30T03:40:54.497Z"
   }
 }

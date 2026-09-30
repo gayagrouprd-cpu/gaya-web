@@ -1,5 +1,5 @@
 {
-  "name": "Gaya Group",
+  "name": "Gaya Digital",
   "handle": "@gayagrouprd",
   "domain": "gaya.com.do",
   "site": "https://gaya.com.do",
@@ -29,16 +29,16 @@
   },
   "whatsappMessage": {
     "generic": {
-      "es": "Hola Gaya Group, quiero información.",
-      "en": "Hi Gaya Group, I would like some information."
+      "es": "Hola Gaya Digital, quiero información.",
+      "en": "Hi Gaya Digital, I would like some information."
     },
     "reference": {
-      "es": "Hola Gaya Group, me gustó la referencia «{name}» ({sector}): {url}. Quiero una web así.",
-      "en": "Hi Gaya Group, I liked the «{name}» reference ({sector}): {url}. I'd like a website like that."
+      "es": "Hola Gaya Digital, me gustó la referencia «{name}» ({sector}): {url}. Quiero una web así.",
+      "en": "Hi Gaya Digital, I liked the «{name}» reference ({sector}): {url}. I'd like a website like that."
     },
     "references": {
-      "es": "Hola Gaya Group, me gustaron estas referencias: {list}. Quiero una web así.",
-      "en": "Hi Gaya Group, I liked these references: {list}. I'd like a website like that."
+      "es": "Hola Gaya Digital, me gustaron estas referencias: {list}. Quiero una web así.",
+      "en": "Hi Gaya Digital, I liked these references: {list}. I'd like a website like that."
     }
   },
   "emailSubject": {

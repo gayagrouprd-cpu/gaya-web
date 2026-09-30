@@ -45,6 +45,11 @@ export function hashRef(slug) {
     h.update(relative(base, f).split(sep).join('/'));
     h.update(readFileSync(f));
   }
+  // Los scripts comunes también cambian lo que se ve (sello «ejemplo», horario): si cambian, las capturas quedan viejas
+  for (const name of ['frame.js', 'hours.js']) {
+    const shared = join(PUBLIC, 'ref-shared', name);
+    if (existsSync(shared)) h.update(name).update(readFileSync(shared));
+  }
   return h.digest('hex');
 }
 

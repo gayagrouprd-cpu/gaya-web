@@ -24,9 +24,9 @@ const {
   description = brand.description[lang],
   routeKey,
   params = {},
-  ogImage = '/og-v1.png',
+  ogImage = lang === 'en' ? '/og-en.jpg' : '/og.jpg',
   noindex = false,
-  themeColor = oklchToHex('oklch(0.13 0.035 8)'),
+  themeColor = oklchToHex('oklch(0.13 0.05 268)'),
   jsonLd,
 } = Astro.props;
 

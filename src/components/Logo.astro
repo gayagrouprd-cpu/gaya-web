@@ -9,7 +9,7 @@ const { href, label } = Astro.props;
 
 <a class="logo" href={href} aria-label={label}>
   <span class="logo__orb" aria-hidden="true"></span>
-  <span class="logo__text"><span class="logo__name">Gaya</span> <span class="logo__group">Group</span></span>
+  <span class="logo__text"><span class="logo__name">Gaya</span> <span class="logo__sub">Digital</span></span>
 </a>
 
 <style>
@@ -38,7 +38,7 @@ const { href, label } = Astro.props;
   .logo__name {
     font-weight: 700;
   }
-  .logo__group {
+  .logo__sub {
     font-weight: 400;
     color: var(--muted);
   }

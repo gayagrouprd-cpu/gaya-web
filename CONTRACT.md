@@ -1,7 +1,7 @@
-# Contrato de una referencia (web de ejemplo de Gaya Group)
+# Contrato de una referencia (web de ejemplo de Gaya Digital)
 
 Se pega completo en el encargo de cada constructor. Una referencia es una **mini-web estática de ejemplo** que un negocio real
-podría tener. No es una web de cliente, no vende nada de verdad y no menciona quién la hizo salvo el sello «Sitio de ejemplo · Gaya Group»
+podría tener. No es una web de cliente, no vende nada de verdad y no menciona quién la hizo salvo el sello «Sitio de ejemplo · Gaya Digital»
 que pone `frame.js`. Los objetivos: que impresione, que sea utilizable y que no parezca plantilla.
 
 > **Regla de oro de Giancarlo (aplica a todo lo que se construye para él):** si una pantalla necesita una línea de texto bajo un control

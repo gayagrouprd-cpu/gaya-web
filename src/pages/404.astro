@@ -1,11 +1,58 @@
 ---
 import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
 import brand from '../../brand.json';
 ---
 
 <Base lang="es" title={`404 · ${brand.name}`} noindex>
-  <main id="contenido">
-    <h1>404</h1>
-    <p><a href="/">Gaya Group</a> · <a href="/en/">English</a></p>
+  <main id="contenido" class="nf">
+    <Logo href="/" label={brand.name} />
+    <div class="nf__body">
+      <p class="nf__code" aria-hidden="true">404</p>
+      <h1>Página no encontrada <span lang="en">· Page not found</span></h1>
+      <div class="nf__actions">
+        <a class="btn btn--primary" href="/">Ir al inicio</a>
+        <a class="btn btn--ghost" href="/en/" lang="en" hreflang="en">Go to homepage</a>
+      </div>
+    </div>
   </main>
 </Base>
+
+<style>
+  .nf {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 100svh;
+    padding: var(--space-6) var(--gutter) var(--space-8);
+    background: radial-gradient(60rem 34rem at 12% 8%, color-mix(in oklch, var(--glow-1) 45%, transparent), transparent 70%) no-repeat, var(--surface);
+  }
+  .nf__body {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-5);
+  }
+  .nf__code {
+    font-family: var(--font-mono);
+    font-size: var(--text-display);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--accent-text);
+  }
+  h1 {
+    max-width: 18ch;
+    font-size: var(--text-xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  h1 span {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+</style>

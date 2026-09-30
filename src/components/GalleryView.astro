@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import brand from '../../brand.json';
 import Nav from './Nav.astro';
 import LIcon from './LIcon.astro';
 import Icon from './Icon.astro';
@@ -17,7 +18,7 @@ const refs = builtRefs();
 const presentTypes = (Object.keys(types) as RefType[]).filter((k) => refs.some((r) => r.type === k));
 ---
 
-<Base lang={lang} title={`${c.metaTitle} · Gaya Group`} description={c.metaDescription} routeKey="refs">
+<Base lang={lang} title={`${c.metaTitle} · ${brand.name}`} description={c.metaDescription} routeKey="refs">
   <Nav lang={lang} routeKey="refs" />
   <main id="contenido" class="gal">
     <header class="gal__head">

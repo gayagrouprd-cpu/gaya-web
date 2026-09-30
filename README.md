@@ -1,6 +1,6 @@
 # gaya-web
 
-Sitio de **Gaya Group** (https://gaya.com.do): portada, galería de referencias y las webs de ejemplo.
+Sitio de **Gaya Digital** (https://gaya.com.do): portada, galería de referencias y las webs de ejemplo.
 Astro estático, sin frameworks de interfaz, sin peticiones a terceros.
 
 ## Empezar

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "2.0.0",
-  "description": "Sitio de Gaya Group (gaya.com.do): portada, galería de referencias y webs de ejemplo.",
+  "description": "Sitio de Gaya Digital (gaya.com.do): portada, galería de referencias y webs de ejemplo.",
   "engines": {
     "node": ">=22.12.0"
   },

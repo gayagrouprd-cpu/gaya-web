@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import brand from '../../brand.json';
 import LIcon from './LIcon.astro';
 import Icon from './Icon.astro';
 import ContactData from './ContactData.astro';
@@ -28,7 +29,7 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
 
 <Base
   lang={lang}
-  title={`${ref.name} · ${ref.sector[lang]} · Gaya Group`}
+  title={`${ref.name} · ${ref.sector[lang]} · ${brand.name}`}
   description={`${ref.name}: ${ref.sector[lang]}. ${t(lang).gallery.metaDescription}`}
   routeKey="ref"
   params={{ slug: ref.slug }}
@@ -36,7 +37,7 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
   themeColor={oklchToHex(ref.palette.surface)}
 >
   <div class="viewer" style={`--stage-bg:${ref.palette.surface}`} data-slug={ref.slug} data-prev={path(lang, 'ref', { slug: prev.slug })} data-next={path(lang, 'ref', { slug: next.slug })} data-gallery={gallery} data-canonical={canonical}>
-    <header class="vbar" aria-label={`Gaya Group · ${ref.name}`}>
+    <header class="vbar" aria-label={`${brand.name} · ${ref.name}`}>
       <a class="vbtn vback" href={gallery} aria-label={c.back}><LIcon name="arrow-left" /></a>
 
       <div class="vtitle">

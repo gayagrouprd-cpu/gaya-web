@@ -1,0 +1,92 @@
+/* Tipografías propias (sin terceros). Solo los archivos que el sitio usa: latin y symbols2 (≈ 70 KB en total).
+   Las rutas salen de node_modules: Vite las copia a /_astro/ con hash. Licencias en CREDITS.md (OFL-1.1).
+   Dos voces: Bricolage Grotesque = lo que se lee · Geist Mono = lo que se ve (arte, etiquetas, datos). */
+
+/* Bricolage Grotesque Variable · eje wght 200–800 · latin 41 KB */
+@font-face {
+  font-family: 'Bricolage Grotesque Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Geist Mono Variable · eje wght 100–900 · symbols2 6 KB (cajas y bloques U+2500–259F, para el arte en el DOM)
+   Va ANTES que latin: en rangos que se solapan manda la regla declarada después. */
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-symbols2-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+
+/* Geist Mono Variable · latin 23 KB */
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Respaldos métricos: mientras llega la fuente (swap), el respaldo ocupa el mismo ancho y la misma altura de línea,
+   así que la página no se mueve (CLS 0). Reproducir y verificar: npm run fallback:check -- --measure
+   Sustituyen al cálculo automático de Astro Fonts (85,986 % y 132,57 %, erróneos: usa el primer subconjunto, no latin).
+
+   Sans: Bricolage ensancha con el peso (800 es ≈ 8 % más ancha que 400) y Arial no. El 111,04 % que sale de
+   @capsizecss/unpack (xWidthAvg 495/1000 frente a 913/2048 de Arial) es el de la instancia por defecto de la variable,
+   ExtraBold: ensancharía el cuerpo un 7 %. Por eso hay un respaldo por tramo de peso, con size-adjust medido en Chrome
+   sobre frases del sitio (ES y EN) y overrides = métricas de la fuente (930/270 por 1000) ÷ size-adjust:
+     200–499 → 104,2 % (400: 104,19)  ·  500–649 → 106,3 % (500: 105,65, 600: 107,03)  ·  650–800 → 109,1 % (700: 108,43, 800: 109,86)
+   Los tres usan la misma fuente local normal; al declarar el rango de pesos el navegador no la engorda artificialmente. */
+@font-face {
+  font-family: 'Gaya Sans Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Roboto');
+  font-weight: 200 499;
+  size-adjust: 104.2%;
+  ascent-override: 89.25%;
+  descent-override: 25.91%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Gaya Sans Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Roboto');
+  font-weight: 500 649;
+  size-adjust: 106.3%;
+  ascent-override: 87.49%;
+  descent-override: 25.4%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Gaya Sans Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Roboto');
+  font-weight: 650 800;
+  size-adjust: 109.1%;
+  ascent-override: 85.24%;
+  descent-override: 24.75%;
+  line-gap-override: 0%;
+}
+
+/* Mono: Geist Mono avanza 0,6 em, igual que Courier New (1229/2048 → 99,98 %) y que las monoespaciadas de 0,6 em de la lista. */
+@font-face {
+  font-family: 'Gaya Mono Fallback';
+  src: local('Courier New'), local('Liberation Mono'), local('Cousine'), local('Menlo'), local('DejaVu Sans Mono'), local('Noto Sans Mono'), local('Roboto Mono'), local('Droid Sans Mono');
+  size-adjust: 100%;
+  ascent-override: 100.5%;
+  descent-override: 29.5%;
+  line-gap-override: 0%;
+}
+
+/* Nunca terminar la pila mono en `monospace` a secas: en Windows es Consolas (0,55 em, 8 % más estrecha). */
+:root {
+  --font-display: 'Bricolage Grotesque Variable', 'Gaya Sans Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Gaya Mono Fallback', ui-monospace, monospace;
+  /* Cuerpo: Bricolage. Para pasarlo a mono basta cambiar esta línea por var(--font-mono). */
+  --font-body: var(--font-display);
+}

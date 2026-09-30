@@ -19,7 +19,7 @@ body {
   overflow-x: clip;
   background: var(--surface);
   color: var(--ink);
-  font-family: var(--font-display, system-ui, sans-serif);
+  font-family: var(--font-body, var(--font-display, system-ui, sans-serif));
   font-size: var(--text-m);
   font-weight: 400;
   line-height: var(--lh-body);
@@ -132,54 +132,59 @@ button {
   border: 0;
 }
 
-/* Botones */
+/* Botones. La estructura es común; la apariencia depende de la gramática de la página (<body data-ui>, lo pone Base.astro):
+     «classic» (galería, visor, 404): píldoras, aquí abajo.
+     «cartel» (portada): rótulos con sombra en bloque, en ascii.css.
+   `:where()` deja la especificidad de cada regla donde estaba (0,1,0), para que los estilos propios de cada componente sigan mandando. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  min-height: 3rem;
-  padding: 0 var(--space-6);
   border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  font-size: var(--text-m);
-  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    transform var(--dur-2) var(--ease-out),
-    background-color var(--dur-2) var(--ease-out),
-    border-color var(--dur-2) var(--ease-out),
-    filter var(--dur-2) var(--ease-out);
 }
 .btn svg {
   width: 1.25rem;
   height: 1.25rem;
   flex: none;
 }
-.btn--primary {
+:where([data-ui='classic']) .btn {
+  min-height: 3rem;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-m);
+  font-weight: 600;
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    filter var(--dur-2) var(--ease-out);
+}
+:where([data-ui='classic']) .btn--primary {
   background: var(--accent);
   color: var(--on-accent);
 }
-.btn--ghost {
+:where([data-ui='classic']) .btn--ghost {
   border-color: color-mix(in oklch, var(--ink) 34%, transparent);
   background: transparent;
   color: var(--ink);
 }
 @media (hover: hover) {
-  .btn--primary:hover {
+  :where([data-ui='classic']) .btn--primary:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
   }
-  .btn--ghost:hover {
+  :where([data-ui='classic']) .btn--ghost:hover {
     background: color-mix(in oklch, var(--ink) 9%, transparent);
     border-color: color-mix(in oklch, var(--ink) 55%, transparent);
     transform: translateY(-1px);
   }
 }
-.btn:active {
+:where([data-ui='classic']) .btn:active {
   transform: translateY(0);
   filter: brightness(0.96);
 }
@@ -197,5 +202,57 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Colores forzados (Windows «alto contraste»): el lienzo y el póster del arte no se pintan y los botones llevan borde real. */
+@media (forced-colors: active) {
+  canvas.field,
+  [data-nosnippet][aria-hidden][translate='no'] {
+    display: none;
+  }
+  .btn {
+    border: 1px solid ButtonText;
+  }
+}
+
+/* Impresión: fondo blanco, tinta negra, sin lienzo ni póster, y la dirección de cada enlace externo a la vista. */
+@media print {
+  :root {
+    color-scheme: light;
+    --surface: #fff;
+    --surface-2: #fff;
+    --ink: #000;
+    --lead: #111;
+    --muted: #333;
+    --accent: #000;
+    --accent-text: #000;
+    --on-accent: #fff;
+    --line: rgb(0 0 0 / 0.3);
+    --t0: #fff;
+    --t1: #fff;
+    --t2: #fff;
+    --t3: #fff;
+  }
+  html,
+  body {
+    background: #fff;
+    color: #000;
+  }
+  canvas.field,
+  [data-nosnippet][aria-hidden][translate='no'] {
+    display: none !important;
+  }
+  body .btn {
+    border-color: #000;
+    background: none;
+    color: #000;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
   }
 }

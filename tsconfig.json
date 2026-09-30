@@ -1,5 +1,13 @@
 {
   "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    // src/ascii/ corre en Vite/Astro y directamente en Node 24 (pruebas con node --test): imports relativos con
+    // extensión (./kit.ts), «import type» para los tipos y solo sintaxis borrable (sin enum, namespace, parameter properties).
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true
+  },
   "include": [".astro/types.d.ts", "src/**/*"],
   "exclude": ["dist", "public/ref"]
 }

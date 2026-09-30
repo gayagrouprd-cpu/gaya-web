@@ -39,6 +39,10 @@
     "references": {
       "es": "Hola Gaya Digital, me gustaron estas referencias: {list}. Quiero una web así.",
       "en": "Hi Gaya Digital, I liked these references: {list}. I'd like a website like that."
+    },
+    "service": {
+      "es": "Hola Gaya Digital, me interesa «{service}». Quiero una propuesta.",
+      "en": "Hi Gaya Digital, I'm interested in «{service}». I'd like a proposal."
     }
   },
   "emailSubject": {
@@ -47,5 +51,21 @@
   },
   "commitments": {
     "proposalHours": "24–48"
+  },
+  "confirmed": {
+    "proposalHours": false,
+    "pricingModel": false,
+    "accessOwned": false,
+    "store": false,
+    "nativeApps": false,
+    "cms": false,
+    "whatsappApi": false,
+    "aiAgent": false,
+    "ads": false,
+    "video": false,
+    "googleProfile": false,
+    "remoteSupport": false,
+    "managedBackups": false,
+    "inventory": false
   }
 }

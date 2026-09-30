@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, fontProviders } from 'astro/config';
+import { defineConfig } from 'astro/config';
 
 /**
  * En desarrollo, Vite no resuelve el índice de carpetas dentro de public/ (/ref/<slug>/ daría 404),
@@ -37,29 +37,8 @@ export default defineConfig({
     format: 'directory',
     inlineStylesheets: 'auto',
   },
-  // Fuentes propias, servidas desde este origen (sin Google Fonts): salen de los paquetes @fontsource-variable.
-  fonts: [
-    {
-      provider: fontProviders.npm({ remote: false }),
-      name: 'Bricolage Grotesque Variable',
-      cssVariable: '--font-display',
-      weights: ['200 800'],
-      styles: ['normal'],
-      subsets: ['latin', 'latin-ext'],
-      fallbacks: ['system-ui', 'sans-serif'],
-      options: { package: '@fontsource-variable/bricolage-grotesque', file: 'wght.css' },
-    },
-    {
-      provider: fontProviders.npm({ remote: false }),
-      name: 'Geist Mono Variable',
-      cssVariable: '--font-mono',
-      weights: ['100 900'],
-      styles: ['normal'],
-      subsets: ['latin'],
-      fallbacks: ['ui-monospace', 'monospace'],
-      options: { package: '@fontsource-variable/geist-mono', file: 'wght.css' },
-    },
-  ],
+  // Las fuentes no pasan por Astro Fonts (ignora `subsets`, precarga todo o nada y calcula mal el respaldo métrico):
+  // se declaran a mano en src/styles/fonts.css y se precargan en src/layouts/Base.astro.
   vite: {
     plugins: [refDirectoryIndex()],
     build: {

@@ -1,4 +1,15 @@
-# Créditos de fotos
+# Créditos
+
+## Tipografías del sitio
+
+Autoalojadas (sin terceros); salen de los paquetes `@fontsource-variable/*`. Licencia: SIL Open Font License 1.1 (OFL-1.1), texto completo en el `LICENSE` de cada paquete en `node_modules`.
+
+| Familia | Uso | Copyright | Licencia | Fuente |
+|---|---|---|---|---|
+| Bricolage Grotesque (variable) | Todo lo que se lee: titulares, textos, botones | © 2022 The Bricolage Grotesque Project Authors | OFL-1.1 | https://github.com/ateliertriay/bricolage |
+| Geist Mono (variable) | El arte ASCII, etiquetas y datos | © 2024 The Geist Project Authors | OFL-1.1 | https://github.com/vercel/geist-font |
+
+## Fotos
 
 Fotos con licencia libre (Pexels / Unsplash): se pueden usar sin atribución; se acreditan por cortesía.
 Se usan solo en las webs de ejemplo (`public/ref/*/img/`). Las personas que aparecen no son clientes ni se relacionan con Gaya Digital.

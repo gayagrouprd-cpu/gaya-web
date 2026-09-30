@@ -1,10 +1,15 @@
 ---
-import { Font } from 'astro:assets';
 import brand from '../../brand.json';
 import { oklchToHex } from '../lib/color.mjs';
 import { alternates, url, type Lang, type RouteKey, type RouteParams } from '../routes';
+// `?url` hace que Vite les ponga hash, igual que a los @font-face de fonts.css (mismo archivo = misma URL).
+import bricolageLatin from '../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
+import geistMonoLatin from '../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
+import geistMonoSymbols from '../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-symbols2-wght-normal.woff2?url';
 import '../styles/tokens.css';
+import '../styles/fonts.css';
 import '../styles/base.css';
+import '../styles/ascii.css';
 
 interface Props {
   lang: Lang;
@@ -16,6 +21,10 @@ interface Props {
   noindex?: boolean;
   themeColor?: string;
   jsonLd?: Record<string, unknown>;
+  /** Gramática visual de los controles: «cartel» = rótulos con sombra en bloque (la portada); «classic» = la actual (galería, visor, 404). */
+  ui?: 'cartel' | 'classic';
+  /** Precarga Geist Mono (latin + symbols2). Solo donde hay arte: si la página no la usa, Chrome avisa por consola. */
+  preloadMono?: boolean;
 }
 
 const {
@@ -28,6 +37,8 @@ const {
   noindex = false,
   themeColor = oklchToHex('oklch(0.13 0.05 268)'),
   jsonLd,
+  ui = routeKey === 'home' ? 'cartel' : 'classic',
+  preloadMono = false,
 } = Astro.props;
 
 const canonical = routeKey ? url(lang, routeKey, params) : undefined;
@@ -75,12 +86,13 @@ const csp = [
     <meta property="og:locale" content={locale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@GayaGroupRD" />
-    <Font cssVariable="--font-display" preload />
-    <Font cssVariable="--font-mono" />
+    <link rel="preload" href={bricolageLatin} as="font" type="font/woff2" crossorigin />
+    {preloadMono && <link rel="preload" href={geistMonoLatin} as="font" type="font/woff2" crossorigin fetchpriority="low" />}
+    {preloadMono && <link rel="preload" href={geistMonoSymbols} as="font" type="font/woff2" crossorigin fetchpriority="low" />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <slot name="head" />
   </head>
-  <body>
+  <body data-ui={ui}>
     <a class="skip" href="#contenido">{lang === 'es' ? 'Ir al contenido' : 'Skip to content'}</a>
     <slot />
   </body>

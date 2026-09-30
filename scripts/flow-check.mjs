@@ -39,6 +39,7 @@ console.log('Galería');
   await settle(page);
   const total = await page.locator('.card:visible').count();
   ok(total >= 3, `muestra ${total} tarjetas`);
+  ok((await page.locator('h1').textContent())?.trim() === 'Ejemplos', 'título de la galería: «Ejemplos» (la URL sigue siendo /referencias/)');
 
   const firstType = await page.locator('[data-filter]:not([data-filter="all"])').first().getAttribute('data-filter');
   await page.locator(`[data-filter="${firstType}"]`).click();
@@ -83,6 +84,7 @@ console.log('Visor');
   await page.keyboard.press('Tab');
   const focusLabel = await page.evaluate(() => document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent?.trim());
   ok(/galer|gallery|volver|back/i.test(focusLabel ?? ''), `el segundo Tab llega a la salida (${focusLabel})`);
+  ok(/ejemplos/i.test(focusLabel ?? ''), `la salida del visor dice «ejemplos» (${focusLabel})`);
 
   // Conmutador de tamaño
   const w = async () => Math.round((await page.locator('.frame').boundingBox()).width);
@@ -180,10 +182,11 @@ console.log('Inglés');
 {
   const { ctx, page } = await fresh();
   await page.goto(`${base}/en/references/`, { waitUntil: 'load' });
-  ok((await page.locator('h1').textContent())?.trim() === 'References', 'título de la galería en inglés');
+  ok((await page.locator('h1').textContent())?.trim() === 'Samples', 'título de la galería en inglés');
   await page.locator('[data-ref-link]').first().click();
   await page.locator('.frame.is-live').waitFor({ timeout: 8000 });
   ok(path(page).startsWith('/en/references/'), 'el visor conserva el idioma');
+  ok(/samples/i.test((await page.locator('.vback').getAttribute('aria-label')) ?? ''), 'la salida del visor en inglés dice «samples»');
   await page.keyboard.press('Escape');
   await page.waitForURL(/\/en\/references\/$/);
   ok(true, 'Esc vuelve a la galería en inglés');

@@ -1,5 +1,6 @@
 // Qué secciones y rutas existen ya. Los enlaces solo aparecen cuando su destino existe (nada de enlaces muertos).
-import { anyBuilt } from '../lib/refs';
+import brand from '../../brand.json';
+import { anyBuilt, builtRefs } from '../lib/refs';
 
 export const READY = {
   refs: anyBuilt(), // /referencias/  (aparece en cuanto hay referencias construidas)
@@ -7,3 +8,27 @@ export const READY = {
   process: false, // #proceso      (Hito 4)
   contact: false, // #contacto     (Hito 4)
 };
+
+// ── Datos de contacto y navegación (el texto de las etiquetas vive en src/i18n/copy.ts) ───────────────────────
+/** Destinos del menú, en orden. Sus ids localizados salen de `sectionId()` (src/data/services.ts) y sus etiquetas de `t(lang).nav`. */
+export const NAV_KEYS = ['about', 'services', 'samples', 'process', 'contact'] as const;
+
+/** Redes en el orden de §8.8: Instagram · TikTok · YouTube · X · Facebook. La etiqueta accesible sale de `t(lang).contact.social`. */
+export const SOCIALS = [
+  { key: 'instagram', href: brand.social.instagram },
+  { key: 'tiktok', href: brand.social.tiktok },
+  { key: 'youtube', href: brand.social.youtube },
+  { key: 'x', href: brand.social.x },
+  { key: 'facebook', href: brand.social.facebook },
+] as const;
+
+/** Correo y teléfono tal como se muestran y se enlazan (`mailto:` y `tel:`). */
+export const CONTACT = {
+  email: brand.contact.email,
+  mailto: `mailto:${brand.contact.email}`,
+  phone: brand.contact.whatsapp.display,
+  tel: `tel:${brand.contact.phone.replace(/[^+\d]/g, '')}`,
+} as const;
+
+/** Número real de ejemplos publicados: el del enlace «Ver los n ejemplos» (nunca se finge una lista mayor). */
+export const samplesCount = (): number => builtRefs().length;

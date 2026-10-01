@@ -1,6 +1,8 @@
 /* Tipografías propias (sin terceros). Solo los archivos que el sitio usa: latin y symbols2 (≈ 70 KB en total).
    Las rutas salen de node_modules: Vite las copia a /_astro/ con hash. Licencias en CREDITS.md (OFL-1.1).
-   Dos voces: Bricolage Grotesque = lo que se lee · Geist Mono = lo que se ve (arte, etiquetas, datos). */
+   Tipografía MIXTA (decisión del dueño, 30-sep-2026, tras ver la página en vivo): lo que rotula y lo que se mira va en Geist Mono
+   (--font-head: titulares, botones, navegación, etiquetas, y el arte); lo que se lee de corrido va en Bricolage Grotesque
+   (--font-body: párrafos, lead, listas, textos de placa). Para cambiar el reparto basta editar --font-head o --font-body abajo. */
 
 /* Bricolage Grotesque Variable · eje wght 200–800 · latin 41 KB */
 @font-face {
@@ -73,10 +75,14 @@
   line-gap-override: 0%;
 }
 
-/* Mono: Geist Mono avanza 0,6 em, igual que Courier New (1229/2048 → 99,98 %) y que las monoespaciadas de 0,6 em de la lista. */
+/* Mono: Geist Mono avanza 0,6 em en TODOS los pesos, igual que Courier New (1229/2048 → 100,02 %) y que las monoespaciadas de 0,6 em de la lista.
+   Ahora los titulares y botones (peso 600–800) pintan con este respaldo mientras llega la fuente: sin `font-weight` el navegador
+   engordaría artificialmente el archivo normal (negrita sintética) y los titulares se verían de otro ancho. Con el rango 100–900
+   usa el archivo tal cual: el ancho coincide a cualquier peso (comprobado en 400–800: npm run fallback:check -- --measure). */
 @font-face {
   font-family: 'Gaya Mono Fallback';
   src: local('Courier New'), local('Liberation Mono'), local('Cousine'), local('Menlo'), local('DejaVu Sans Mono'), local('Noto Sans Mono'), local('Roboto Mono'), local('Droid Sans Mono');
+  font-weight: 100 900;
   size-adjust: 100%;
   ascent-override: 100.5%;
   descent-override: 29.5%;
@@ -87,6 +93,8 @@
 :root {
   --font-display: 'Bricolage Grotesque Variable', 'Gaya Sans Fallback', system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', 'Gaya Mono Fallback', ui-monospace, monospace;
-  /* Cuerpo: Bricolage. Para pasarlo a mono basta cambiar esta línea por var(--font-mono). */
+  /* Texto corrido (párrafos, lead, listas «Incluye», textos de placa): Bricolage. */
   --font-body: var(--font-display);
+  /* Titulares (h1–h4), botones y controles tipo botón, enlaces de navegación, etiquetas e insignias: Geist Mono. */
+  --font-head: var(--font-mono);
 }

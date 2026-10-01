@@ -63,18 +63,25 @@
 
 /* ── Rótulos: botones «cartel» ───────────────────────────────────────────────────────────────────
    Objetivo ≥ 48 px (≥ 44 en los primarios móviles, 2.5.8). `:where()` mantiene la especificidad en 0,1,0 para que un
-   componente pueda ajustar lo suyo. Al pasar el puntero el rótulo se acerca a su sombra; al pulsar, se asienta del todo. */
+   componente pueda ajustar lo suyo. Al pasar el puntero el rótulo se acerca a su sombra; al pulsar, se asienta del todo.
+   El rótulo va en Geist Mono 700 (tipografía mixta): «Escríbenos por WhatsApp» son 23 columnas de 0,6 em. */
 :where([data-ui='cartel']) .btn {
   position: relative;
   min-width: 48px;
   min-height: 48px;
   padding: 0 1.5rem;
   border-radius: 2px;
-  font: 600 1.0625rem / 1 var(--font-display);
+  font: 700 var(--fs-btn) / 1 var(--font-head);
   box-shadow: calc(var(--cw) * 1.5) calc(var(--ch) * 0.5) 0 var(--t3);
   transition:
     transform 0.12s,
     box-shadow 0.12s;
+}
+/* A 320 px la línea útil mide 288 px y «Escríbenos por WhatsApp» (23 columnas de 9,44 px) con su icono pide 283 con relleno de 16 px. */
+@media (max-width: 22.5rem) {
+  :where([data-ui='cartel']) .btn {
+    padding-inline: 1rem;
+  }
 }
 /* Zona de clic ampliada hacia arriba y a la izquierda lo que se desplaza el rótulo al pasar el puntero: sin ella, el
    borde superior izquierdo parpadea (al moverse el botón, el puntero deja de estar encima y vuelve). */

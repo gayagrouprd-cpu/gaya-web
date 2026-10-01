@@ -24,7 +24,9 @@ interface Props {
   jsonLd?: Record<string, unknown>;
   /** Gramática visual de los controles: «cartel» = rótulos con sombra en bloque (la portada); «classic» = la actual (galería, visor, 404). */
   ui?: 'cartel' | 'classic';
-  /** Precarga Geist Mono (latin + symbols2). Solo donde hay arte: si la página no la usa, Chrome avisa por consola. */
+  /** Precarga las fuentes del inicio: Geist Mono `latin` (el `h1` es el LCP), Bricolage `latin` (lead y párrafos) y Geist Mono `symbols2` (cajas y
+   *  bloques del arte en el DOM). Solo donde hay arte: si la página no usa un archivo, Chrome avisa por consola. La galería, el visor y el 404
+   *  («classic») usan una sola familia (mono, ver base.css) y precargan solo su `latin`. */
   preloadMono?: boolean;
 }
 
@@ -42,6 +44,10 @@ const {
   preloadMono = false,
 } = Astro.props;
 
+// Precargas de fuentes (tipografía mixta). Inicio (`preloadMono`): el LCP es el `h1`, en Geist Mono 800, así que su archivo `latin` va primero y SIN
+// `fetchpriority` (las fuentes precargadas ya son de prioridad alta); Bricolage `latin` (lead y párrafos) viaja a la par y `symbols2`, que solo
+// pinta el arte en el DOM, espera con prioridad baja. Galería, visor y 404: una sola fuente, la mono. Medido con Lighthouse móvil (mediana de 5, ES):
+// con dos familias y sin precargas la galería daba 2,7 s de LCP; con una familia y su precarga, 2,03 s (el visor, 2,1 s).
 const canonical = routeKey ? url(lang, routeKey, params) : undefined;
 const alts = routeKey ? alternates(routeKey, params) : [];
 const ogAbs = new URL(ogImage, brand.site).href;
@@ -87,8 +93,8 @@ const csp = [
     <meta property="og:locale" content={locale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@GayaGroupRD" />
-    <link rel="preload" href={bricolageLatin} as="font" type="font/woff2" crossorigin />
-    {preloadMono && <link rel="preload" href={geistMonoLatin} as="font" type="font/woff2" crossorigin fetchpriority="low" />}
+    {(preloadMono || ui === 'classic') && <link rel="preload" href={geistMonoLatin} as="font" type="font/woff2" crossorigin />}
+    {preloadMono && <link rel="preload" href={bricolageLatin} as="font" type="font/woff2" crossorigin />}
     {preloadMono && <link rel="preload" href={geistMonoSymbols} as="font" type="font/woff2" crossorigin fetchpriority="low" />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <slot name="head" />

@@ -126,8 +126,10 @@ const presentTypes = (Object.keys(types) as RefType[]).filter((k) => refs.some((
     border-radius: var(--radius-pill);
     background: transparent;
     color: var(--muted);
-    font-size: var(--text-s);
-    font-weight: 500;
+    font-family: var(--font-head);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     cursor: pointer;
     transition:
       background-color var(--dur-2) var(--ease-out),
@@ -222,9 +224,10 @@ const presentTypes = (Object.keys(types) as RefType[]).filter((k) => refs.some((
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    font-family: var(--font-head);
     font-size: var(--text-l);
     font-weight: 700;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
     line-height: 1.1;
   }
   .dots {

@@ -39,12 +39,13 @@ import brand from '../../brand.json';
     line-height: 1;
     color: var(--accent-text);
   }
+  /* Titular en Geist Mono (viene de base.css): «Página no encontrada» son 20 columnas de 0,58 em; 24 px es lo más grande que cabe
+     en 320 px, y 22 caracteres de caja bastan para dos líneas («Página no encontrada» / «· Page not found»). */
   h1 {
-    max-width: 18ch;
-    font-size: var(--text-xl);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    max-width: 22ch;
+    font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.1;
   }
   h1 span {
     color: var(--muted);

@@ -200,7 +200,8 @@ for (const [width, cell] of Object.entries(CELLS)) {
   const sh = b1['box-shadow'].match(/-?[\d.]+px/g).map(parseFloat);
   ok(b1['border-top-left-radius'] === '2px', `${tag}: radio 2 px`);
   ok(rgb(b1['box-shadow']).join() === '11,27,108' && near(sh[0], cell.cw * 1.5, 0.01) && near(sh[1], cell.ch * 0.5, 0.01) && sh[2] === 0, `${tag}: sombra en bloque ${sh[0]}px ${sh[1]}px en T3 (#0b1b6c)`);
-  ok(b1['font-weight'] === '600' && /Bricolage Grotesque Variable/.test(b1['font-family']), `${tag}: Bricolage 600`);
+  // Tipografía mixta (30-sep-2026): el rótulo de todo botón va en Geist Mono 700 (antes Bricolage 600).
+  ok(b1['font-weight'] === '700' && /Geist Mono Variable/.test(b1['font-family']), `${tag}: Geist Mono 700 (tipografía mixta)`);
   ok((await toRgb(page, b1['background-color'])).join() === '60,117,255', `${tag}: primario con fondo --accent (${b1['background-color']})`);
   // hover: el rótulo se acerca a su sombra
   const box = await page.locator('#b1').boundingBox();

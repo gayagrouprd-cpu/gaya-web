@@ -28,6 +28,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Galería, visor y 404 («classic») no tienen párrafos: solo títulos, botones y etiquetas (el rubro bajo cada ejemplo), todo mono. Con
+   una sola familia esas páginas piden un archivo de fuente y no dos: el LCP es una imagen y cada fuente extra lo retrasa en el lab (Lighthouse
+   móvil, galería: 2,7 s con dos familias → 2,0 s con una y su precarga). */
+body[data-ui='classic'] {
+  --font-body: var(--font-mono);
+}
+
 img,
 svg,
 canvas,
@@ -36,14 +43,24 @@ picture {
   max-width: 100%;
 }
 
+/* Titulares en Geist Mono (--font-head, tipografía mixta). Sin ligaduras: «calt» de la mono convierte secuencias como «->» o «..» en
+   una sola forma y descuadraría las columnas que el cuerpo del titular da por hechas. Cada página fija su tamaño y su peso. */
 h1,
 h2,
-h3 {
+h3,
+h4 {
   margin: 0;
+  font-family: var(--font-head);
   font-weight: 700;
+  font-variant-ligatures: none;
   line-height: var(--lh-tight);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ls-h3);
+  word-spacing: var(--ws-head);
   text-wrap: balance;
+}
+h1,
+h2 {
+  font-weight: 800;
 }
 
 p {
@@ -112,7 +129,8 @@ button {
   border-radius: var(--radius-pill);
   background: var(--accent);
   color: var(--on-accent);
-  font-weight: 600;
+  font-family: var(--font-head);
+  font-weight: 700;
   text-decoration: none;
   transform: translateY(-200%);
 }
@@ -135,13 +153,17 @@ button {
 /* Botones. La estructura es común; la apariencia depende de la gramática de la página (<body data-ui>, lo pone Base.astro):
      «classic» (galería, visor, 404): píldoras, aquí abajo.
      «cartel» (portada): rótulos con sombra en bloque, en ascii.css.
-   `:where()` deja la especificidad de cada regla donde estaba (0,1,0), para que los estilos propios de cada componente sigan mandando. */
+   `:where()` deja la especificidad de cada regla donde estaba (0,1,0), para que los estilos propios de cada componente sigan mandando.
+   Tipografía mixta: el rótulo de todo botón va en Geist Mono 700 (--font-head), en ambas gramáticas. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
   border: 1px solid transparent;
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
@@ -156,8 +178,7 @@ button {
   min-height: 3rem;
   padding: 0 var(--space-6);
   border-radius: var(--radius-pill);
-  font-size: var(--text-m);
-  font-weight: 600;
+  font-size: var(--text-s);
   transition:
     transform var(--dur-2) var(--ease-out),
     background-color var(--dur-2) var(--ease-out),

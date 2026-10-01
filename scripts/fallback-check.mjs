@@ -89,7 +89,11 @@ if (process.argv.includes('--measure')) {
     en: 'Web and app development, digital marketing, IT support and AI automation. From Santo Domingo, Dominican Republic, to the world.',
     ui: 'Referencias Presencia Reservas y pedidos App Quiero una así Escríbenos por WhatsApp Nosotros Servicios Ejemplos Proceso Contacto',
   };
-  const MONO_SAMPLES = { ascii: 'yaAG~*o·:= 0123456789 hola@gaya.com.do +1 849 925 4426 '.repeat(4) };
+  // Tipografía mixta: la mono ya no solo rotula (500), también pinta titulares y botones (600–800) mientras llega la fuente.
+  const MONO_SAMPLES = {
+    ascii: 'yaAG~*o·:= 0123456789 hola@gaya.com.do +1 849 925 4426 '.repeat(4),
+    titulares: 'Tu negocio, imposible de ignorar · Quiénes somos · Soporte e infraestructura IT · Your business, impossible to ignore · Escríbenos por WhatsApp · Gaya Digital',
+  };
   const html = `<!doctype html><meta charset="utf-8"><style>
 @font-face{font-family:W;src:url(data:font/woff2;base64,${b64(WEB.sans)}) format('woff2-variations');font-weight:200 800}
 @font-face{font-family:M;src:url(data:font/woff2;base64,${b64(WEB.mono)}) format('woff2-variations');font-weight:100 900}
@@ -128,7 +132,7 @@ body{margin:0} .l{font-size:100px;white-space:nowrap;display:inline-block} .p{di
   console.log('\nMedición en Chrome (cuerpo 100 px; respaldo / fuente web):');
   for (const [kind, webFamily, tol, ws, samples] of [
     ['sans', 'W', 0.02, weights, SANS_SAMPLES],
-    ['mono', 'M', 0.005, [400, 500], MONO_SAMPLES],
+    ['mono', 'M', 0.005, [400, 500, 600, 700, 800], MONO_SAMPLES],
   ]) {
     if (!present[kind]) continue;
     for (const weight of ws) {

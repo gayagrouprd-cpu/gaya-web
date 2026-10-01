@@ -1,8 +1,10 @@
 ---
 // Marca provisional: «▞ Gaya Digital». Cuando llegue el logo del diseñador se cambia solo este archivo: el marcado y los
 // estilos de la marca viven aquí y no dependen de ninguna hoja de cromo.
-//   · El cuadrante ▞ se dibuja con dos cuadrados de CSS (es el mismo glifo, sin pedir Geist Mono: la galería y el 404 no cargan
-//     esa fuente y el logo no debe añadirla) + el nombre en Bricolage 700. Es decoración: aria-hidden, sin texto.
+//   · El cuadrante ▞ se dibuja con dos cuadrados de CSS (es el mismo glifo, sin pedir `symbols2`: el logo no debe añadir ese archivo
+//     a la galería ni al 404) + el nombre en Geist Mono 700 (tipografía mixta, 30-sep-2026): la marca es un rótulo, y en mono
+//     encaja con el cuadrante, que es un bloque de la misma fuente. El nombre solo usa `latin`, que esas páginas ya cargan.
+//     El cuadrante es decoración: aria-hidden, sin texto.
 //   · El CSS va en línea (`is:inline`) y no en una hoja aparte: Logo lo comparten Nav (galería, visor, portada) y la 404, así que
 //     Astro lo sacaría a una hoja propia de 0,4 KB gz = una petición más que bloquea el pintado en cada página con cromo. Si
 //     la página pone dos logos (píldora y menú) solo el primero lleva el CSS (`styles={false}` en los demás); la 404 carga solo esto.
@@ -19,7 +21,7 @@ interface Props {
 const { href, styles = true } = Astro.props;
 ---
 
-{styles && <style is:inline>.logo{display:inline-flex;align-items:center;gap:.4rem;min-height:2.75rem;color:var(--ink);text-decoration:none}.logo__mark{flex:none;width:1.25rem;height:1.25rem;background:linear-gradient(var(--t13),var(--t13)) top right/50% 50% no-repeat,linear-gradient(var(--t10),var(--t10)) bottom left/50% 50% no-repeat;transition:filter .12s}.logo__name{font-size:var(--text-m);font-weight:700;letter-spacing:-.01em;line-height:1;white-space:nowrap}@media (hover:hover){.logo:hover .logo__mark{filter:brightness(1.25)}}@media (forced-colors:active){.logo__mark{forced-color-adjust:none;background:linear-gradient(CanvasText,CanvasText) top right/50% 50% no-repeat,linear-gradient(CanvasText,CanvasText) bottom left/50% 50% no-repeat}}</style>}
+{styles && <style is:inline>.logo{display:inline-flex;align-items:center;gap:.4rem;min-height:2.75rem;color:var(--ink);text-decoration:none}.logo__mark{flex:none;width:1.25rem;height:1.25rem;background:linear-gradient(var(--t13),var(--t13)) top right/50% 50% no-repeat,linear-gradient(var(--t10),var(--t10)) bottom left/50% 50% no-repeat;transition:filter .12s}.logo__name{font:700 1rem/1 var(--font-head);letter-spacing:-.03em;white-space:nowrap}@media (hover:hover){.logo:hover .logo__mark{filter:brightness(1.25)}}@media (forced-colors:active){.logo__mark{forced-color-adjust:none;background:linear-gradient(CanvasText,CanvasText) top right/50% 50% no-repeat,linear-gradient(CanvasText,CanvasText) bottom left/50% 50% no-repeat}}</style>}
 <a class="logo" href={href}>
   <span class="logo__mark" aria-hidden="true"></span>
   <span class="logo__name" translate="no">{brand.name}</span>

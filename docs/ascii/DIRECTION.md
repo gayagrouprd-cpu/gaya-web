@@ -36,7 +36,7 @@ Los cuatro son **bidireccionales** (al subir de nuevo se reproducen al revés, m
 | Altura de la página | ≈ 15 pantallas en escritorio (hoy 1); ≈ 22 en móvil |
 | Secciones | 10 (inicio, nosotros, servicios + 4 fichas, ejemplos, proceso, contacto) |
 | Escenas de arte | 8 carteles + 1 bruma + 2 piezas en DOM (índice y proceso) |
-| Tipografía | **2 familias**: Bricolage Grotesque Variable (todo el texto real) y Geist Mono Variable (arte, etiquetas, datos) |
+| Tipografía | **2 familias, reparto mixto (2026-09-30)**: Geist Mono Variable (titulares, botones, navegación, etiquetas, arte) y Bricolage Grotesque Variable (párrafos, lead, listas, textos de placa) |
 | Rejilla | celda 6×12 (< 900 px) · 9×18 (900–1599) · 12×25 (≥ 1600), enteros de píxel |
 | JS del arte | ≤ 18 KB gz en la primera carga, ≤ 40 KB gz en total (techo del sitio: 60 KB) |
 | Fuentes | ≈ 70 KB (3 archivos) |
@@ -151,7 +151,7 @@ Veinte reglas. Las marcadas ★ son del dueño o de PRODUCT.md y **no se negocia
 | R6 ★ | **Sin cliché de terminal/hacker**: sin prompt, cursor decorativo, CRT, verde, ventana falsa, scramble, corchetes ni árboles en la interfaz. |
 | R7 ★ | **Paleta Cobalto**: 16 tonos derivados de `--glow-0..3`; acento `--accent` ≤ 5 % del área. |
 | R8 | **El arte es decoración.** `aria-hidden`, `translate="no"`, `user-select: none`; nunca contiene información ni texto que no esté también en el DOM. |
-| R9 | **Lo que se lee es texto real** en Bricolage Grotesque; lo que se ve es arte. Dos voces, una regla de reparto. |
+| R9 | **Lo que se lee es texto real; lo que se ve es arte.** Dos voces, una regla de reparto (revisada el 2026-09-30, tipografía mixta): lo que rotula —titulares, botones, navegación, etiquetas— en Geist Mono; lo que se lee de corrido —párrafos, lead, listas, textos de placa— en Bricolage Grotesque (§5.1). |
 | R10 | **Cada pantalla tiene un acontecimiento**: un cartel que llega, una marea, una placa que sube, un hilo que se enciende. No hay valles. |
 | R11 | **Nada se mueve solo** salvo la ignición (≤ 2,6 s). Todo lo demás lo dispara el scroll, el puntero, el foco o el toque, **dura ≤ 2,4 s** y duerme a los 1,6 s. Nada > 5 s (2.2.2). |
 | R12 | **Los guiones corren por tiempo; el scroll los dispara, no los conduce.** Así el momento firma es igual con un dedo lento o con un fling (CA-2). |
@@ -258,7 +258,7 @@ Cada fila es **un enlace principal** (nombre + palabra como fondo decorativo) al
 └────────────────────────────────────────────────────────────────────────────────────────────────┘
 filas 4–20   ░▒  PALABRA  (121×16 celdas, 76 % del ancho, luz cobalto, bruma alrededor)  ▒░
 fila 21–24   (aire)
-fila 26–36   h1 en Bricolage 800, 88 px                    ← pozo «ink» (tope T6)
+fila 26–36   h1 en Geist Mono 800, 88 px                   ← pozo «ink» (tope T6)
 fila 37–40   lead en Bricolage 400, 24 px                  ← pozo «muted» (tope T4)
 fila 42–45   [ Escríbenos por WhatsApp ]   Ver ejemplos    ← botones reales sobre pozo
 ```
@@ -283,7 +283,7 @@ fila 42–45   [ Escríbenos por WhatsApp ]   Ver ejemplos    ← botones reales
 
 | Elemento | Escritorio (≥ 900 px) | Móvil (< 900 px) |
 |---|---|---|
-| **Marca** | `▞ Gaya Digital` en texto (Bricolage 700) + cuadrante `▞` (Geist Mono, `aria-hidden`) como logo provisional; se sustituye editando **un solo archivo** (`Logo.astro`) cuando llegue el logo del diseñador | igual |
+| **Marca** | `▞ Gaya Digital` en texto (Geist Mono 700, `-0.03em`: con la tipografía mixta la marca es un rótulo y encaja con el cuadrante) + cuadrante `▞` (dos cuadrados de CSS, `aria-hidden`) como logo provisional; se sustituye editando **un solo archivo** (`Logo.astro`) cuando llegue el logo del diseñador | igual |
 | **Menú** | Píldora superior (la actual) con 5 enlaces: *Nosotros · Servicios · Ejemplos · Proceso · Contacto*; `aria-current="location"` en el activo (scroll-spy con `IntersectionObserver`, `rootMargin: -45% 0 -50% 0`, sin tocar el historial) | Botón de menú con icono + `aria-label` que abre un `popover` de pantalla completa con los 5 destinos **y los 4 servicios como subenlaces** (MN-1) |
 | **Idioma** | Enlace `ES` / `EN` en la píldora (`hreflang`) | Barra inferior, a la izquierda |
 | **WhatsApp** | Botón circular de icono en la píldora (`aria-label` «Escríbenos por WhatsApp») + botón primario en cada pantalla | **Barra inferior fija de 56 px** con WhatsApp dominante (≥ 44 px); se oculta mientras el botón de la portada está a la vista (1 IO) |
@@ -305,19 +305,23 @@ Cada cartel ocupa **una pantalla** (100 svh); las placas crecen con el texto: Qu
 
 ### 5.1 Tipografía (exacta)
 
-**Dos voces.** *Lo que se lee* en **Bricolage Grotesque Variable** (OFL-1.1, eje `wght` 200–800, archivo `latin` de 41 KB); *lo que se ve y lo que rotula* en **Geist Mono Variable** (OFL-1.1, `latin` 23,1 KB + `symbols2` 5,8 KB). Motivo: los tres conceptos usaron solo mono y **los tres jueces de negocio lo objetaron** («herramienta de desarrolladores», CA-4, CN-2, MN-11); R03 §1.9 documenta que la mono no ayuda en texto corrido; y la marca ya tiene Bricolage (DESIGN.md). Es **el plan B de Cartel convertido en plan A**. Con una variable CSS (`--font-body`) el dueño puede cambiar el cuerpo a mono en un solo sitio si «quiere más ASCII».
+**Tipografía MIXTA** (decisión del dueño, **2026-09-30**, tras ver la página en vivo: «Mixta: titulares y botones en monoespaciada; párrafos en Bricolage»; sustituye al reparto anterior de dos voces, en el que Bricolage llevaba todo lo que se lee). *Lo que rotula* —`h1`–`h4` y los títulos de sección y de ficha, los botones (`.btn` y los controles tipo botón), los enlaces de navegación, las etiquetas y las insignias, la marca— va en **Geist Mono Variable** (OFL-1.1, `latin` 23,1 KB + `symbols2` 5,8 KB, eje `wght` 100–900; pesos 600–800 en titulares y botones). *Lo que se lee de corrido* —párrafos, lead, promesas, listas «Incluye», valores de la placa— va en **Bricolage Grotesque Variable** (OFL-1.1, eje `wght` 200–800, archivo `latin` de 41 KB). **Motivo:** el dueño pidió que la página entera se sienta como arte ASCII y no solo el lienzo, y a la vez que no caiga en «terminal de hackers»; la mono en el cuerpo seguiría siendo una carga de lectura (los tres jueces de negocio lo objetaron: «herramienta de desarrolladores», CA-4, CN-2, MN-11; R03 §1.9), así que la mono sube a los titulares y a los controles —lo primero que se mira— y los párrafos conservan Bricolage. Con las variables `--font-head` (mono) y `--font-body` (Bricolage) de `src/styles/fonts.css` el reparto se cambia en un solo sitio.
 
 | Rol | Familia | Tamaño | Peso | Interlínea | Notas |
 |---|---|---|---:|---:|---|
-| `h1` | Bricolage | `clamp(2.5rem, 1.15rem + 5.6vw, 5.5rem)` | 800 | 0,98–1,02 | `letter-spacing: -0.025em` (≥ −0,04em), `text-wrap: balance`, máx. 12 ch por línea en móvil; palabra de acento en `--accent-text` |
-| `h2` | Bricolage | `clamp(2rem, 1.2rem + 3.2vw, 3.75rem)` | 800 | 1,04 | visible, **texto real** |
-| `h3` (servicio) | Bricolage | `clamp(1.75rem, 1.1rem + 2.6vw, 3.25rem)` | 800 | 1,06 | visible, texto real |
+| `h1` | **Geist Mono** | `--fs-h1`: `clamp(2.125rem, 10.6vw, 3.5rem)` < 600 px (ES: `clamp(2.375rem, 12.4vw, 3.75rem)`) · `clamp(2.75rem, 7.6vw, 5.5rem)` ≥ 600 px | 800 | 1,04 | `letter-spacing: -0.03em`, `word-spacing: -0.1em`, `text-wrap: balance`; **< 600 px tres líneas** con el acento en la suya (`display: block`: «Tu negocio, / imposible / de ignorar»), **≥ 600 px dos líneas** en una caja de 11,5 em (20 columnas); palabra de acento en `--accent-text` |
+| `h2` | **Geist Mono** | `clamp(2rem, 1rem + 3.4vw, 3.5rem)` | 800 | 1,06 | `letter-spacing: -0.025em`; visible, **texto real** |
+| `h3` (servicio) | **Geist Mono** | `clamp(1.625rem, 1rem + 2.4vw, 2.75rem)` | 800 | 1,1 | `letter-spacing: -0.02em`; visible, texto real |
+| Nombre de servicio (Índice) y de ejemplo (fila) | **Geist Mono** | `clamp(1.25rem, 1rem + 1.2vw, 1.875rem)` | 800 | 1,1 | `letter-spacing: -0.02em`, `text-wrap: balance` |
+| Botones (`.btn`, controles tipo botón, `summary`), enlaces de navegación, «Ver detalle», idioma, marca | **Geist Mono** | 14–16 px | 600–700 | 1 | `letter-spacing: -0.01em`; rótulo de botón en una sola línea (`nowrap`), ≥ 44 px de alto; la marca «Gaya Digital» en mono 700 a 16 px, `-0.03em` |
 | Promesa / lead | Bricolage | `clamp(1.25rem, 1.05rem + 1vw, 1.75rem)` | 600 / 400 | 1,3 | lead ≤ 34 rem |
-| Cuerpo | Bricolage | `clamp(1rem, .95rem + .25vw, 1.125rem)` | 400 | 1,6 | ≤ 38 rem, sin justificar, `text-wrap: pretty`, párrafos ≤ 5 líneas |
-| Etiquetas de campo (`dt`), fuente de dato, rótulos de placa | **Geist Mono** | 13–14 px | 500 | 1,4 | `--muted`; minúscula; **sin** corchetes |
+| Cuerpo (párrafos, listas «Incluye», valores de la placa, textos de placa) | Bricolage | `clamp(1rem, .95rem + .25vw, 1.125rem)` | 400 | 1,6 | ≤ 38 rem, sin justificar, `text-wrap: pretty`, párrafos ≤ 5 líneas |
+| Etiquetas de campo (`dt`), fuente de dato, rótulos de placa, insignias | **Geist Mono** | 13–14 px | 500 | 1,4 | `--muted`; minúscula; **sin** corchetes |
 | Arte | Geist Mono | 10 / 15 / 20 px | 400–500 | `--ch` | ver §5.2 |
 
-Regla de reparto (R9): *si una persona tiene que leerlo, Bricolage; si se mira, Geist Mono y celdas*.
+**Regla de reparto (R9), revisada el 2026-09-30:** *lo que rotula y lo que se mira —titulares, botones, navegación, etiquetas, marca, arte— va en Geist Mono; lo que se lee de corrido —párrafos, lead, promesas, listas, textos de placa— va en Bricolage.* Sustituye a «si una persona tiene que leerlo, Bricolage; si se mira, Geist Mono y celdas». **Motivo:** el dueño, tras ver la página en vivo, eligió la opción «Mixta: titulares y botones en monoespaciada; párrafos en Bricolage»; quiere que la piel entera de la página se lea como arte ASCII (no solo el lienzo) sin caer en el cliché de terminal. Los titulares son mono; el cuerpo, no, porque los párrafos en mono cargan la lectura (R03 §1.9).
+
+**Cómo se dimensiona un titular en mono.** Geist Mono avanza 0,6 em por carácter **en todos los pesos**; con `letter-spacing: -0.03em` son 0,57 em y con `word-spacing: -0.1em` el espacio entre palabras queda en 0,5 em. El cuerpo sale de las **columnas** que la línea más larga debe alojar, no del ancho de pantalla a ojo: `cuerpo × 0,57 × columnas ≤ ancho útil`. Para el `h1` («Tu negocio, imposible de ignorar» / «Your business, impossible to ignore»): en móvil la línea más larga es «Your business,» (14 columnas) → 10,6 vw; el español (11 columnas) sube a 12,4 vw; desde 600 px son dos líneas de 20 columnas → 7,6 vw con techo de 5,5 rem (1 003 px de texto en los 1 216 de `--max`). Los títulos de ficha caben por construcción: la palabra más larga («infraestructura», 15 columnas) mide 222 px a 26 px de cuerpo, y la caja del texto (`.stage__in`) nunca baja de 288 px. `scripts/typo-check.mjs` lo comprueba a quince anchos: familia por rol, palabras partidas, desbordes, botones y pozos.
 
 **Carga.** `@font-face` propios en `src/styles/fonts.css` con `url()` **relativas a `node_modules`** (Vite las copia con hash) y solo los archivos `latin` y `symbols2`: se sustituye el proveedor `npm` de Astro Fonts, que (a) ignora `subsets`, (b) precarga todo o nada y (c) calcula mal el respaldo métrico (R03 §1.5: 85,986 % para Geist y 132,57 % para Bricolage). Respaldos explícitos:
 
@@ -325,12 +329,13 @@ Regla de reparto (R9): *si una persona tiene que leerlo, Bricolage; si se mira, 
 @font-face { font-family: "Gaya Sans Fallback"; src: local("Arial"), local("Helvetica Neue"), local("Roboto");
   size-adjust: 111.04%; ascent-override: 83.76%; descent-override: 24.32%; line-gap-override: 0%; } /* R03 §1.5 — verificar con capsize en dist/ */
 @font-face { font-family: "Gaya Mono Fallback"; src: local("Courier New"), local("Liberation Mono"), local("Cousine"), local("Menlo"), local("DejaVu Sans Mono");
-  size-adjust: 100%; ascent-override: 100.5%; descent-override: 29.5%; line-gap-override: 0%; }        /* R03 §2.2 opción B */
+  font-weight: 100 900; size-adjust: 100%; ascent-override: 100.5%; descent-override: 29.5%; line-gap-override: 0%; } /* R03 §2.2 opción B; el rango de peso evita la negrita sintética */
 :root { --font-display: "Bricolage Grotesque Variable", "Gaya Sans Fallback", system-ui, sans-serif;
         --font-mono:    "Geist Mono Variable", "Gaya Mono Fallback", ui-monospace, monospace;
-        --font-body: var(--font-display); }
+        --font-body: var(--font-display);     /* texto corrido */
+        --font-head: var(--font-mono); }      /* titulares, botones, navegación, etiquetas (tipografía mixta, 2026-09-30) */
 ```
-`font-display: swap` en ambas. **Nunca** terminar la pila mono en `monospace` a secas (en Windows es Consolas, 0,55 em). Precarga en `Base.astro`: Bricolage `latin` (prioridad alta), Geist Mono `latin` y `symbols2` con `fetchpriority="low"`. Se añade Geist Mono a `CREDITS.md` (© 2024 The Geist Project Authors, OFL-1.1).
+`font-display: swap` en ambas. **Nunca** terminar la pila mono en `monospace` a secas (en Windows es Consolas, 0,55 em). **Precarga en `Base.astro` (revisada con la tipografía mixta):** solo las páginas con arte (`preloadMono`: el inicio en ES y EN) precargan, y como su LCP es el `h1` en Geist Mono 800 el `latin` de la mono va **sin `fetchpriority`** (las fuentes precargadas ya son de prioridad alta; antes iba `low`) y primero, Bricolage `latin` a la par y `symbols2` con `fetchpriority="low"`. **La galería, el visor y el 404 no precargan ninguna fuente:** su LCP es una imagen y una fuente precargada le quita ancho de banda (Lighthouse móvil, mediana de 5: visor 2,41 s con Bricolage precargada → 1,65 s sin precargas; galería 2,63 → 1,73 s con la mono quitada); el texto pinta con el respaldo métrico y la fuente entra después sin mover nada. El respaldo `Gaya Mono Fallback` declara el rango `100–900` para que Chrome no engorde artificialmente el archivo normal mientras llega la fuente (CLS 0 con la fuente retrasada: `scripts/base-check.mjs`; ancho de titulares y botones en 400–800: `npm run fallback:check -- --measure`). Se añade Geist Mono a `CREDITS.md` (© 2024 The Geist Project Authors, OFL-1.1).
 
 ### 5.2 Celda y retícula
 
@@ -472,7 +477,7 @@ Permitido: ASCII imprimible; `· ¯`; cajas `U+2500–257F` y bloques `U+2580–
 La gramática de la página es la del cartel: **cara + sombra proyectada**. Todo objeto interactivo es un pequeño rótulo con sombra en bloque, **sin corchetes**.
 
 ```css
-.btn { min-height: 48px; padding: 0 1.5rem; border-radius: 2px; font: 600 1.0625rem/1 var(--font-display); text-decoration: none;
+.btn { min-height: 48px; padding: 0 1.5rem; border-radius: 2px; font: 700 1rem/1 var(--font-head); letter-spacing: -0.01em; text-decoration: none;
        box-shadow: calc(var(--cw) * 1.5) calc(var(--ch) * .5) 0 var(--t3); transition: transform .12s, box-shadow .12s; }
 .btn--primary { background: var(--accent); color: var(--on-accent); }        /* 5,34:1 */
 .btn--ghost   { border: 1px solid color-mix(in oklch, var(--ink) 40%, transparent); color: var(--ink); }
@@ -1123,7 +1128,7 @@ El arte es **decoración** (R8); lo que se lee es **semántica real**. La matriz
 | **Transferencia de la primera carga** (HTML + CSS + JS + fuentes) | ≤ **140 KB** | ≈ 126 KB | medida con `npm run budgets` ampliado |
 | Imágenes en la home | **0** | | desaparecen `hero/*.webp`, `noise.png` y las miniaturas de `HeroCards` |
 | Terceros | **0** | | CSP intacta |
-| **LCP** | < 2,5 s (objetivo 2,0) | `h1` real + Bricolage | el póster **no** se pinta con JS (§6.9) |
+| **LCP** | < 2,5 s (objetivo 2,0) | `h1` real + Geist Mono 800 (precargada, prioridad alta) | el póster **no** se pinta con JS (§6.9) |
 | **CLS** | 0 | | cajas reservadas; respaldos métricos al 100 % |
 | **TBT** | < 200 ms | | motor tras `load` + inactividad; ninguna tarea > 50 ms |
 | **Lighthouse móvil** | ≥ 90 (mediana de 3) | | ningún referente ASCII lo cumple (R01 §3): ya es ganar |
@@ -1334,7 +1339,7 @@ Se ejecutan con `npm run check:ascii` (WP11) salvo las marcadas *manual*. «**Pu
 | 4 | **«Referencias» → «Ejemplos»** en toda la copia visible | Sí (URL intactas) | se conserva «Referencias» en nav, h2 y botones |
 | 5 | **Capacidades que confirma** (banderas de §8.1) | **Ninguna** → versión «piloto» | se activan una a una |
 | 6 | **Plazo «24–48 horas»** de la propuesta | No se publica | bandera `proposalHours` |
-| 7 | **Tipografía del cuerpo**: Bricolage (por defecto) o Geist Mono | Bricolage | `--font-body` a mono en un sitio |
+| 7 | **Tipografía**: reparto entre Bricolage y Geist Mono | **Resuelta por el dueño el 2026-09-30: mixta** (titulares y botones en mono; párrafos en Bricolage) | `--font-head` y `--font-body` en `fonts.css` |
 | 8 | **CTA único**: «Escríbenos por WhatsApp» / «Escribir por WhatsApp» | «Escríbenos…» | una cadena |
 | 9 | **Foto de Giancarlo** para un retrato de cuadrantes en la placa | Sin foto | solo nombre y rol |
 | 10 | **Emblemas de los 14 rubros**: aprobar los borradores o encargarlos a un diseñador | Borradores | se sustituyen archivos de `emblems.ts` |
@@ -1507,7 +1512,7 @@ Código = concepto (**M**undo · **I**nstrumento · **C**artel) + juez (**A**rte
 7. **Fuera:** Faro a Colón, Obelisco, lecturas en vivo, cámara única, islas, lupa, cálculo estelar, e-CF.
 
 **Tipografía y retícula**
-8. **Dos voces**: Bricolage Grotesque Variable (todo lo que se lee) + Geist Mono Variable (arte, etiquetas, datos). `--font-body` permite cambiar el cuerpo.
+8. **Dos voces, reparto mixto (2026-09-30)**: Geist Mono Variable (titulares, botones, navegación, etiquetas, arte) + Bricolage Grotesque Variable (párrafos, lead, listas, textos de placa). `--font-head` y `--font-body` permiten cambiar el reparto.
 9. Fuentes autoalojadas por `@font-face` propios (`latin` + `symbols2`), **70,2 KB**, respaldos métricos explícitos; fuera Astro Fonts.
 10. `h1`, `h2`, `h3` y todo el texto son **texto real visible**; no hay lettering de títulos.
 11. Celda **6×12 · 9×18 · 12×25** por viewport (< 900 · 900–1599 · ≥ 1600), `--ch` literal; el lienzo usa la misma celda en píxeles enteros, `dpr` ≤ 2.

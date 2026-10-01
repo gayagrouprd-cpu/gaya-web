@@ -58,7 +58,7 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
 
       <div class="vactions">
         <button type="button" class="vbtn vfav" data-fav={ref.slug} aria-pressed="false" aria-label={t(lang).gallery.fav(ref.name)} data-label-on={t(lang).gallery.unfav(ref.name)} data-label-off={t(lang).gallery.fav(ref.name)}><LIcon name="heart" /></button>
-        <a class="vbtn" href={live} target="_blank" rel="noopener" aria-label={c.open} title={c.open}><LIcon name="external-link" /></a>
+        <a class="vbtn vopen" href={live} target="_blank" rel="noopener" aria-label={c.open} title={c.open}><LIcon name="external-link" /></a>
         <button type="button" class="vbtn" id="copy" aria-label={c.copy} title={c.copy} data-done={c.copied}><LIcon name="link" /></button>
         <a class="vbtn vmail" href={mail} aria-label={c.email} title={c.email}><LIcon name="mail" /></a>
         <a class="btn btn--primary vcta" id="cta" data-cta="primary" href={wa} target="_blank" rel="noopener" aria-label={c.cta}><Icon name="whatsapp" /><span>{c.cta}</span></a>
@@ -166,6 +166,23 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
     width: 0.9rem;
     height: 0.9rem;
   }
+  /* En teléfono el rubro no cabe junto a los 5 botones: se oculta para que el botón de conversión siempre se alcance */
+  @media (max-width: 31rem) {
+    .vsector {
+      display: none;
+    }
+  }
+  /* Y en pantallas aún más angostas se ceden los botones secundarios (copiar y abrir en pestaña) al de conversión */
+  @media (max-width: 24rem) {
+    #copy {
+      display: none;
+    }
+  }
+  @media (max-width: 21rem) {
+    .vopen {
+      display: none;
+    }
+  }
   .vdevices,
   .vmail {
     display: none;
@@ -206,7 +223,8 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
   .vcta span {
     display: none;
   }
-  @media (min-width: 40rem) {
+  /* La etiqueta del botón va en mono (tipografía mixta) y es más ancha: a 768 px la barra ya no la alberga, así que aparece desde 900 px */
+  @media (min-width: 56.25rem) {
     .vcta span {
       display: inline;
     }

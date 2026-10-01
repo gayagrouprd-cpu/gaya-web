@@ -2,7 +2,7 @@
    Iluminación elegida: COBALTO — luz fría de pantalla bajo el agua, azul eléctrico que se vuelve hielo.
    El shader de la portada lee estas mismas variables (--glow-*). Para cambiar la marca, se editan solo estos valores.
    Los 16 tonos del arte (--t0 … --t15) salen de --glow-0..3: se regeneran con `npm run tones`, no se editan a mano.
-   Las familias tipográficas (--font-display, --font-mono, --font-body) viven en fonts.css. */
+   Las familias tipográficas (--font-display, --font-mono, --font-body, --font-head) viven en fonts.css. */
 
 @import './tones.css';
 
@@ -55,14 +55,35 @@
   --lh-snug: 1.2;
   --lh-body: 1.55;
 
-  /* Escala de los carteles (DIRECTION §5.1): h1/h2/h3/promesa/cuerpo en Bricolage, etiquetas en Geist Mono.
-     La escala anterior (--text-*) sigue viva para la galería, el visor y el 404. */
-  --fs-h1: clamp(2.5rem, 1.15rem + 5.6vw, 5.5rem);
-  --fs-h2: clamp(2rem, 1.2rem + 3.2vw, 3.75rem);
-  --fs-h3: clamp(1.75rem, 1.1rem + 2.6vw, 3.25rem);
+  /* Escala de los carteles (DIRECTION §5.1, tipografía MIXTA): titulares, botones y etiquetas en Geist Mono (--font-head);
+     promesa, lead y cuerpo en Bricolage. La escala anterior (--text-*) sigue viva para la galería, el visor y el 404.
+     Geist Mono avanza 0,6 em por carácter (con interletraje −0,03 em: 0,57 em), así que el cuerpo de un titular sale de las
+     COLUMNAS que debe alojar y no del ancho de pantalla a ojo. «Tu negocio, imposible de ignorar» y su versión inglesa
+     rompen igual y la cuenta es por columnas:
+       · < 600 px, tres líneas (el acento en la suya). La línea más larga es «Your business,» = 14 columnas en inglés y
+         «Tu negocio,» = 11 en español. Cuerpo EN = 10,6 vw → 14 × 0,57 × 10,6 vw = 84,6 vw ≤ 100 vw − 2 gutters de 320 a 599;
+         cuerpo ES = 12,4 vw (11 × 0,57 × 12,4 vw = 77,7 vw): el español es más corto y puede ir más grande.
+       · ≥ 600 px, dos líneas: «imposible de ignorar» / «impossible to ignore» = 20 columnas → 20 × 0,57 × 7,6 vw = 86,6 vw.
+     Se suma el techo (5,5 rem = 1 003 px de texto, caben en los 1 216 px de --max). */
+  --fs-h1: clamp(2.125rem, 10.6vw, 3.5rem);
+  --fs-h2: clamp(2rem, 1rem + 3.4vw, 3.5rem);
+  --fs-h3: clamp(1.625rem, 1rem + 2.4vw, 2.75rem);
+  --fs-name: clamp(1.25rem, 1rem + 1.2vw, 1.875rem); /* nombre de servicio en el Índice y de ejemplo en su fila */
   --fs-lead: clamp(1.25rem, 1.05rem + 1vw, 1.75rem);
   --fs-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   --fs-label: 0.875rem;
+  --fs-btn: 1rem;
+  /* Interletraje de mono en negrita: −0,03 em en el h1, −0,025 em en h2, −0,02 em en h3 y nombres (con −0,04 em las «ll», «rr» y «ii»
+     se tocan). Interlineado: 1,04 en h1/h2 (las descendentes de «g» y «p» no rozan las ascendentes de la línea siguiente). */
+  --ls-h1: -0.03em;
+  --ls-h2: -0.025em;
+  --ls-h3: -0.02em;
+  /* Espacio entre palabras de un titular: en mono es una celda entera (0,6 em) y a cuerpos grandes los huecos se abren («Tu   negocio»).
+     −0,1 em lo deja en 0,5 em: sigue siendo ritmo de mono, pero se lee como una frase. A −0,18 em ya parece proporcional. */
+  --ws-head: -0.1em;
+  --lh-h1: 1.04;
+  --lh-h2: 1.06;
+  --lh-h3: 1.1;
 
   /* Forma */
   --radius-s: 6px;
@@ -95,6 +116,18 @@
   --fs-art: 10px;
   --cw: 6px;
   --ch: 12px;
+}
+
+/* < 600 px el español, con sus líneas más cortas, sube el cuerpo del titular; desde 600 px los dos idiomas caben en dos líneas. */
+@media (max-width: 37.4975rem) {
+  :root:lang(es) {
+    --fs-h1: clamp(2.375rem, 12.4vw, 3.75rem);
+  }
+}
+@media (min-width: 37.5rem) {
+  :root {
+    --fs-h1: clamp(2.75rem, 7.6vw, 5.5rem);
+  }
 }
 
 @media (min-width: 56.25rem) {

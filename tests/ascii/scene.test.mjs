@@ -56,13 +56,13 @@ test('estructura del fotograma final: cara luminosa, aro de luz, sombra, halo y 
     tones[g.b[i + 1]]++;
     gl[g.b[i]] = (gl[g.b[i]] ?? 0) + 1;
   }
-  assert.ok(tones[12] + tones[13] + tones[14] > 100, 'aro de luz T12–T14');
+  assert.ok(tones[9] + tones[10] > 100, 'aro de luz T9–T10 (piel luminosa)');
   assert.ok(tones[15] >= 1 && tones[15] <= 8, `chispas T15: ${tones[15]}`);
   assert.ok(tones[2] > 20, 'vidrio vacío T2');
   assert.ok(tones[4] > 50, 'sombra ░ T4');
   assert.ok(gl[glyphIndex('█')] > 500, 'caras y aro en bloque');
   assert.ok(gl[glyphIndex('░')] > 50 && gl[glyphIndex('▒')] > 10 && gl[glyphIndex('·')] > 10, 'bruma de ░▒ y puntos');
-  assert.ok(gl[glyphIndex('▄')] > 5 || gl[glyphIndex('▅')] > 5, 'menisco');
+  assert.ok(tones[12] >= 3, 'menisco T12');
   // cls para la marea: hay aire, cara, borde y sombra/halo
   const hist = [0, 0, 0, 0];
   for (const c of st.cls) hist[c]++;

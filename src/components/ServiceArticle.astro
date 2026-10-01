@@ -1,0 +1,84 @@
+---
+// Ficha de un servicio (#web · #automatizacion · #marketing · #soporte; ids en EN: web · automation · marketing · it).
+// Las cuatro NO comparten plantilla (CA-6, IN-2): `data-side` alterna el lado del texto y de la placa, y `data-plan` cambia el reparto
+// de la placa (ancha en dos columnas, angosta con tres bloques, invertida, con el dato arriba). Lo que no cambia es el contenido:
+// `h3` · promesa · WhatsApp sobre el cartel; en la placa Incluye · Para quién · Necesitamos · Resultado · un dato local con fuente.
+// En móvil, Para quién / Necesitamos / Resultado van en un <details> «Más detalles» (details-mobile.ts lo cierra; sin JS queda abierto).
+import Icon from './Icon.astro';
+import PosterSection from './PosterSection.astro';
+import Plate from './Plate.astro';
+import Facts from './Facts.astro';
+import { publishedIncludes, serviceFact, type Service, type ServiceId } from '../data/services.ts';
+import { waServiceOf } from '../lib/wa.ts';
+import { t } from '../i18n/copy.ts';
+import type { Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+  service: Service;
+}
+const { lang, service: s } = Astro.props;
+const c = t(lang).services;
+const name = s.name[lang];
+const fact = serviceFact(s); // `null` si caducó: la ficha se queda sin dato
+const lines = publishedIncludes(s, lang);
+const fields: Array<[string, string]> = [
+  [c.fields.audience, s.audience[lang]],
+  [c.fields.needs, s.needs[lang]],
+  [c.fields.result, s.result[lang]],
+];
+// Ritmo de la página: Web texto a la izquierda y placa ancha; Automatización a la derecha y angosta; Marketing a la izquierda e
+// invertida; Soporte a la derecha con el dato arriba.
+const LAYOUT: Record<ServiceId, { side: 'l' | 'r'; plan: 'a' | 'b' | 'c' | 'd' }> = {
+  web: { side: 'l', plan: 'a' },
+  automation: { side: 'r', plan: 'b' },
+  marketing: { side: 'l', plan: 'c' },
+  it: { side: 'r', plan: 'd' },
+};
+const { side, plan } = LAYOUT[s.id];
+const hid = `svc-${s.id}-h`;
+const inc = `svc-${s.id}-inc`;
+---
+
+<PosterSection scene={s.scene} id={s.section[lang]} labelledby={hid} class={`svc svc--${s.id}`}>
+  <div class="stage" data-side={side}>
+    <div class="stage__in" data-well="ink">
+      <h3 id={hid}>{name}</h3>
+      <p class="promise">{s.promise[lang]}</p>
+      <a class="btn btn--primary" href={waServiceOf(lang, s.id)} target="_blank" rel="noopener" aria-label={c.whatsappFor(name)}>
+        <Icon name="whatsapp" />
+        {t(lang).nav.whatsapp}
+      </a>
+    </div>
+  </div>
+  <div class="wrap" data-side={side}>
+    <Plate as="article" class="svc__plate" labelledby={hid}>
+      <div class="svc__body" data-plan={plan} data-fact={fact ? 'y' : 'n'}>
+        <div class="svc__inc">
+          <p class="lbl" id={inc}>{c.fields.includes}</p>
+          <ul class="ticks" aria-labelledby={inc}>
+            {lines.map((l) => <li>{l}</li>)}
+          </ul>
+        </div>
+        <details class="svc__more" open data-more>
+          <summary>{c.more}</summary>
+          <dl class="dl">
+            {
+              fields.map(([k, v]) => (
+                <div class="dl__row">
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </details>
+        <Facts fact={fact} lang={lang} />
+      </div>
+    </Plate>
+  </div>
+</PosterSection>
+
+<script>
+  import '../scripts/details-mobile.ts';
+</script>

@@ -1,0 +1,17 @@
+---
+// Un cartel de la página: la <section> que el motor lee (`main [data-poster="<SceneId>"]`, en orden de documento).
+// Aquí no hay texto ni estilo propio: la escena de fondo la pinta el lienzo fijo, y lo que se lee va dentro (DIRECTION §4.1, §12.4).
+import type { SceneId } from '../ascii/types.ts';
+
+interface Props {
+  scene: SceneId;
+  /** `id` de la sección, localizado (`sectionId()` / `Service.section`). */
+  id: string;
+  /** `id` del encabezado que la nombra. */
+  labelledby: string;
+  class?: string;
+}
+const { scene, id, labelledby, class: cls } = Astro.props;
+---
+
+<section id={id} class:list={['poster', cls]} data-poster={scene} aria-labelledby={labelledby}><slot /></section>

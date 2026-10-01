@@ -54,7 +54,6 @@ test('compose: las cinco zonas por celda siguen §6.4 al pie de la letra (avance
   const tl = waterTile();
   const tauMap = tau(COLS, ROWS);
   const t = 21.7;
-  const tq = (t * 2) | 0;
   for (const dir of [1, -1]) {
     const seen = { out: 0, dissolve: 0, band: 0, crystal: 0, inc: 0 };
     for (const yb of [ROWS + 12, ROWS + 4, ROWS * 0.85, ROWS * 0.7, ROWS * 0.5, ROWS * 0.25, 4, -6, -14]) {
@@ -81,7 +80,7 @@ test('compose: las cinco zonas por celda siguen §6.4 al pie de la letra (avance
           const ad = Math.abs(dist);
           let d = agua(tl, x, y, t) * 0.8 + 0.35 * (1 - ad / TP.band);
           d = Math.min(1, Math.max(0, d));
-          const r = h2(x, y, 40 + tq);
+          const r = h2(x, y, 40 + ((t * 2 + h2(x, y, 39)) | 0)); // cada celda con su propia fase (no un tic común)
           const ch = glyphChar(got[0]);
           if (ad <= 1 && r < 0.45) {
             assert.equal(ch, '*');
@@ -194,6 +193,30 @@ test('espuma: * y ~ solo a ±1 fila del frente; con foam = 0 no hay', () => {
     if (Math.abs(dist) <= TP.band) assert.ok(ch0 !== '*' && ch0 !== '~', 'sin espuma');
   }
   assert.ok(foam > 10, `espuma ${foam}`);
+});
+
+test('espuma: cada celda cambia de glifo en SU instante, no como un pulso síncrono de toda la línea (2.3.1)', () => {
+  // 90 cuadros a 30 fps (3 s): se cuentan los cambios de glifo de las celdas de espuma cuadro a cuadro
+  const STEP = 1 / 30;
+  const perFrame = [];
+  let prev = run(ROWS * 0.5, { t: 21.7 });
+  const foamAt = (g, i) => g.b[i * 4] === glyphIndex('*') || g.b[i * 4] === glyphIndex('~');
+  for (let f = 1; f <= 90; f++) {
+    const cur = run(ROWS * 0.5, { t: 21.7 + f * STEP });
+    let changed = 0;
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const i = y * COLS + x;
+      if (Math.abs(y - front(x, ROWS * 0.5)) > 1) continue;
+      if (foamAt(cur, i) !== foamAt(prev, i) || (foamAt(cur, i) && cur.b[i * 4] !== prev.b[i * 4])) changed++;
+    }
+    perFrame.push(changed);
+    prev = cur;
+  }
+  const total = perFrame.reduce((a, b) => a + b, 0);
+  const max = Math.max(...perFrame);
+  assert.ok(total > 60, `la espuma tiene que cambiar (${total})`);
+  assert.ok(max <= total * 0.12, `pulso síncrono: ${max} de ${total} cambios caen en un solo cuadro (${perFrame.filter((n) => n > 0).length} cuadros con cambios)`);
+  assert.ok(perFrame.filter((n) => n > 0).length >= 60, 'los cambios están repartidos en casi todos los cuadros');
 });
 
 test('memoria de tono de la banda (2.3.1): con k = 1 no cambia nada; con k < 1 el tono llega poco a poco; se pone a 0 fuera de la banda', () => {

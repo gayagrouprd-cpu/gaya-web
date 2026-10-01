@@ -1,10 +1,20 @@
 ---
+// Cromo de la página (DIRECTION §4.5): píldora superior con los cinco destinos (escritorio), botón de menú + popover de
+// pantalla completa con los destinos y los cuatro servicios (móvil) y barra inferior de 56 px con el idioma y WhatsApp.
+// Todo el texto sale de t(lang).nav y de src/data/*.ts. nav.ts añade: aria-current por scroll-spy, conmutador de idioma que
+// conserva el ancla, ocultar la barra mientras el botón de la portada está a la vista y la medida real del cromo (scroll-padding).
+// La barra inferior va dentro del <header> (banner): así es parte de un punto de referencia y axe no la marca como contenido suelto.
+// Sin JS sigue funcionando: los enlaces son enlaces y el menú es un popover nativo. Con JS, mientras el menú está abierto el foco
+// entra en «Cerrar» (`autofocus`) y el resto de la página queda `inert`: el foco no puede caer detrás del menú opaco.
+// Estilos: chrome.css (píldora, barra, menú); la marca lleva los suyos en Logo.astro y el arte DOM en dom-art.css.
+import '../styles/chrome.css';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
-import brand from '../../brand.json';
-import { READY } from '../data/site';
 import { path, otherLang, type Lang, type RouteKey, type RouteParams } from '../routes';
 import { t } from '../i18n/copy';
+import { NAV_KEYS } from '../data/site';
+import { SECTIONS, SERVICES, sectionId } from '../data/services';
+import { waGeneric } from '../lib/wa';
 
 interface Props {
   lang: Lang;
@@ -16,144 +26,76 @@ const c = t(lang).nav;
 const home = path(lang, 'home');
 const other = otherLang(lang);
 const switchHref = path(other, routeKey, params);
-const wa = `https://wa.me/${brand.contact.whatsapp.e164}?text=${encodeURIComponent(brand.whatsappMessage.generic[lang])}`;
+const wa = waGeneric(lang);
+const waLabel = t(lang).services.whatsapp;
 
-// Los enlaces aparecen solo cuando existe su destino.
-const links = [
-  READY.refs && { href: path(lang, 'refs'), label: c.refs },
-  READY.services && { href: `${home}#servicios`, label: c.services },
-  READY.process && { href: `${home}#proceso`, label: c.process },
-  READY.contact && { href: `${home}#contacto`, label: c.contact },
-].filter(Boolean) as Array<{ href: string; label: string }>;
+// En la galería y el visor «Ejemplos» es la propia página; en el resto, el ancla de la portada.
+const onSamples = routeKey === 'refs' || routeKey === 'ref';
+
+// Un destino puede ser varias secciones (Servicios = el índice y sus cuatro fichas): el spy las une con `data-spy`.
+const serviceIds = SERVICES.map((s) => s.section[lang]);
+const links = NAV_KEYS.map((key) => {
+  const id = sectionId(lang, key);
+  const spy = key === 'services' ? [id, ...serviceIds] : [id];
+  const samples = key === 'samples' && onSamples;
+  return { key, label: c[key], href: samples ? path(lang, 'refs') : `${home}#${id}`, spy: spy.join(' '), current: samples ? 'page' : undefined };
+});
+
+// Sección de cada idioma → ancla equivalente del otro («nosotros» → «about»); la portada no lleva ancla.
+const anchors = Object.fromEntries(SECTIONS.map((s) => [s.id[lang], s.key === 'home' ? '' : s.id[other]]));
+
+const menuId = 'site-menu';
 ---
 
-<header class="nav" data-nav>
+<header class="nav" data-nav data-anchors={JSON.stringify(anchors)}>
   <div class="nav__pill">
-    <Logo href={home} label={`${brand.name}`} />
-    {
-      links.length > 0 && (
-        <nav class="nav__links" aria-label={c.label}>
-          {links.map((l) => (
-            <a href={l.href}>{l.label}</a>
-          ))}
-        </nav>
-      )
-    }
+    <Logo href={home} />
+    <nav class="nav__links" aria-label={c.label}>
+      {links.map((l) => <a href={l.href} data-spy={l.spy} aria-current={l.current}>{l.label}</a>)}
+    </nav>
     <div class="nav__end">
-      <a class="nav__lang" href={switchHref} hreflang={other} lang={other} aria-label={other === 'en' ? 'English' : 'Español'}>{other.toUpperCase()}</a>
-      <a class="nav__wa" href={wa} target="_blank" rel="noopener" aria-label={c.whatsapp}>
-        <Icon name="whatsapp" />
-      </a>
+      <a class="lang-link" href={switchHref} hreflang={other} lang={other} aria-label={c.switchTo.label} data-lang-switch>{c.switchTo.code}</a>
+      <a class="nav__wa" href={wa} target="_blank" rel="noopener" aria-label={c.whatsapp}><Icon name="whatsapp" /></a>
+      <button class="nav__menu" type="button" popovertarget={menuId} aria-label={c.menu}><Icon name="menu" /></button>
     </div>
+  </div>
+
+  <div class="menu" id={menuId} popover="auto" data-menu-panel>
+    <div class="menu__head">
+      <Logo href={home} styles={false} />
+      <button class="menu__close" type="button" popovertarget={menuId} popovertargetaction="hide" aria-label={c.close} autofocus><Icon name="close" /></button>
+    </div>
+    <div class="menu__body">
+      <nav aria-label={c.menu}>
+        <ul class="menu__list" role="list">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href} data-spy={l.spy} aria-current={l.current}>{l.label}</a>
+                {l.key === 'services' && (
+                  <ul class="menu__sub" role="list">
+                    {SERVICES.map((s) => <li><a href={`${home}#${s.section[lang]}`} data-spy={s.section[lang]}>{s.name[lang]}</a></li>)}
+                  </ul>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="menu__foot">
+        <a class="lang-link" href={switchHref} hreflang={other} lang={other} aria-label={c.switchTo.label} data-lang-switch>{c.switchTo.code}</a>
+        <a class="wa-wide" href={wa} target="_blank" rel="noopener" aria-label={c.whatsapp}><Icon name="whatsapp" />{waLabel}</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar" data-bar>
+    <a class="lang-link" href={switchHref} hreflang={other} lang={other} aria-label={c.switchTo.label} data-lang-switch>{c.switchTo.code}</a>
+    <a class="wa-wide" href={wa} target="_blank" rel="noopener" aria-label={c.whatsapp}><Icon name="whatsapp" />{waLabel}</a>
   </div>
 </header>
 
-<style>
-  .nav {
-    position: fixed;
-    z-index: var(--z-nav);
-    inset-inline: 0;
-    top: calc(env(safe-area-inset-top, 0px) + var(--space-3));
-    display: flex;
-    justify-content: center;
-    padding-inline: var(--space-4);
-    pointer-events: none;
-    transition: transform var(--dur-3) var(--ease-out);
-  }
-  .nav[data-hidden='true'] {
-    transform: translateY(-160%);
-  }
-  .nav__pill {
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    width: min(100%, 62rem);
-    min-height: 3.5rem;
-    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-pill);
-    background: color-mix(in oklch, var(--surface) 68%, transparent);
-    -webkit-backdrop-filter: blur(16px) saturate(1.15);
-    backdrop-filter: blur(16px) saturate(1.15);
-  }
-  .nav__links {
-    display: none;
-    margin-inline: auto;
-    gap: var(--space-1);
-  }
-  .nav__links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    padding: 0 var(--space-4);
-    border-radius: var(--radius-pill);
-    color: var(--muted);
-    font-size: var(--text-s);
-    font-weight: 500;
-    text-decoration: none;
-    transition: color var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-out);
-  }
-  @media (hover: hover) {
-    .nav__links a:hover {
-      color: var(--ink);
-      background: color-mix(in oklch, var(--ink) 9%, transparent);
-    }
-  }
-  @media (min-width: 52rem) {
-    .nav__links {
-      display: flex;
-    }
-  }
-  .nav__end {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    margin-inline-start: auto;
-  }
-  .nav__links + .nav__end {
-    margin-inline-start: 0;
-  }
-  .nav__lang {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
-    padding: 0 var(--space-3);
-    border-radius: var(--radius-pill);
-    color: var(--muted);
-    font-size: var(--text-s);
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    transition: color var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-out);
-  }
-  @media (hover: hover) {
-    .nav__lang:hover {
-      color: var(--ink);
-      background: color-mix(in oklch, var(--ink) 9%, transparent);
-    }
-  }
-  .nav__wa {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background: var(--accent);
-    color: var(--on-accent);
-    transition: transform var(--dur-2) var(--ease-out), filter var(--dur-2) var(--ease-out);
-  }
-  .nav__wa :global(svg) {
-    width: 1.35rem;
-    height: 1.35rem;
-  }
-  @media (hover: hover) {
-    .nav__wa:hover {
-      filter: brightness(1.1);
-      transform: scale(1.05);
-    }
-  }
-</style>
+<script>
+  import { initNav } from '../scripts/nav';
+  initNav();
+</script>

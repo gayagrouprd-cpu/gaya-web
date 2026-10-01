@@ -1,0 +1,836 @@
+/* Inicio (/ y /en/): la forma de las diez secciones. Todo el texto viene de copy.ts y src/data; aquí solo hay forma.
+   Depende de tokens.css (celda --cw/--ch, tonos --t0…--t15, escala --fs-*), fonts.css y ascii.css (.art, .plate, .btn, pozos).
+   El lienzo fijo (z 0) pinta el cartel; el contenido (z 1) se lee sobre él: texto corto bajo pozo, lectura larga sobre placa opaca (R14).
+   Posición del texto en filas de la retícula (§5.7): el escenario empieza `--row` filas más abajo del borde superior de la pantalla. */
+
+.poster {
+  position: relative;
+  z-index: 1;
+}
+.wrap {
+  width: min(100% - 2 * var(--gutter), var(--max));
+  margin-inline: auto;
+}
+.accent {
+  color: var(--accent-text);
+}
+
+/* ── Escenario: lo que se lee sobre el cartel ───────────────────────────────────────────────── */
+.stage {
+  --row: 34;
+  display: grid;
+  grid-template-columns: minmax(0, var(--max));
+  justify-content: center;
+  align-content: start;
+  min-height: 100vh; /* respaldo para navegadores sin svh */
+  min-height: 100svh;
+  padding: calc(var(--ch) * var(--row)) var(--gutter) calc(var(--ch) * 4);
+}
+.stage__in {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-5);
+  width: fit-content;
+  max-width: min(100%, 38rem);
+}
+.stage__in[data-well] {
+  position: static; /* el lienzo ya queda bajo .poster (z 1); el pozo no necesita su propia capa */
+}
+.stage[data-side='r'] .stage__in {
+  justify-self: end;
+}
+.poster h2 {
+  font: 800 var(--fs-h2) / 1.04 var(--font-display);
+  letter-spacing: -0.025em;
+}
+.stage h3 {
+  font: 800 var(--fs-h3) / 1.06 var(--font-display);
+  letter-spacing: -0.025em;
+}
+.promise,
+.phrase {
+  max-width: 30rem;
+  font: 600 var(--fs-lead) / 1.3 var(--font-display);
+  color: var(--lead);
+}
+@media (min-width: 56.25rem) {
+  .stage {
+    --row: 28;
+  }
+}
+
+/* Dónde empieza el texto de cada cartel (móvil · escritorio): la palabra ocupa las filas de arriba y el texto queda debajo,
+   salvo ON, cuya palabra es la más angosta y el texto se sienta a su lado. */
+.svc--web .stage {
+  --row: 28;
+}
+.svc--marketing .stage {
+  --row: 36;
+}
+.svc--it .stage {
+  --row: 20;
+}
+.contact .stage {
+  --row: 24;
+}
+@media (min-width: 56.25rem) {
+  .svc--marketing .stage,
+  .svc--it .stage {
+    --row: 28;
+  }
+  .contact .stage {
+    --row: 28;
+  }
+  .smp .stage {
+    --row: 27;
+  }
+}
+/* Soporte: ON es la palabra más angosta (§5.7: «al 50 % del ancho») y el texto se sienta a su derecha, anclado a una columna de la
+   retícula (columna 72 desde 1100 px, 96 desde 1400 px); en pantallas más estrechas no hay sitio y el texto queda debajo de la palabra. */
+@media (min-width: 56.25rem) {
+  .svc--it .stage .stage__in {
+    justify-self: start;
+  }
+}
+@media (min-width: 68.75rem) {
+  .svc--it .stage {
+    --row: 10;
+    grid-template-columns: minmax(0, 30rem);
+    justify-content: start;
+    padding-inline: calc(var(--cw) * 72) var(--gutter);
+  }
+}
+@media (min-width: 87.5rem) {
+  .svc--it .stage {
+    padding-inline-start: calc(var(--cw) * 96); /* ≥ 1400 px cabe a la derecha de la variante L (90 columnas) */
+  }
+}
+.contact .stage__in {
+  justify-self: center;
+  justify-items: center;
+  text-align: center;
+}
+
+/* ── Portada ─────────────────────────────────────────────────────────────────────────────────── */
+/* El texto se ancla al fondo de la pantalla y la palabra a la fila 3–4 de arriba: en pantallas bajas se cruzarían. `--floor` son las
+   filas que ocupan la palabra, su aro y su sombra (GAYA en la variante que elige el motor por columnas: L 4–20, M 4–15, S en pila 3–29);
+   el texto nunca empieza antes y, si no cabe, la portada crece (la barra inferior y el icono de la píldora llevan el WhatsApp). */
+.cover {
+  --floor: 32;
+  display: grid;
+  grid-template-columns: minmax(0, var(--max));
+  justify-content: center;
+  align-content: end;
+  min-height: 100vh; /* respaldo para navegadores sin svh */
+  min-height: 100svh;
+  padding: calc(var(--ch) * var(--floor)) var(--gutter) calc(var(--bar-h, 0px) + var(--space-2));
+}
+@media (min-width: 37.5rem) {
+  .cover {
+    --floor: 19; /* M (84 columnas) */
+  }
+}
+@media (min-width: 48.375rem) {
+  .cover {
+    --floor: 24; /* L (121 columnas), desde 129 columnas de 6 px */
+  }
+}
+@media (min-width: 56.25rem) {
+  .cover {
+    --floor: 19; /* celda de 9 px: de 900 a 1160 px sigue siendo M */
+  }
+}
+@media (min-width: 72.5625rem) {
+  .cover {
+    --floor: 24; /* L desde 129 columnas de 9 px */
+  }
+}
+.cover__text {
+  position: relative; /* por encima del póster SSR (sin JS) */
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+}
+.cover h1 {
+  width: fit-content;
+  max-width: min(100%, 12ch);
+  font: 800 var(--fs-h1) / 0.98 var(--font-display);
+  letter-spacing: -0.025em;
+}
+.cover__lead {
+  max-width: 34rem;
+  font: 400 clamp(1.125rem, 1rem + 0.8vw, 1.5rem) / 1.3 var(--font-display);
+}
+.cover__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+  padding-bottom: var(--space-2); /* la sombra del rótulo sale por abajo y por la derecha */
+}
+@media (max-width: 22.5rem) {
+  .cover__actions .btn {
+    padding-inline: 1rem; /* a 320 px el rótulo de WhatsApp (295 px) no cabe con su relleno de 24 px */
+  }
+}
+@media (min-width: 56.25rem) {
+  .cover {
+    padding-bottom: calc(var(--ch) * 4);
+  }
+  .cover__text {
+    gap: var(--space-5);
+  }
+  .cover h1 {
+    max-width: min(100%, 15em);
+  }
+}
+/* Portátiles de 650 a 900 px de alto: el titular baja de 88 a ~60 px (a 720 px de alto) para que el botón siga a la vista bajo la palabra. */
+@media (min-width: 56.25rem) and (max-height: 56rem) {
+  .cover h1 {
+    font-size: clamp(3rem, calc(15.9svh - 3.4rem), var(--fs-h1));
+  }
+}
+
+/* ── Quiénes somos · Contacto: filas clave · valor ──────────────────────────────────────────── */
+.about__plate {
+  margin-top: calc(var(--ch) * 2);
+  margin-bottom: calc(var(--ch) * 6);
+}
+.rows {
+  display: grid;
+  margin: 0;
+}
+.rows__row {
+  display: grid;
+  gap: var(--space-1) var(--space-5);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--t4);
+}
+.rows__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+dt,
+.lbl {
+  margin: 0;
+  font: 500 var(--fs-label) / 1.4 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.sign {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--t7);
+  font: 500 var(--fs-label) / 1.4 var(--font-mono);
+  color: var(--muted);
+}
+.sign__name {
+  color: var(--ink);
+}
+@media (min-width: 40rem) {
+  .rows__row {
+    grid-template-columns: 9.5rem 1fr;
+    align-items: baseline;
+  }
+}
+@media (min-width: 56.25rem) {
+  .about__plate {
+    width: min(100%, 46rem);
+    margin-inline-start: auto;
+  }
+}
+
+/* ── Índice de servicios ─────────────────────────────────────────────────────────────────────── */
+.idx {
+  padding-block: calc(var(--ch) * 8);
+}
+.idx h2 {
+  width: fit-content;
+  margin-bottom: calc(var(--ch) * 2);
+}
+.idx__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.idx__row {
+  position: relative;
+}
+.idx__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4) var(--space-6);
+  align-items: center;
+  padding-block: calc(var(--ch) * 1.5);
+}
+.idx__body {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+.idx__body[data-well] {
+  position: static;
+}
+.idx__name {
+  font: 800 clamp(1.5rem, 1.15rem + 1.5vw, 2.25rem) / 1.08 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.idx__promise {
+  max-width: 32rem;
+  font: 400 var(--fs-body) / 1.4 var(--font-display);
+  color: var(--lead);
+}
+.idx__acts {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-2);
+  padding: 0 var(--space-3) var(--space-2) 0;
+}
+/* Enlace con flecha («Ver detalle», «Ver los n ejemplos»). En el Índice toda la fila es su zona de clic; WhatsApp queda por encima. */
+.idx__more,
+.smp__all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+.idx__more::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.idx__more svg,
+.smp__all svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+}
+.idx__more svg {
+  rotate: 90deg;
+  transition: translate 0.15s;
+}
+.idx__wa {
+  position: relative;
+  z-index: 2;
+  min-width: 48px;
+  padding-inline: 0;
+}
+.idx__wa-l {
+  display: none;
+}
+.idx .word-mini {
+  max-width: 100%;
+}
+.idx .word-mini--split {
+  display: none;
+  height: calc(var(--ch) * (var(--rows, 13) + 1));
+}
+@media (max-width: 25.24rem) {
+  .idx__row[data-fit='xl'] .word-mini:not(.word-mini--split),
+  .idx__row[data-fit='l'] .word-mini--split {
+    display: none;
+  }
+  .idx__row[data-fit='xl'] .word-mini--split {
+    display: block;
+  }
+}
+@media (max-width: 20.99rem) {
+  .idx__row[data-fit='l'] .word-mini:not(.word-mini--split) {
+    display: none;
+  }
+  .idx__row[data-fit='l'] .word-mini--split {
+    display: block;
+  }
+}
+@media (hover: hover) {
+  .idx__row:hover .word-mini {
+    color: var(--t12);
+  }
+  .idx__row:hover .idx__more svg {
+    translate: 0 3px;
+  }
+}
+.idx__row:focus-within .word-mini {
+  color: var(--t12);
+}
+@media (min-width: 48rem) {
+  .idx__grid {
+    grid-template-columns: calc(var(--cw) * 62) minmax(0, 1fr);
+  }
+}
+@media (min-width: 56.25rem) {
+  .idx__wa {
+    padding-inline: 1.25rem;
+  }
+  .idx__wa-l {
+    display: inline;
+  }
+}
+
+/* ── Fichas de servicio ──────────────────────────────────────────────────────────────────────── */
+.svc .wrap {
+  margin-top: calc(var(--ch) * 2);
+  margin-bottom: calc(var(--ch) * 6);
+}
+.svc__body {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-areas: 'inc' 'more' 'fact';
+}
+.svc__inc {
+  grid-area: inc;
+}
+.svc__more {
+  grid-area: more;
+}
+.svc__body > .fact {
+  grid-area: fact;
+}
+/* Sin dato local (caducó y se retiró solo) la ficha no deja una fila vacía. */
+.svc__body[data-fact='n'] {
+  grid-template-areas: 'inc' 'more';
+}
+.ticks {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-body);
+  line-height: 1.45;
+}
+.ticks li {
+  position: relative;
+  padding-inline-start: 1.5rem;
+  text-wrap: pretty;
+}
+.ticks li::before {
+  content: '';
+  position: absolute;
+  inset: 0.5em auto auto 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--t11);
+  box-shadow: 0.25rem 0.2rem 0 var(--t5);
+}
+/* La viñeta de cada ficha hace eco de la materia de su cartel: obra (bloque con sombra), celdas que se ensamblan (dos cuadrantes),
+   anillos (un aro con su eco) y neón (un punto que brilla). */
+.svc--automation .ticks li::before {
+  width: 0.75rem;
+  height: 0.375rem;
+  background: linear-gradient(90deg, var(--t11) 0 45%, transparent 45% 55%, var(--t11) 55%);
+  box-shadow: 0.2rem 0.2rem 0 var(--t5);
+}
+.svc--marketing .ticks li::before {
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 2px solid var(--t11);
+  border-radius: 50%;
+  background: none;
+  box-shadow: 0 0 0 0.2rem var(--t4);
+}
+.svc--it .ticks li::before {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--t14);
+  box-shadow: 0 0 0.6rem 0.15rem var(--t9);
+}
+.svc__more summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  border-top: 1px solid var(--t4);
+  font: 600 1rem / 1 var(--font-display);
+  color: var(--accent-text);
+  cursor: pointer;
+  list-style: none;
+}
+.svc__more summary::-webkit-details-marker {
+  display: none;
+}
+.svc__more summary::after {
+  content: '';
+  width: 0.875rem;
+  height: 0.875rem;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 2px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 2px 100% no-repeat;
+}
+.svc__more[open] summary::after {
+  background: linear-gradient(currentColor, currentColor) center / 100% 2px no-repeat;
+}
+.dl {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+.svc__more[open] .dl {
+  margin-top: var(--space-2);
+}
+.dl__row {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+}
+.fact {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-inline-start: 3px solid var(--accent);
+  background: var(--t2);
+}
+.fact__text {
+  font: 600 1.0625rem / 1.4 var(--font-display);
+}
+/* Todo enlace mide ≥ 24 px (2.5.8) y en móvil ≥ 44 px (page-check). */
+.fact__src,
+.rows a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.fact__src {
+  justify-self: start;
+  font: 500 var(--fs-label) / 1.4 var(--font-mono);
+}
+@media (max-width: 56.1875rem) {
+  .fact__src,
+  .rows a {
+    min-height: 44px;
+  }
+}
+@media (min-width: 56.25rem) {
+  .svc__more summary {
+    display: none; /* en escritorio los detalles siempre están abiertos (details-mobile.ts) */
+  }
+  .svc__more[open] .dl {
+    margin-top: 0;
+  }
+  .svc__more .dl {
+    margin-top: var(--space-3);
+  }
+  .svc__body {
+    gap: var(--space-6) var(--space-7);
+  }
+  .svc .wrap[data-side='r'] .plate {
+    margin-inline-start: auto;
+  }
+  /* Web: placa ancha, Incluye a la izquierda y el resto a la derecha. */
+  .svc--web .plate {
+    width: min(100%, 72rem);
+  }
+  .svc__body[data-plan='a'] {
+    grid-template-columns: 1.1fr 1fr;
+    grid-template-areas: 'inc more' 'fact fact';
+  }
+  /* Automatización: placa angosta a la derecha; Incluye en dos columnas y los tres detalles en fila. */
+  .svc--automation .plate {
+    width: min(100%, 52rem);
+  }
+  .svc__body[data-plan='b'] {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'inc' 'more' 'fact';
+  }
+  .svc__body[data-plan='b'] .ticks {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3) var(--space-6);
+  }
+  .svc__body[data-plan='b'] .dl {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+  /* Marketing: placa a la izquierda y invertida (los detalles primero, Incluye a la derecha). */
+  .svc--marketing .plate {
+    width: min(100%, 60rem);
+  }
+  .svc__body[data-plan='c'] {
+    grid-template-columns: 1fr 1.1fr;
+    grid-template-areas: 'more inc' 'fact fact';
+  }
+  .svc__body[data-plan='a'][data-fact='n'],
+  .svc__body[data-plan='d'][data-fact='n'] {
+    grid-template-areas: 'inc more';
+  }
+  .svc__body[data-plan='c'][data-fact='n'] {
+    grid-template-areas: 'more inc';
+  }
+  .svc__body[data-plan='b'][data-fact='n'] {
+    grid-template-areas: 'inc' 'more';
+  }
+  /* Soporte: placa a la derecha con el dato arriba, como nota de la ficha. */
+  .svc--it .plate {
+    width: min(100%, 56rem);
+  }
+  .svc__body[data-plan='d'] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 'fact fact' 'inc more';
+  }
+}
+
+/* ── Ejemplos ────────────────────────────────────────────────────────────────────────────────── */
+.smp .stage__in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+}
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--t7);
+  background: var(--t1);
+  box-shadow: 4px 3px 0 var(--t3);
+  font: 500 var(--fs-label) / 1 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  color: var(--accent-text);
+}
+.smp__plate {
+  margin-top: calc(var(--ch) * 2);
+  margin-bottom: calc(var(--ch) * 6);
+}
+.smp__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.smp__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4) var(--space-5);
+  align-items: center;
+  padding-block: var(--space-5);
+  border-top: 1px solid var(--t4);
+}
+.smp__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.smp__mark {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+}
+.smp__mark .stamp {
+  min-height: 24px;
+  box-shadow: none;
+}
+.smp__emblem {
+  width: fit-content;
+  padding: calc(var(--ch) * 0.5) calc(var(--cw) * 2);
+  border: 1px solid var(--t7);
+  background: var(--t2);
+  box-shadow: var(--cw) calc(var(--ch) * 0.5) 0 var(--t3);
+  color: var(--t9);
+}
+.smp__info h3 {
+  font: 800 clamp(1.5rem, 1.15rem + 1.5vw, 2.25rem) / 1.08 var(--font-display);
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.smp__kind {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  color: var(--muted);
+}
+.smp__kind span + span {
+  font: 500 var(--fs-label) / 1.4 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+.smp__acts {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+  padding: 0 var(--space-3) var(--space-2) 0;
+}
+.smp__foot {
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--t7);
+}
+@media (hover: hover) {
+  .smp__row:hover .smp__emblem {
+    color: var(--t13);
+  }
+}
+.smp__row:focus-within .smp__emblem {
+  color: var(--t13);
+}
+@media (min-width: 26rem) {
+  .smp__row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+@media (min-width: 48rem) {
+  .smp__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .smp__acts {
+    grid-column: auto;
+  }
+}
+@media (min-width: 56.25rem) {
+  .smp__plate {
+    width: min(100%, 64rem);
+  }
+}
+
+/* ── Proceso ─────────────────────────────────────────────────────────────────────────────────── */
+.proc {
+  padding-block: calc(var(--ch) * 8);
+}
+.proc h2 {
+  width: fit-content;
+  margin-bottom: calc(var(--ch) * 2);
+}
+
+/* ── Contacto ────────────────────────────────────────────────────────────────────────────────── */
+.contact__plate {
+  width: min(100%, 44rem);
+  margin-top: calc(var(--ch) * 2);
+  margin-inline: auto;
+}
+.mail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+.mail__addr {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.btn.btn--s {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font-size: 0.9375rem;
+  box-shadow: calc(var(--cw) * 0.75) calc(var(--ch) * 0.25) 0 var(--t3);
+}
+.mail__done {
+  font: 500 var(--fs-label) / 1 var(--font-mono);
+  color: var(--accent-text);
+}
+.mail__done:not(:empty) {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--t7);
+  background: var(--t2);
+}
+.social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.social a {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--t7);
+  color: var(--ink);
+}
+.social svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+@media (min-width: 48rem) {
+  .social {
+    gap: var(--space-3);
+  }
+}
+@media (hover: hover) {
+  .social a:hover {
+    background: var(--t3);
+    color: var(--t14);
+  }
+}
+.foot {
+  padding-block: calc(var(--ch) * 4) calc(var(--ch) * 8);
+  text-align: center;
+  font: 500 var(--fs-label) / 1.4 var(--font-mono);
+  color: var(--muted);
+}
+.foot p {
+  width: fit-content; /* el pozo abraza el texto, no toda la fila */
+  max-width: 100%;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+@media (min-width: 56.25rem) {
+  .foot {
+    padding-bottom: calc(var(--ch) * 4);
+  }
+}
+
+/* ── Colores forzados, contraste alto e impresión ────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .ticks li::before {
+    background: CanvasText;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .svc--marketing .ticks li::before {
+    background: none;
+  }
+  .stamp,
+  .smp__emblem,
+  .social a,
+  .mail__done:not(:empty) {
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .fact {
+    border-inline-start-color: CanvasText;
+  }
+}
+@media (prefers-contrast: more) {
+  .stamp,
+  .smp__emblem {
+    box-shadow: none;
+  }
+}
+@media print {
+  .stage,
+  .cover {
+    min-height: 0;
+    padding-block: 1rem;
+  }
+  .smp__emblem {
+    box-shadow: none;
+  }
+  .idx__more::after {
+    display: none;
+  }
+  /* El enlace de WhatsApp lleva el mensaje codificado (kilométrico): en papel basta el botón; el teléfono sale en el contacto. */
+  a.btn[href^='http']::after {
+    display: none;
+  }
+}

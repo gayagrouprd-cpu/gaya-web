@@ -1,0 +1,12 @@
+---
+// Placa: superficie opaca para toda lectura larga (DIRECTION §5.8–5.9, R14). Cara + sombra proyectada en `.plate` (ascii.css);
+// aquí solo se elige la etiqueta y se le dan clase y nombre.
+interface Props {
+  as?: 'div' | 'article' | 'aside' | 'section';
+  class?: string;
+  labelledby?: string;
+}
+const { as: Tag = 'div', class: cls, labelledby } = Astro.props;
+---
+
+<Tag class:list={['plate', cls]} aria-labelledby={labelledby}><slot /></Tag>

@@ -1,0 +1,55 @@
+---
+// Póster SSR de la portada (DIRECTION §6.9): el fotograma `still` de la escena `cover` cuantizado a 4 tonos (dim · mid · hot ·
+// spark), sin `bg`, en tres variantes (wide 160×50 · mid 113×44 · stack 65×70) que el CSS conmuta por columnas del contenedor.
+//
+// Con JS no se pinta (display:none): Chrome cuenta el texto generado por ::before como candidato de LCP y el LCP de la portada
+// es el `h1`. Se muestra sin JS (el <noscript> de abajo) o cuando el motor falla y pone html[data-field="ssr"].
+// Es decoración: div[data-nosnippet][aria-hidden][translate="no"], nunca información. Se coloca con `position: absolute;
+// inset: 0` dentro del ancestro posicionado más cercano (la sección de la portada, [data-poster="cover"], debe ser `relative`).
+import '../styles/dom-art.css';
+import type { Lang, Scene } from '../ascii/types.ts';
+import { loadWords, getWords } from '../ascii/words.ts';
+import { renderPosterLayers, POSTER_TONES } from '../ascii/ssr.ts';
+import { POSTER_VARIANTS, posterSpec, escapeAttr } from '../ascii/dom-art.ts';
+
+interface Props {
+  lang: Lang;
+  /** Escena del póster; por defecto, `cover` del registro src/ascii/scenes/index.ts. Sirve para pruebas y capturas. */
+  scene?: Scene;
+}
+const { lang, scene: given } = Astro.props;
+
+// El registro de escenas es de WP6. Se busca sin romper el build mientras no exista (glob vacío) y con las formas
+// habituales de exportarlo: getScene(id) · scenes.cover · SCENES.cover · default.cover.
+const registry = import.meta.glob('../ascii/scenes/index.ts', { eager: true }) as Record<string, Record<string, any>>;
+function findCover(): Scene | undefined {
+  const mod = Object.values(registry)[0];
+  if (!mod) return undefined;
+  if (typeof mod.getScene === 'function') return mod.getScene('cover');
+  return mod.scenes?.cover ?? mod.SCENES?.cover ?? mod.default?.cover ?? mod.cover;
+}
+const scene = given ?? findCover();
+if (!scene) console.warn('[PosterSsr] no hay escena `cover` (src/ascii/scenes/index.ts): el póster SSR sale vacío.');
+
+await loadWords(lang, ['GAYA']);
+const LAYERS = ['dim', 'mid', 'hot', 'spark'] as const;
+const variants = POSTER_VARIANTS.map((v) => {
+  const layers = scene ? renderPosterLayers(scene, posterSpec(v), lang, [getWords('GAYA', lang, v.cols, v.rows)]) : { dim: '', mid: '', hot: '', spark: '' };
+  return { key: v.key, layers };
+});
+// Color de cada capa: los tonos representativos de WP4 (T4 · T8 · T11 · T14).
+const tones = LAYERS.map((n, i) => `--poster-${n}:var(--t${POSTER_TONES[i]})`).join(';');
+const span = (n: (typeof LAYERS)[number], art: string) =>
+  `<span class="art poster-ssr__l poster-ssr__l--${n}" aria-hidden="true" translate="no" data-art="${escapeAttr(art)}"></span>`;
+---
+
+<div class="poster-ssr" data-nosnippet aria-hidden="true" translate="no" style={tones}>
+  {
+    variants.map((v) => (
+      <div class={`poster-ssr__v poster-ssr__v--${v.key}`}>
+        <Fragment set:html={LAYERS.map((n) => span(n, v.layers[n])).join('')} />
+      </div>
+    ))
+  }
+</div>
+<noscript><style is:inline>.poster-ssr{display:grid}</style></noscript>

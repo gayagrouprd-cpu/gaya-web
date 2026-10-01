@@ -2,6 +2,7 @@
 import brand from '../../brand.json';
 import { oklchToHex } from '../lib/color.mjs';
 import { alternates, url, type Lang, type RouteKey, type RouteParams } from '../routes';
+import { t } from '../i18n/copy';
 // `?url` hace que Vite les ponga hash, igual que a los @font-face de fonts.css (mismo archivo = misma URL).
 import bricolageLatin from '../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
 import geistMonoLatin from '../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
@@ -93,7 +94,7 @@ const csp = [
     <slot name="head" />
   </head>
   <body data-ui={ui}>
-    <a class="skip" href="#contenido">{lang === 'es' ? 'Ir al contenido' : 'Skip to content'}</a>
+    <a class="skip" href="#contenido">{t(lang).nav.skip}</a>
     <slot />
   </body>
 </html>

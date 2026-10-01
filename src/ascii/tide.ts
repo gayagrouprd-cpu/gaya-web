@@ -107,7 +107,7 @@ export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Ui
   const mem = o.mem ?? null;
   const k256 = o.k === undefined ? 256 : Math.round(clamp01(o.k) * 256);
   const foam = o.foam === undefined ? 1 : o.foam;
-  const tq = (t * 2) | 0; // la espuma elige su glifo como mucho 2 veces por segundo por celda (2.3.1)
+  const t2 = t * 2; // la espuma elige su glifo como mucho 2 veces por segundo por celda (2.3.1), cada celda en SU instante (ver abajo)
   const tauMap = tau(cols, rows);
   if (FR.length < cols) FR = new Float64Array(cols);
   for (let x = 0; x < cols; x++) FR[x] = front(x, yb);
@@ -157,7 +157,9 @@ export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Ui
         let d = cres * 0.8 + 0.35 * (1 - ad / band);
         d = d > 1 ? 1 : d < 0 ? 0 : d;
         if (foam > 0 && ad <= 1) {
-          const r = h2(x, y, 40 + tq) / foam;
+          // fase propia de la celda: el «tic» de cada celda cae en un instante distinto, así la espuma centellea celda a celda y nunca
+          // como un pulso síncrono de toda la línea (con un tic común cada medio segundo se veía un parpadeo global de ~2 Hz)
+          const r = h2(x, y, 40 + ((t2 + h2(x, y, 39)) | 0)) / foam;
           if (r < 0.45) {
             ob[j] = G_STAR;
             ob[j + 1] = ad <= 0.5 ? 14 : 13;

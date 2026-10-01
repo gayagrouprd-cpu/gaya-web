@@ -3,10 +3,10 @@ import brand from '../../brand.json';
 import { anyBuilt, builtRefs } from '../lib/refs';
 
 export const READY = {
-  refs: anyBuilt(), // /referencias/  (aparece en cuanto hay referencias construidas)
-  services: false, // #servicios   (Hito 4)
-  process: false, // #proceso      (Hito 4)
-  contact: false, // #contacto     (Hito 4)
+  refs: anyBuilt(), // /referencias/ y #ejemplos (aparecen en cuanto hay referencias construidas)
+  services: true, // #servicios y las cuatro fichas (Index y ServiceArticle)
+  process: true, // #proceso (Process)
+  contact: true, // #contacto (Contact)
 };
 
 // ── Datos de contacto y navegación (el texto de las etiquetas vive en src/i18n/copy.ts) ───────────────────────

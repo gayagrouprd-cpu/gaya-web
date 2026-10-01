@@ -1,0 +1,20 @@
+---
+// Palabra de 6 filas del Índice de servicios (DIRECTION §4.3, §5.10): una capa T9 con sombra (+2, +1) T3.
+// Arte decorativo: el nombre del servicio es siempre texto real, junto a esta palabra.
+// La palabra que no cabe en una pantalla estrecha (READY mide 60 columnas, 360 px a 6 px por celda) la parte quien la coloca
+// con `splitWord` de dom-art.ts (ServiceIndex.astro): este componente es siempre la palabra de una línea.
+import '../styles/dom-art.css';
+import { loadWords, wordMini, type WordId } from '../ascii/words.ts';
+import { wordArt } from '../ascii/dom-art.ts';
+import type { Lang } from '../routes';
+
+interface Props {
+  id: WordId;
+  lang: Lang;
+}
+const { id, lang } = Astro.props;
+await loadWords(lang, [id]);
+const word = wordMini(id, lang);
+---
+
+<span class="art art--solid word-mini" aria-hidden="true" translate="no" data-art={wordArt(word)} data-word={id}></span>

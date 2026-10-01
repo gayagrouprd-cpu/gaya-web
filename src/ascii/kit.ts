@@ -12,7 +12,7 @@ import type { Cells, GridSpec, Ring, Word } from "./types.ts";
 import { G_DOT, G_FULL, glyphIndex } from "./glyphs.ts";
 import { BLUENOISE_B64, BLUENOISE_N } from "./bluenoise.gen.ts";
 import { QUAD, put } from "./grid.ts";
-import { h2, hu, pgfbm } from "./noise.ts";
+import { h2, hu, pfbm, pgfbm, sinp } from "./noise.ts";
 
 // ---------- utilidades numéricas POLINÓMICAS ----------
 
@@ -90,9 +90,13 @@ export const GAUSS_SCALE = 31.875;
 export const TILE = 64;
 
 /**
- * Hornea UNA vez (≈ 3–4 ms en escritorio) la tesela periódica de agua: cresta `(1 − |h|·K)³` de un fbm de gradiente periódico de 3
- * octavas con deformación de dominio. Todo con + − × y enteros: determinista entre motores; envuelve sin costura a 64.
+ * Hornea UNA vez (≈ 3–4 ms en escritorio) la tesela periódica de agua: cresta `(1 − |h|·K)⁴` de un fbm de gradiente periódico de
+ * 2 octavas con deformación de dominio fuerte. Todo con + − × y enteros: determinista entre motores; envuelve sin costura a 64.
  * El tiempo no recalcula ruido: solo desplaza la lectura (`agua`).
+ *
+ * Revisada tras ver la versión anterior en color (3 octavas, nodos de 18 columnas): a escala de celda daba estática, no agua. Con 2
+ * octavas y una deformación de 0,35 la cresta dibuja una RED de filamentos finos y continuos (la del fondo de una piscina): eso es
+ * lo que se lee como cáustica dentro de una letra de 3–5 celdas de ancho y lo que, sumado a escala gruesa, evita el rayado vertical.
  */
 export function bakeWaterTile(seed: number = 9): Uint8Array {
   const t = new Uint8Array(TILE * TILE);
@@ -103,17 +107,18 @@ export function bakeWaterTile(seed: number = 9): Uint8Array {
       // deformación de dominio (dos campos de gradiente de baja frecuencia) y cresta del ruido deformado = filamentos
       const q1 = pgfbm(u, v, 2, 2, seed + 3);
       const q2 = pgfbm(u + 0.5, v + 0.25, 2, 2, seed + 4);
-      const h = pgfbm(u + 0.28 * q1, v + 0.28 * q2, 4, 3, seed + 9);
+      const h = pgfbm(u + 0.35 * q1, v + 0.35 * q2, 3, 2, seed + 9);
       let k = 1 - Math.abs(h) * RIDGE_K;
       k = k < 0 ? 0 : k;
-      t[y * TILE + x] = Math.round(255 * k * k * k);
+      k = k * k;
+      t[y * TILE + x] = Math.round(255 * k * k);
     }
   }
   return t;
 }
 
 /** Nitidez de la cresta: |h|·K = 1 anula el filamento; K mayor = filamentos más finos. */
-const RIDGE_K = 2.0;
+const RIDGE_K = 2.2;
 
 let WATER: Uint8Array | null = null;
 /** La tesela por defecto (semilla 9), horneada en el primer uso y compartida por escenas, bruma y marea. */
@@ -139,18 +144,54 @@ function sample(tl: Uint8Array, u: number, v: number): number {
   return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
 }
 
-// Texeles de tesela por columna (escala gruesa y fina) y deriva por segundo. La celda es 1:2: las filas se multiplican por
-// `asp` para que las vetas sean isótropas en pantalla. Dos lecturas a escalas y velocidades distintas se suman (§6.8).
-const A_SCALE = 0.9;
-const B_SCALE = 1.5;
-const A_DRIFT = 1.3;
-const B_DRIFT = 0.9;
+// Texeles de tesela por columna (escala gruesa y fina) y deriva por unidad de `t`. La celda es 1:2: las filas se multiplican por
+// `asp` para que las vetas sean isótropas en pantalla. Dos lecturas a escalas y velocidades distintas se promedian (§6.8): donde
+// sus filamentos se cruzan se enciende el punto brillante de una cáustica y entre ellos quedan valles oscuros.
+const A_SCALE = 0.5;
+const B_SCALE = 0.8;
+const A_DRIFT = 0.9;
+const B_DRIFT = 0.7;
+/** El promedio de dos crestas rara vez pasa de 0,7: se reescala para que `agua` use casi todo 0..1. */
+const AGUA_GAIN = 1.45;
 
 /** Agua 0..1 en la celda (c, r) al tiempo t: dos muestras bilineales de la tesela. Sin asignaciones. */
 export function agua(tl: Uint8Array, c: number, r: number, t: number, asp: number = 2): number {
   const ra = r * asp;
-  const w = (sample(tl, c * A_SCALE + t * A_DRIFT, ra * A_SCALE) * 0.62 + sample(tl, c * B_SCALE - t * B_DRIFT, ra * B_SCALE + 7.3) * 0.62) / 255;
+  const w = ((sample(tl, c * A_SCALE + t * A_DRIFT, ra * A_SCALE) + sample(tl, c * B_SCALE - t * B_DRIFT, ra * B_SCALE + 7.3)) * AGUA_GAIN) / 510;
   return w > 1 ? 1 : w;
+}
+
+// ---------- la niebla: tesela suave de baja frecuencia ----------
+
+/**
+ * Tesela periódica 64×64 de ruido de valor SUAVE (3 octavas, nodos de ≈ 21 texeles): la bruma se modula con ella y no con el
+ * agua. Con los filamentos del agua la bruma salía como lluvia vertical (revisión del núcleo); con esto sale como jirones anchos.
+ */
+export function bakeFogTile(seed: number = 5): Uint8Array {
+  const t = new Uint8Array(TILE * TILE);
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const n = pfbm(x / TILE, y / TILE, 3, 3, seed) / 0.875;
+      t[y * TILE + x] = Math.round(255 * (n > 1 ? 1 : n));
+    }
+  }
+  return t;
+}
+
+let FOG: Uint8Array | null = null;
+export function fogTile(): Uint8Array {
+  return FOG ?? (FOG = bakeFogTile(5));
+}
+
+// Texeles por columna y por fila (la celda ya es 1:2, así que 0,6 por fila = 0,3 por columna en píxeles): jirones 3:1 más anchos
+// que altos, como capas de bruma; deriva lenta y distinta en cada eje.
+const FOG_SX = 0.22;
+const FOG_SY = 0.62;
+const FOG_DX = 0.45;
+const FOG_DY = 0.14;
+/** Niebla 0..1 en la celda (c, r) al tiempo t. Sin asignaciones. */
+export function fogAt(tl: Uint8Array, c: number, r: number, t: number): number {
+  return sample(tl, c * FOG_SX + t * FOG_DX, r * FOG_SY + t * FOG_DY) / 255;
 }
 
 // ---------- distancia euclídea anisótropa 1:2 ----------
@@ -233,6 +274,9 @@ export interface FaceInfo {
   y0: number;
   cols: number;
   rows: number;
+  /** Primera y última fila de la palabra (locales) que tienen celdas de CARA; −1 y −2 si no hay ninguna. */
+  fy0: number;
+  fy1: number;
 }
 
 /**
@@ -267,7 +311,18 @@ export function faceFn(w: Word, x0: number, y0: number): FaceInfo {
     const m = w.cells[i];
     cls[i] = m === 0 ? C_AIR : m !== 15 ? C_EDGE : dist[i] <= 1 ? C_EDGE : C_FACE;
   }
-  return { cls, dist, x0, y0, cols, rows };
+  let fy0 = -1;
+  let fy1 = -2;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (cls[y * cols + x] === C_FACE) {
+        if (fy0 < 0) fy0 = y;
+        fy1 = y;
+        break;
+      }
+    }
+  }
+  return { cls, dist, x0, y0, cols, rows, fy0, fy1 };
 }
 
 /** ¿Hay tinta en el subpíxel (sx, sy) de la palabra? Hay 2×2 por celda (bit0=▘ bit1=▝ bit2=▖ bit3=▗); fuera = 0. */
@@ -276,23 +331,32 @@ function sub(w: Word, sx: number, sy: number): number {
   return (w.cells[(sy >> 1) * w.cols + (sx >> 1)] >> (((sy & 1) << 1) | (sx & 1))) & 1;
 }
 
-/** Tonos del aro (§5.5 paso 2). Son parámetros porque el presupuesto de tono de §5.4 se ajusta por escena. */
+/**
+ * Tonos del aro (§5.5 paso 2). Son parámetros porque el presupuesto de tono de §5.4 se ajusta por escena.
+ *
+ * DESVIACIÓN de §5.5 (T12 / T14 / T13 / T9), medida: las letras de 3–5 celdas de trazo son ≈ 70 % aro (773 celdas de aro frente a 342
+ * de cara en GAYA L), así que con la receta literal el aro solo ya pasaba el tope de T≥9 (12 %) y el de T≥14 (0,5 %) en los tres
+ * tamaños. El aro pasa a ser una piel fina y luminosa (la celda parcial, T9–T10) sobre una pared más oscura (la celda llena
+ * contigua, T8) y deja los tonos T11–T15 para destellos puntuales, que es lo que un cartel de vidrio hace de verdad.
+ */
 export interface RingTones {
-  /** Celda parcial y celda llena sin luz ni sombra directas. */
+  /** Celda llena del aro sin luz ni sombra directas: la pared interior del vidrio. */
   edge: number;
-  /** Celda parcial con vacío arriba o a la izquierda. */
+  /** Celda parcial sin luz directa (la piel en la cara de sombra); si se omite, `edge`. */
+  skin?: number;
+  /** Celda parcial con vacío arriba o a la izquierda: la luz de borde. */
   light: number;
   /** Celda llena con luz por arriba o la izquierda (bisel). */
   lit: number;
   /** Celda llena con el borde expuesto abajo o a la derecha (bisel). */
   dark: number;
 }
-export const RING_TONES: RingTones = { edge: 12, light: 14, lit: 13, dark: 9 };
+export const RING_TONES: RingTones = { edge: 8, skin: 9, light: 10, lit: 10, dark: 7 };
 
 /**
- * Tono del ARO en la celda (cx, cy) de la palabra (§5.5 paso 2). Parcial (máscara ≠ 15): T12, y T14 si algún subpíxel con tinta
- * tiene vacío arriba o a la izquierda (luz). Llena a 1 celda del borde: T12 con bisel — T13 si la luz le llega por arriba o la
- * izquierda, T9 si el borde expuesto es el de abajo o la derecha, T12 si ambos.
+ * Tono del ARO en la celda (cx, cy) de la palabra (§5.5 paso 2). Parcial (máscara ≠ 15): `light` si algún subpíxel con tinta tiene
+ * vacío arriba o a la izquierda, si no `skin`. Llena a 1 celda del borde: `lit` si la luz le llega por arriba o la izquierda,
+ * `dark` si el borde expuesto es el de abajo o la derecha, `edge` si ambos o ninguno.
  */
 export function bevel(w: Word, cx: number, cy: number, tones: RingTones = RING_TONES): number {
   const m = w.cells[cy * w.cols + cx];
@@ -305,40 +369,55 @@ export function bevel(w: Word, cx: number, cy: number, tones: RingTones = RING_T
     if (sub(w, sx, sy - 1) === 0 || sub(w, sx - 1, sy) === 0) lit = 1;
     if (sub(w, sx, sy + 1) === 0 || sub(w, sx + 1, sy) === 0) dark = 1;
   }
-  if (m !== 15) return lit ? tones.light : tones.edge;
+  if (m !== 15) return lit ? tones.light : tones.skin === undefined ? tones.edge : tones.skin;
   return lit && !dark ? tones.lit : dark && !lit ? tones.dark : tones.edge;
 }
 
-/** Estampa el aro de la palabra en la rejilla: cuadrante de la celda parcial o `█` de la llena a 1 del borde, con `bevel`. */
-export function paintRing(g: Cells, w: Word, x0: number, y0: number, face: FaceInfo, tones: RingTones = RING_TONES): void {
+/**
+ * Estampa el aro de la palabra en la rejilla: cuadrante de la celda parcial o `█` de la llena a 1 del borde, con `bevel`.
+ * `glint` (0..1) es la fracción de celdas con luz de borde que brillan +`glintGain` tonos (destellos de luz sobre el vidrio), elegidas por
+ * hash de la celda de pantalla: el aro no es una línea uniforme, tiene puntos de luz.
+ */
+export function paintRing(g: Cells, w: Word, x0: number, y0: number, face: FaceInfo, tones: RingTones = RING_TONES, glint: number = 0, glintGain: number = 2): void {
+  const gate = glint * 4294967296;
   for (let y = 0; y < w.rows; y++) {
     for (let x = 0; x < w.cols; x++) {
       const i = y * w.cols + x;
       if (face.cls[i] !== C_EDGE) continue;
       const m = w.cells[i];
-      put(g, x0 + x, y0 + y, m === 15 ? G_FULL : QUAD[m], bevel(w, x, y, tones));
+      let tn = bevel(w, x, y, tones);
+      if (glint > 0 && m !== 15 && tn === tones.light && hu(x0 + x, y0 + y, 21) < gate) tn += glintGain;
+      put(g, x0 + x, y0 + y, m === 15 ? G_FULL : QUAD[m], tn > 15 ? 15 : tn);
     }
   }
 }
+/** `ring` de §6.3: el aro de luz de la palabra (alias de `paintRing`). */
+export const ring = paintRing;
 
 export interface FaceOpts {
-  /** Tono base de la cara (8 = cartel de agua, 9 = ECO y VER). */
+  /** Tono del agua junto a la superficie (7–8 en un cartel de agua; 8 en una cara sólida). */
   base: number;
   tile: Uint8Array;
   t: number;
   /** Contraste de las cáusticas 0..1 (1 = pleno; 0 = cara plana). */
   caustic?: number;
-  /** Fracción llena del vidrio 0..1; omitido = sin vidrio (toda la cara es agua). Ver `waterLevel`. */
+  /** Fracción llena del vidrio 0..1 sobre la altura de la cara (ver `faceLevelRow`); omitido = sin vidrio (toda la cara es agua). */
   level?: number;
-  /** Tono del vidrio vacío sobre el nivel (T2, o T1 si se quiere más oscuro). */
+  /** Tono del vidrio vacío sobre el nivel (5 por omisión). */
   glass?: number;
+  /** Glifo del vidrio vacío (`▒` por omisión: vidrio translúcido; `█` = losa plana, que en el ápice de A, Y, A se leía como una muesca negra). */
+  glassGlyph?: number;
+  /** Tono del menisco (11 por omisión; ondula +1 con el agua). */
+  surface?: number;
+  /** Destello de vidrio 0..1: bandas diagonales de +1 tono que cruzan la cara (el reflejo de una luz de estudio sobre el vidrio); 0 = ninguno. */
+  sheen?: number;
   /** Celdas por encima de este tope se recortan (p. ej. para pozos locales); 15 = sin tope. */
   cap?: number;
 }
 
 /**
- * Fila del menisco de un vidrio con nivel `level` (0..1): por encima, vidrio vacío; en esta fila, menisco; por debajo,
- * agua luminosa. `level ≥ 1` devuelve y0 − 1 (todo lleno, sin menisco) y `level ≤ 0` devuelve y0 + filas (todo vidrio).
+ * Fila del menisco medida sobre TODAS las filas de la palabra (la versión original; `faceLevelRow` mide sobre la cara y es la que usa
+ * `paintFace`). `level ≥ 1` devuelve y0 − 1 (todo lleno, sin menisco) y `level ≤ 0` devuelve y0 + filas (todo vidrio).
  */
 export function waterLevel(w: Word, y0: number, level: number): number {
   if (level >= 1) return y0 - 1;
@@ -346,24 +425,55 @@ export function waterLevel(w: Word, y0: number, level: number): number {
   return y0 + w.rows - Math.round(level * w.rows);
 }
 
-// DESVIACIÓN de §5.5 paso 6 (que dice `~`/`=` en T14): el menisco es una línea de luz T14 que separa el vidrio vacío del agua. Con
-// `~` sobre el fondo T0 (la portada no usa `bg`, por el póster SSR) cada celda se veía en la revisión a la vista como un agujero
-// negro con un garabato dentro del vidrio; el medio bloque inferior `▄`/`▅` (alternando por columna para que ondule) deja la línea
-// de luz pegada al agua de abajo y el vidrio oscuro arriba.
-const G_SURF_A = glyphIndex("▄");
-const G_SURF_B = glyphIndex("▅");
+/**
+ * Fila (de pantalla) del menisco medida sobre la ALTURA DE LA CARA (las filas que tienen cara), no sobre las filas de la palabra: la
+ * cara empieza dos filas bajo el borde superior, y con 0,85 de la palabra el menisco caía dentro del aro (invisible: en la revisión a
+ * la vista el agua llegaba «hasta arriba» y solo se veían dos cuadros sueltos en el ápice de A, Y, A). `level ≥ 1` → `y0 + fy0 − 1` (todo
+ * agua, sin menisco); `level ≤ 0` → `y0 + fy1 + 1` (todo vidrio).
+ */
+export function faceLevelRow(face: FaceInfo, level: number): number {
+  const top = face.y0 + face.fy0;
+  const n = face.fy1 - face.fy0 + 1;
+  if (level >= 1) return top - 1;
+  if (level <= 0) return top + n;
+  return top + n - Math.round(level * n);
+}
+
+// DESVIACIÓN de §5.5 paso 6 (que dice `~`/`=` en T14): el menisco es una línea de luz que separa el vidrio vacío del agua. Con `~` sobre
+// el fondo T0 (la portada no usa `bg`, por el póster SSR) cada celda se veía como un agujero negro con un garabato dentro, y con medios
+// bloques `▄ ▅` la mitad vacía de la celda dejaba una muesca negra bajo el aro, que en el ápice de A, Y, A se leía como un ojo. Con tramas
+// `▓`/`▒` el hueco desaparecía pero quedaban parches de puntos que ensuciaban. La línea es un bloque LLENO en T11 (T12 en la cresta de una
+// onda lenta): brilla, no deja huecos y es limpia.
+export const G_GLASS = glyphIndex("▒");
+
+/** Tono de una celda de agua: base ± profundidad + cáusticas (filamentos) − centro de la letra. Las cáusticas son la ÚNICA luz de la cara. */
+export function waterTone(base: number, depth: number, prof: number, c: number): number {
+  // depth 0 en la superficie .. 1 en el fondo: el agua se oscurece hacia abajo
+  let tone = base + 1 - ((depth * 2.2 + 0.25) | 0);
+  if (prof >= 3) tone -= 1; // el centro de una letra ancha es más profundo que su pared
+  if (c > 0.85) tone += 3;
+  else if (c > 0.62) tone += 2;
+  else if (c > 0.4) tone += 1;
+  return tone;
+}
 
 /**
- * Estampa la CARA (celdas llenas a ≥ 2 del borde): tono = base + round(1,5·agua·cáustica + 1,2·profundidad) (§5.5 paso 1).
- * Con `level`: vidrio vacío `█` T2 sobre el nivel y fila de menisco `▄`/`▅` en T14 (paso 6, ver la nota de arriba).
+ * Estampa la CARA (celdas llenas a ≥ 2 del borde). Con `level` es un vidrio con agua (§5.5 paso 6): vidrio vacío `▒` sobre el nivel, fila de
+ * menisco (bloque lleno T11–T12) y agua debajo, más oscura hacia el fondo, con cáusticas (`waterTone`) y, con `sheen`, un reflejo
+ * diagonal. Sin `level`, toda la cara es agua.
  */
 export function paintFace(g: Cells, w: Word, x0: number, y0: number, face: FaceInfo, o: FaceOpts): void {
   const caustic = o.caustic === undefined ? 1 : o.caustic;
-  const glass = o.glass === undefined ? 2 : o.glass;
+  const glass = o.glass === undefined ? 5 : o.glass;
+  const glassGlyph = o.glassGlyph === undefined ? G_GLASS : o.glassGlyph;
+  const surface = o.surface === undefined ? 11 : o.surface;
   const cap = o.cap === undefined ? 15 : o.cap;
+  const sheen = o.sheen === undefined ? 0 : o.sheen;
   const hasLevel = o.level !== undefined;
-  const yWater = hasLevel ? waterLevel(w, y0, o.level as number) : y0 - 1;
+  const yWater = hasLevel ? faceLevelRow(face, o.level as number) : y0 - 1;
   const meniscus = hasLevel && (o.level as number) > 0 && (o.level as number) < 1;
+  const span = hasLevel ? Math.max(1, y0 + face.fy1 + 1 - yWater) : w.rows; // filas de agua (con menisco) para la profundidad
+  const top = hasLevel ? yWater : y0;
   for (let y = 0; y < w.rows; y++) {
     const sy = y0 + y;
     for (let x = 0; x < w.cols; x++) {
@@ -371,17 +481,17 @@ export function paintFace(g: Cells, w: Word, x0: number, y0: number, face: FaceI
       if (face.cls[i] !== C_FACE) continue;
       const sx = x0 + x;
       if (hasLevel && sy < yWater) {
-        put(g, sx, sy, G_FULL, glass);
+        put(g, sx, sy, glassGlyph, glass);
         continue;
       }
       if (meniscus && sy === yWater) {
-        put(g, sx, sy, ((sx + (sy << 1)) & 1) === 0 ? G_SURF_A : G_SURF_B, 14);
+        // bloque lleno (nunca media celda ni trama: ver la nota de arriba) cuyo tono ondula con el agua: una línea de luz continua
+        put(g, sx, sy, G_FULL, surface + (sinp(sx * 0.55 + o.t * 1.3) > 0.3 ? 1 : 0));
         continue;
       }
-      let prof = (face.dist[i] - 2) * 0.5;
-      prof = prof < 0 ? 0 : prof > 1 ? 1 : prof;
-      let tone = o.base + Math.round(1.5 * caustic * agua(o.tile, sx, sy, o.t) + 1.2 * prof);
-      tone = tone > cap ? cap : tone > 15 ? 15 : tone;
+      let tone = waterTone(o.base, (sy - top) / span, face.dist[i], caustic * agua(o.tile, sx, sy, o.t));
+      if (sheen > 0 && (3 * sx + 5 * sy) % 43 < 6 * sheen) tone += 1; // bandas diagonales de 6 celdas cada 43
+      tone = tone > cap ? cap : tone > 15 ? 15 : tone < 1 ? 1 : tone;
       put(g, sx, sy, G_FULL, tone);
     }
   }
@@ -391,6 +501,7 @@ export function paintFace(g: Cells, w: Word, x0: number, y0: number, face: FaceI
 
 const G_SHADE_L = glyphIndex("░");
 const G_SHADE_M = glyphIndex("▒");
+const G_SHADE_D = glyphIndex("▓");
 const G_COLON = glyphIndex(":");
 
 /** ¿Glifo de masa (cuadrante, bloque, octavo)? Las capas de atmósfera nunca lo pisan: «nunca sobre otra palabra». */
@@ -466,14 +577,55 @@ export interface MistOpts {
   cap: number;
   /** Tope de tono por celda de los pozos: la bruma se recorta ahí para no ensuciar el texto. */
   wells?: Uint8Array | null;
+  /** Campo de luz por celda (0..255) que emana de una palabra (`glowField`, horneado en `build`): se suma a la elipse. */
+  field?: Uint8Array | null;
+  /** Peso del campo 0..n (1 por omisión). */
+  fieldGain?: number;
+  /** Calor del puntero por celda (0..1, como `Frame.heat`): la bruma se enciende alrededor («linterna»). `null` = sin calor. */
+  heat?: Float32Array | null;
+  /** Contraste de los jirones 0..1 (0 = la niebla solo modula; 1 = donde la niebla es rala la bruma cae al 22 %: jirones claros con hueco, sin llegar a cero). */
+  wisp?: number;
 }
 
-const MIST_GLYPHS: readonly number[] = [G_DOT, G_COLON, G_SHADE_L, G_SHADE_M, glyphIndex("▓")];
+/**
+ * Escalera de la bruma: 9 peldaños (glifo, tono) ordenados por la luz que aporta cada uno (cobertura de tinta del glifo × luminancia
+ * del tono; medida sobre los 16 tonos) y agrupados de tres en tres por glifo: `░` T1–T3, `▒` T3–T5, `▓` T4–T6 (el T1 inicial es casi invisible: el borde de la bruma se funde con el fondo). Dentro de una zona
+ * el ruido azul solo salta de tono (degradado suave) y el glifo cambia únicamente en el límite entre zonas: la bruma sale como
+ * manchas de luz de textura homogénea, no como bloques sueltos. (La versión de 12 peldaños intercalados salía granulada.)
+ */
+const MIST_GL: readonly number[] = [0, G_SHADE_L, G_SHADE_L, G_SHADE_L, G_SHADE_M, G_SHADE_M, G_SHADE_M, G_SHADE_D, G_SHADE_D, G_SHADE_D];
+const MIST_TN: readonly number[] = [0, 1, 2, 3, 3, 4, 5, 4, 5, 6];
+/** Polvo de luz: más allá del borde de la bruma, celdas sueltas con un punto `· . '` (alternando por hash, para que no formen una retícula). */
+const DUST: readonly number[] = [G_DOT, glyphIndex("."), glyphIndex("'"), G_DOT];
+const MIST_STEPS = 9;
+/** Amplitud del ruido azul entre peldaños (en peldaños): poca, para que los contornos sean orgánicos y no granulados. */
+const MIST_JITTER = 0.45;
+/** Cuánto se apaga la bruma hacia las esquinas (1 = esquinas vacías). */
+const MIST_VIGNETTE = 0.9;
 
 /**
- * Bruma de luz (§5.5 paso 5): d = (0,15 + 0,85·cresta) · e^(−(dx² + dy²)·1,6) con la cresta de `agua`; glifo `· : ░ ▒ ▓` según
- * d (< 0,16 · 0,24 · 0,34 · 0,5), tono T3–T6, el 15 % de los puntos omitidos por hash, viñeta hacia las esquinas. La gaussiana
- * es la tabla entera GAUSS. Escribe solo en primer plano (sin `bg`). Sin asignaciones. No limpia la rejilla: pinta encima.
+ * Campo de luz que emana de una palabra (se hornea en `build`, una vez por tamaño): 0..255 por celda con la caída `1 / (1 + (d/s)²)`
+ * de la distancia euclídea exacta (1:2) a la tinta de la palabra (o pila de líneas). `s` = distancia a la que la luz cae a la mitad.
+ * Es la mitad de la «bruma que sale de la palabra» (§5.5 punto 5); la otra es la elipse gaussiana de `mist`. Asigna memoria.
+ */
+export function glowField(cols: number, rows: number, lines: readonly { word: Word; x0: number; y0: number }[], s: number): Uint8Array {
+  const out = new Uint8Array(cols * rows);
+  const s2 = 1 / (s * s);
+  for (let n = 0; n < lines.length; n++) {
+    const d = edt(lines[n].word, cols, rows, lines[n].x0, lines[n].y0);
+    for (let i = 0; i < out.length; i++) {
+      const v = Math.round(255 / (1 + d[i] * d[i] * s2));
+      if (v > out[i]) out[i] = v;
+    }
+  }
+  return out;
+}
+
+/**
+ * Bruma de luz (§5.5 paso 5): una elipse gaussiana (tabla entera GAUSS) más el campo de luz de la palabra, modulados por una niebla
+ * suave de baja frecuencia (`fogAt`), con viñeta hacia las esquinas; el resultado se cuantiza a la escalera `· : ░ ▒ ▓` con ruido
+ * azul anclado a la celda. Solo primer plano (sin `bg`). Sin asignaciones. No limpia la rejilla: pinta encima.
+ * `tl` (la tesela de agua) solo pone chispas de luz en la bruma allí donde una cáustica la cruza.
  */
 export function mist(g: Cells, spec: GridSpec, o: MistOpts, t: number, tl: Uint8Array): void {
   const cols = spec.cols;
@@ -483,6 +635,11 @@ export function mist(g: Cells, spec: GridSpec, o: MistOpts, t: number, tl: Uint8
   const gain = o.gain;
   const cap = o.cap;
   const wells = o.wells ?? null;
+  const field = o.field ?? null;
+  const fgain = (o.fieldGain ?? 1) / 255;
+  const wisp = o.wisp ?? 0;
+  const heat = o.heat ?? null;
+  const fog = fogTile();
   const hx = cols * 0.5;
   const hy = rows * 0.5;
   const ihx = 1 / hx;
@@ -492,23 +649,40 @@ export function mist(g: Cells, spec: GridSpec, o: MistOpts, t: number, tl: Uint8
     const dy2 = dy * dy;
     const vy = (y - hy) * ihy;
     for (let x = 0; x < cols; x++) {
+      const i = y * cols + x;
       const dx = (x - o.cx) * irx;
       const xg = (dx * dx + dy2) * 1.6;
-      if (xg >= 8) continue;
-      if (hu(x, y, 11) < 644245094) continue; // el 15 % de los puntos se omite (0,15 · 2³²)
+      const base = xg >= 8 ? 0 : GAUSS[(xg * GAUSS_SCALE) | 0] * (1 / 255);
+      let glow = field === null ? 0 : field[i] * fgain;
+      if (heat !== null && heat[i] > 0.03) glow += heat[i] * 0.7; // la linterna enciende la bruma incluso donde no había
+      if (base + glow < 0.02) continue;
       const vx = (x - hx) * ihx;
-      const vig = 1 - 0.3 * (vx * vx + vy * vy);
-      const m = (0.15 + 0.85 * agua(tl, x, y, t)) * (GAUSS[(xg * GAUSS_SCALE) | 0] / 255) * gain * vig;
-      if (m < 0.03) continue; // con ganancia 0 (la bruma aún cerrada) no sale ni un punto suelto
-      // el ruido azul difumina los umbrales de glifo: la bruma sale como gradiente punteado, no como manchas de bloques
-      const d = m + (bn(x, y) - 0.5) * 0.16;
-      if (d < 0.05) continue;
-      const gl = d < 0.16 ? 0 : d < 0.24 ? 1 : d < 0.34 ? 2 : d < 0.5 ? 3 : 4;
-      let tone = 3 + ((d * 6) | 0);
+      const vig = 1 - MIST_VIGNETTE * smooth(0.2, 1.7, vx * vx + vy * vy);
+      let f = fogAt(fog, x, y, t);
+      if (wisp > 0) f += wisp * (0.22 + 0.78 * smooth(0.35, 0.8, f) - f);
+      const m = (base * (0.12 + 0.88 * f) + glow * (0.55 + 0.45 * f)) * vig * gain;
+      if (m < 0.01) continue; // con ganancia 0 (la bruma aún cerrada) no sale ni un punto suelto
+      let L = (m * MIST_STEPS + 0.5 + (bn(x, y) - 0.5) * MIST_JITTER * 2) | 0;
+      if (L > MIST_STEPS) L = MIST_STEPS;
+      if (L === 1) L = 0; // el peldaño 1 (░ T1) es casi invisible: no cuenta como celda con tinta, el borde se funde en el polvo
+      const hh = hu(x, y, 13);
+      let tone: number;
+      let gl: number;
+      if (L < 1) {
+        // polvo de luz: más allá de la textura, puntos sueltos `· . '` con probabilidad creciente hacia la bruma (dentro del cuerpo serían
+        // agujeros negros, por eso solo salen donde no hay textura)
+        if ((hh & 1023) >= m * 1600) continue;
+        gl = DUST[(hh >>> 10) & 3];
+        tone = 4;
+      } else {
+        tone = MIST_TN[L];
+        gl = MIST_GL[L];
+        if (L >= 2 && (hh & 3) === 1 && agua(tl, x, y, t) > 0.88) tone += 2; // chispa: donde pasa una cáustica la textura brilla un poco más
+      }
       if (tone > cap) tone = cap;
-      if (wells !== null && tone > wells[y * cols + x]) tone = wells[y * cols + x];
+      if (wells !== null && tone > wells[i]) tone = wells[i];
       if (tone < 1) continue;
-      put(g, x, y, MIST_GLYPHS[gl], tone);
+      put(g, x, y, gl, tone);
     }
   }
 }

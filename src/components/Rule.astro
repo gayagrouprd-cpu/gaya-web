@@ -1,0 +1,14 @@
+---
+// Regla decorativa (DIRECTION §5.10): «─» con «┼» cada 8 celdas, una fila de alto, ancho en celdas enteras, T5.
+// Separa secciones y filas del Índice. Es arte: aria-hidden, translate="no", el texto va en data-art.
+import '../styles/dom-art.css';
+import { ruleText } from '../ascii/dom-art.ts';
+
+interface Props {
+  /** Columnas de arte generadas (el CSS recorta al ancho del contenedor). */
+  cols?: number;
+}
+const { cols } = Astro.props;
+---
+
+<span class="art rule" aria-hidden="true" translate="no" data-art={ruleText(cols)}></span>

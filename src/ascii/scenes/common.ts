@@ -16,10 +16,14 @@ export { STILL_T, TONES } from "../types.ts";
 export type { Cells, Frame, GridSpec, Lang, Ring, Scene, SceneId, SceneState, Variant, Word, WordId, WordSet } from "../types.ts";
 export { stillFrame, renderStill } from "../ssr.ts";
 
-/** GridSpec de una celda CSS `cssCw × cssCh` a `dpr` (la celda de dispositivo es entera y `ch = 2·cw`). */
+/** GridSpec de una celda CSS `cssCw × cssCh` a `dpr` (celda de dispositivo entera; a ≥ 1600 px la celda es 12×25, no 12×24). */
 export function gridSpec(cols: number, rows: number, cssCw: number = 9, cssCh: number = cssCw * 2, dpr: number = 2): GridSpec {
-  const cw = Math.round(cssCw * dpr);
-  return { cols, rows, cw, ch: 2 * cw, cssCw, cssCh, dpr };
+  return { cols, rows, cw: Math.round(cssCw * dpr), ch: Math.round(cssCh * dpr), cssCw, cssCh, dpr };
+}
+
+/** Rejilla de un visor `w × h` px CSS con celda `cssCw × cssCh` (las de §5.2: 6×12 · 9×18 · 12×25). */
+export function specForViewport(w: number, h: number, cssCw: number, cssCh: number, dpr: number = 2): GridSpec {
+  return gridSpec(Math.floor(w / cssCw), Math.floor(h / cssCh), cssCw, cssCh, dpr);
 }
 
 /** Las dos rejillas de referencia: escritorio 1440×900 (160×50, celda 9×18) y móvil A07 360×800 (60×66, celda 6×12). */

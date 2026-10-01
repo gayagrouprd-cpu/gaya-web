@@ -1,0 +1,76 @@
+---
+// Laboratorio SOLO de desarrollo (WP5): monta el motor real sobre un documento con varios carteles y pozos.
+// En el build no sale ninguna página de aquí (`getStaticPaths` devuelve []).
+import Base from '../../layouts/Base.astro';
+import Field from '../../components/Field.astro';
+
+export function getStaticPaths() {
+  if (import.meta.env.PROD) return [];
+  return [
+    { params: { page: 'field' }, props: { lang: 'es' as const } },
+    { params: { page: 'field-en' }, props: { lang: 'en' as const } },
+  ];
+}
+const { lang } = Astro.props;
+// un cartel por pantalla; los que aún no tienen escena (WP7–WP9) caen a `mist`
+const posters = ['cover', 'hola', 'mist', 'web', 'listo', 'eco', 'on', 'ver', 'mist', 'tu'];
+---
+
+<Base lang={lang} title="Lab field" noindex preloadMono>
+  <Field />
+  <main id="contenido">
+    {
+      posters.map((id, i) => (
+        <section class="poster" data-poster={id} id={`p${i}`}>
+          <div class="txt">
+            <h2 data-well="ink">{id}</h2>
+            <p data-well="muted">{i}</p>
+            <a class="btn btn--primary" data-cta href={`#p${i}`}>
+              {id}
+            </a>
+          </div>
+        </section>
+      ))
+    }
+    <section class="poster" id="plate-end">
+      <div class="plate tall"><p>plate</p></div>
+    </section>
+  </main>
+</Base>
+
+<style is:global>
+  body {
+    margin: 0;
+    background: var(--t0);
+  }
+  main#contenido {
+    position: relative;
+    z-index: 1;
+  }
+  .poster {
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 max(16px, 6vw) 10vh;
+    box-sizing: border-box;
+  }
+  .poster .txt {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+  }
+  .poster h2 {
+    margin: 0;
+    font: 800 clamp(2rem, 1.2rem + 3.2vw, 3.75rem) / 1.04 var(--font-display);
+    color: var(--ink);
+  }
+  .poster p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .plate.tall {
+    min-height: 60svh;
+    width: min(100%, 40rem);
+    margin-bottom: 10vh;
+  }
+</style>

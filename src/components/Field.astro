@@ -1,0 +1,39 @@
+---
+// Lienzo único del arte ASCII (DIRECTION §4.2, §12.4): fijo a pantalla, decorativo, sin contenido.
+// El motor lo mide y le asigna tamaño por CSSOM; aquí solo vive su caja y la carga diferida del arranque.
+---
+
+<canvas class="field" aria-hidden="true" translate="no"></canvas>
+
+<script>
+  import '../scripts/field-boot.ts';
+</script>
+
+<style is:global>
+  canvas.field {
+    position: fixed;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 100lvh;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    background: var(--t0, #02051b);
+    opacity: 0;
+    transition: opacity 240ms linear;
+  }
+  html[data-field='live'] canvas.field,
+  html[data-field='still'] canvas.field {
+    opacity: 1;
+  }
+  html[data-field='off'] canvas.field,
+  html[data-field='ssr'] canvas.field {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    canvas.field {
+      transition: none;
+    }
+  }
+</style>

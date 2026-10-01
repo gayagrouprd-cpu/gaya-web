@@ -6,7 +6,7 @@ import { GAYA_L_SET, GAYA_M_SET, GAYA_STACK, ON_L_SET, GAYA_L } from './words.mj
 import {
   STILL_T, bakeWaterTile, bn, edt, faceFn, gridSpec, makeCells, makeFrame, specDesktop, specMobile, toText, toTones, waterTile,
 } from '../../../src/ascii/scenes/common.ts';
-import { compose, tideParams, tideYb } from '../../../src/ascii/tide.ts';
+import { compose, tideParams } from '../../../src/ascii/tide.ts';
 import { buildCap, makeCap } from '../../../src/ascii/wells.ts';
 import { renderPosterLayers } from '../../../src/ascii/ssr.ts';
 
@@ -55,15 +55,19 @@ export function computeHashes() {
   const b = render(on, desk, ON_L_SET, makeFrame(1, STILL_T, 0, true));
   out['still-on-desktop'] = gridSha(b.g);
   const tp = tideParams(false);
-  const tideAt = (u, dir, from, to) => {
+  // El frente se coloca por su FILA (fracción de la altura), no por u: con la curva de entrada y salida, u = 0,25 y u = 0,75 dejan el frente
+  // FUERA de pantalla (el cuadro sale idéntico al still) y esas huellas no fijaban nada. Aquí el frente recorre la pantalla a 76 %, 52 % y
+  // 28 % (los tres fotogramas en color de DIRECTION §2.1) y la palabra (filas 6–22) queda bajo el frente, cruzada y por encima.
+  const tideAt = (k, dir, from, to) => {
     const o = makeCells(desk.cols, desk.rows);
-    compose(o, from.g, to.g, from.st.cls, to.st.cls, tideYb(u, desk.rows, tp.band, tp.reach, dir), { band: tp.band, reach: tp.reach, t: STILL_T, dir });
+    compose(o, from.g, to.g, from.st.cls, to.st.cls, desk.rows * k, { band: tp.band, reach: tp.reach, t: STILL_T, dir });
     return gridSha(o);
   };
-  out['tide-advance-25'] = tideAt(0.25, 1, a, b);
-  out['tide-advance-50'] = tideAt(0.5, 1, a, b);
-  out['tide-advance-75'] = tideAt(0.75, 1, a, b);
-  out['tide-retreat-50'] = tideAt(0.5, -1, b, a);
+  out['tide-advance-76'] = tideAt(0.76, 1, a, b);
+  out['tide-advance-52'] = tideAt(0.52, 1, a, b);
+  out['tide-advance-28'] = tideAt(0.28, 1, a, b);
+  out['tide-retreat-52'] = tideAt(0.52, -1, b, a);
+  out['still-cover-desktop'] = gridSha(a.g);
 
   const L = renderPosterLayers(cover, desk, 'es', [GAYA_L_SET]);
   out['poster-wide'] = sha(L.dim, '\u0001', L.mid, '\u0001', L.hot, '\u0001', L.spark);

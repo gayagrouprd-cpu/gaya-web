@@ -1,0 +1,97 @@
+---
+// Hilo del Proceso (DIRECTION §5.10 y §7.8): HOLA (proc) arriba, riel «│» T3 completo con «┃» T9 encima, cuatro estaciones
+// «┼» → «╋» y LISTO (proc) abajo. Las estaciones son el `ol` real (texto en Bricolage); todo lo demás es arte decorativo.
+//
+// Ancho en móvil: HOLA·LISTO `proc` miden 61–62 columnas (70 y 80 en inglés) y a 6 px por celda no caben en 320 px (48
+// columnas). Cada palabra lleva tres composiciones y el CSS elige la mayor que cabe en el contenedor:
+//   proc (8 filas) → mini (6 filas, 46–60 columnas) → mini partida en dos líneas (`HE / LLO`, `REA / DY`; ≤ 35 columnas).
+// Los umbrales salen de los datos de las palabras (no hay números mágicos).
+import '../styles/dom-art.css';
+import { loadWords, sceneWord, wordMini, wordProc } from '../ascii/words.ts';
+import { railText, splitWord, stackArt, stackSize, wordArt } from '../ascii/dom-art.ts';
+import type { Lang } from '../routes';
+
+interface Step {
+  id: string;
+  label: string;
+  /** Insignia de estado («24–48 h»): solo cuando el dueño confirmó el plazo (`processSteps()` la resuelve). */
+  badge: string | null;
+}
+interface Props {
+  lang: Lang;
+  steps: Step[];
+}
+const { lang, steps } = Astro.props;
+
+const topId = sceneWord('hola', lang) as 'HOLA' | 'HELLO';
+const bottomId = sceneWord('listo', lang) as 'LISTO' | 'READY';
+await loadWords(lang, [topId, bottomId]);
+
+function cap(id: 'HOLA' | 'HELLO' | 'LISTO' | 'READY') {
+  const proc = wordProc(id, lang);
+  const mini = wordMini(id, lang);
+  const parts = splitWord(mini, 2);
+  return {
+    proc: { art: wordArt(proc), cols: proc.cols },
+    mini: { art: wordArt(mini), cols: mini.cols },
+    split: { art: stackArt(parts, 1), rows: stackSize(parts, 1).rows },
+  };
+}
+const caps = { top: cap(topId), bottom: cap(bottomId) };
+
+// Umbrales (columnas del contenedor): de más estrecho a más ancho, el último que se cumple manda.
+const widthRules = (pos: 'top' | 'bottom') => {
+  const c = caps[pos];
+  const w = `.thread__cap--${pos} .art.thread__w`;
+  return (
+    `@container thread (min-width:${c.mini.cols}ch){${w}--mini{display:block}${w}--split{display:none}}` +
+    `@container thread (min-width:${c.proc.cols}ch){${w}--proc{display:block}${w}--mini{display:none}}`
+  );
+};
+const css = widthRules('top') + widthRules('bottom');
+
+const RAIL_ROWS = 24; // sobra: el paso (li) recorta el riel a su altura
+const rail = railText(RAIL_ROWS, '│');
+const lit = railText(RAIL_ROWS, '┃');
+const segRail = railText(3, '│');
+const segLit = railText(3, '┃');
+---
+
+<style is:inline set:html={css}></style>
+<div class="thread" data-lang={lang}>
+  <div class="thread__cap thread__cap--top" aria-hidden="true">
+    <span class="art art--solid thread__w thread__w--proc" aria-hidden="true" translate="no" data-art={caps.top.proc.art}></span>
+    <span class="art art--solid thread__w thread__w--mini" aria-hidden="true" translate="no" data-art={caps.top.mini.art}></span>
+    <span class="art art--solid thread__w thread__w--split" style={`--rows:${caps.top.split.rows}`} aria-hidden="true" translate="no" data-art={caps.top.split.art}></span>
+  </div>
+  <div class="thread__seg" aria-hidden="true">
+    <span class="art thread__rail" aria-hidden="true" translate="no" data-art={segRail}></span>
+    <span class="art thread__rail thread__rail--lit" aria-hidden="true" translate="no" data-art={segLit}></span>
+  </div>
+  <ol class="thread__steps" role="list">
+    {
+      steps.map((s) => (
+        <li class="thread__step" data-step={s.id}>
+          <span class="art thread__rail" aria-hidden="true" translate="no" data-art={rail}></span>
+          <span class="art thread__rail thread__rail--lit" aria-hidden="true" translate="no" data-art={lit}></span>
+          <span class="art thread__node thread__node--off" aria-hidden="true" translate="no" data-art="┼──"></span>
+          <span class="art thread__node thread__node--on" aria-hidden="true" translate="no" data-art="╋━━"></span>
+          <span class="art thread__node thread__node--hov" aria-hidden="true" translate="no" data-art="╋━━"></span>
+          <span class="thread__label" data-well="ink">
+            {s.label}
+            {s.badge && <span class="thread__badge">{s.badge}</span>}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+  <div class="thread__seg" aria-hidden="true">
+    <span class="art thread__rail" aria-hidden="true" translate="no" data-art={segRail}></span>
+    <span class="art thread__rail thread__rail--lit" aria-hidden="true" translate="no" data-art={segLit}></span>
+  </div>
+  <div class="thread__cap thread__cap--bottom" aria-hidden="true">
+    <span class="art art--solid thread__w thread__w--proc" aria-hidden="true" translate="no" data-art={caps.bottom.proc.art}></span>
+    <span class="art art--solid thread__w thread__w--mini" aria-hidden="true" translate="no" data-art={caps.bottom.mini.art}></span>
+    <span class="art art--solid thread__w thread__w--split" style={`--rows:${caps.bottom.split.rows}`} aria-hidden="true" translate="no" data-art={caps.bottom.split.art}></span>
+  </div>
+</div>

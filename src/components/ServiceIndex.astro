@@ -1,0 +1,71 @@
+---
+// Índice de servicios (#servicios / #services): cuatro filas con regla, no una cuadrícula de tarjetas (DIRECTION §4.3, §8.4).
+// Cada fila: palabra mini (arte decorativo) · nombre · promesa · «Ver detalle» · WhatsApp con el servicio ya escrito.
+// El nombre del servicio es siempre texto: la palabra es imagen. Los nombres accesibles contienen el texto visible (2.5.3).
+import Icon from './Icon.astro';
+import PosterSection from './PosterSection.astro';
+import Rule from './Rule.astro';
+import WordMini from './WordMini.astro';
+import { loadWords, wordMini } from '../ascii/words.ts';
+import { splitWord, stackArt, stackSize } from '../ascii/dom-art.ts';
+import { SERVICES, sectionId } from '../data/services.ts';
+import { waServiceOf } from '../lib/wa.ts';
+import { t } from '../i18n/copy.ts';
+import type { Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = t(lang).services;
+
+// Palabras que no caben en una pantalla estrecha (celda de 6 px): READY mide 60 columnas = 360 px. Esas llevan además una
+// composición en dos líneas (`REA / DY`) que el CSS muestra en lugar de la de una línea (mismo recurso que el hilo del Proceso).
+// `fit` dice desde qué ancho de pantalla se parte: «xl» por debajo de 404 px (> 48 columnas), «l» por debajo de 336 px (45–48).
+await loadWords(lang, SERVICES.map((s) => s.word[lang]));
+const split = Object.fromEntries(
+  SERVICES.map((s) => {
+    const mini = wordMini(s.word[lang], lang);
+    if (mini.cols <= 44) return [s.id, null];
+    const parts = splitWord(mini, 2);
+    return [s.id, { art: stackArt(parts, 1), rows: stackSize(parts, 1).rows, fit: mini.cols > 48 ? 'xl' : 'l' }];
+  }),
+);
+---
+
+<PosterSection scene="mist" id={sectionId(lang, 'services')} labelledby="services-h" class="idx">
+  <div class="wrap">
+    <h2 id="services-h" data-well="ink">{c.h2}</h2>
+    <ul class="idx__list">
+      {
+        SERVICES.map((s) => {
+          const name = s.name[lang];
+          return (
+            <li class="idx__row" data-fit={split[s.id]?.fit}>
+              <Rule />
+              <div class="idx__grid">
+                <WordMini id={s.word[lang]} lang={lang} />
+                {split[s.id] && <span class="art art--solid word-mini word-mini--split" style={`--rows:${split[s.id].rows}`} aria-hidden="true" translate="no" data-art={split[s.id].art} />}
+                <div class="idx__body" data-well="ink">
+                  <p class="idx__name">{name}</p>
+                  <p class="idx__promise">{s.promise[lang]}</p>
+                  <div class="idx__acts">
+                    <a class="idx__more" href={`#${s.section[lang]}`} aria-label={c.detailsFor(name)}>
+                      {c.details}
+                      <Icon name="arrow-right" />
+                    </a>
+                    <a class="btn btn--primary idx__wa" href={waServiceOf(lang, s.id)} target="_blank" rel="noopener" aria-label={c.whatsappFor(name)}>
+                      <Icon name="whatsapp" />
+                      <span class="idx__wa-l">{c.whatsapp}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <Rule />
+  </div>
+</PosterSection>

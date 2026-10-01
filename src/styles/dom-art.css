@@ -1,0 +1,359 @@
+/* Arte en DOM del Inicio (DIRECTION §5.10, §6.9, §7.8, §10): regla, palabra mini, póster SSR e hilo del Proceso.
+   Lo importan Rule, WordMini, PosterSsr y ProcessThread (no el cromo: la galería y el 404 no cargan nada de esto).
+   Depende de tokens.css (celda --cw/--ch, tonos --t0…--t15), fonts.css y ascii.css (.art, .btn).
+   Todo es móvil primero: lo que está sin @media es la versión < 900 px; el escritorio se añade desde 56,25 rem.
+   Los selectores del arte llevan `.art.xxx` (0,2,0) para ganar a `.art` de ascii.css sea cual sea el orden de las hojas.
+
+   Siempre `span.art[aria-hidden][translate="no"][data-art]`: el texto viaja en data-art y se pinta con ::before
+   (ascii.css), así que el lector de pantalla y axe no lo ven.
+
+   ANIMACIONES CON view(): se escriben SIEMPRE con longhands (animation-name, -timing-function, -fill-mode, -timeline, -range) y
+   nunca con el atajo `animation:`. El minificador de producción (lightningcss) funde `animation` + `animation-timeline` en un
+   solo atajo `animation: … view()` que Chrome rechaza (su atajo no admite la línea de tiempo): la animación desaparecía en
+   el dist y no en `astro dev`. Con solo cinco de los longhands presentes no hay atajo al que plegarlos.
+   `node scripts/wp10b/check.mjs --only anim` lo comprueba sobre el build real (no sobre astro dev). */
+
+/* ── Regla: «─» con «┼» cada 8 celdas, una fila de alto, ancho en celdas enteras, T5 ─────────────── */
+.art.rule {
+  height: var(--ch);
+  padding-block: 0;
+  color: var(--t5);
+}
+@supports (width: round(down, 100%, 1ch)) {
+  .art.rule {
+    width: round(down, 100%, 1ch);
+  }
+}
+
+/* ── Palabra mini del Índice: 6 filas, una capa T9 y sombra proyectada (+2 columnas, +1 fila) T3 ──── */
+/* La altura va en un selector sin especificidad: quien coloque la palabra en dos líneas (.word-mini--split) puede darle la suya */
+:where(.word-mini) {
+  height: calc(var(--ch) * 7);
+}
+.art.word-mini {
+  width: max-content;
+  max-width: 100%;
+  padding: 0 calc(var(--cw) * 2) var(--ch) 0;
+  color: var(--t9);
+  text-shadow: calc(var(--cw) * 2) var(--ch) 0 var(--t3);
+}
+
+/* Las reglas se trazan y las palabras entran al llegar a la vista; sin soporte (Firefox) o con movimiento reducido,
+   todo está ya puesto (R16). */
+@keyframes rule-trace {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mini-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ch));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .art.rule {
+      animation-name: rule-trace;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+    .art.word-mini {
+      animation-name: mini-enter;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+  }
+}
+
+/* ── Póster SSR de la portada (§6.9) ─────────────────────────────────────────────────────────────
+   Con JS no se pinta (Chrome cuenta el texto generado con ::before como candidato de LCP): display:none. Se muestra sin JS
+   (el <noscript> del componente) o cuando el motor falla y pone html[data-field="ssr"]. Tres variantes conmutadas por
+   columnas del propio contenedor (@container en `ch`): ≥ 133 → wide 160×50 · ≥ 96 → mid 113×44 · resto → stack 65×70.
+   La variante se centra y el contenedor recorta los lados. base.css lo oculta en forced-colors e impresión. */
+.poster-ssr {
+  display: none;
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  align-content: start;
+  overflow: clip;
+  container: poster / inline-size;
+  font: 400 var(--fs-art) / var(--ch) var(--font-mono);
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+html[data-field='ssr'] .poster-ssr {
+  display: grid;
+}
+.poster-ssr__v {
+  display: none;
+  grid-area: 1 / 1;
+}
+.poster-ssr__v--stack {
+  display: grid;
+}
+.art.poster-ssr__l {
+  grid-area: 1 / 1;
+  padding-block: 0;
+  overflow: visible;
+}
+.art.poster-ssr__l--dim {
+  color: var(--poster-dim);
+}
+.art.poster-ssr__l--mid {
+  color: var(--poster-mid);
+}
+.art.poster-ssr__l--hot {
+  color: var(--poster-hot);
+}
+.art.poster-ssr__l--spark {
+  color: var(--poster-spark);
+}
+@container poster (min-width: 96ch) {
+  .poster-ssr__v--stack {
+    display: none;
+  }
+  .poster-ssr__v--mid {
+    display: grid;
+  }
+}
+@container poster (min-width: 133ch) {
+  .poster-ssr__v--mid {
+    display: none;
+  }
+  .poster-ssr__v--wide {
+    display: grid;
+  }
+}
+/* `mid` y `wide` se componen para celdas de 9×18 (reservan 4 filas = 72 px bajo la píldora); por debajo de 900 px la celda
+   mide 6×12 y esas 4 filas son 48 px: la píldora (hasta y = 70) tapaba el arranque de GAYA. Se bajan 2 filas para volver a
+   reservar los 72 px. `stack` se compone ya para 6×12 (3 filas = 36 px más su halo) y no se toca. */
+@media (max-width: 56.1875rem) {
+  .poster-ssr__v--mid,
+  .poster-ssr__v--wide {
+    margin-top: calc(var(--ch) * 2);
+  }
+}
+
+/* ── Hilo del Proceso (§5.10, §7.8) ──────────────────────────────────────────────────────────────
+   HOLA (proc) arriba, riel «│» T3 completo con «┃» T9 encima (recortado), cuatro estaciones «┼» → «╋» y LISTO (proc) abajo.
+   Todo en celdas: cada paso mide un número entero de filas (1 de aire + 3 por línea de texto + 1 de aire), así los trozos
+   del riel se empalman sin costura. Sin animation-timeline o con movimiento reducido: todo encendido. */
+.thread {
+  container: thread / inline-size;
+  width: min(100%, 100ch);
+  font: 400 var(--fs-art) / var(--ch) var(--font-mono);
+}
+.thread__cap {
+  display: grid;
+  justify-items: start;
+}
+.art.thread__w {
+  display: none;
+  grid-area: 1 / 1;
+  width: max-content;
+  padding: 0 calc(var(--cw) * 2) var(--ch) 0;
+  color: var(--t9);
+  text-shadow: calc(var(--cw) * 2) var(--ch) 0 var(--t3);
+}
+.art.thread__w--split {
+  display: block;
+  height: calc(var(--ch) * (var(--rows, 13) + 1));
+}
+.art.thread__w--mini {
+  height: calc(var(--ch) * 7);
+}
+.art.thread__w--proc {
+  height: calc(var(--ch) * 9);
+}
+/* Los umbrales de ancho (en columnas del contenedor) salen de los datos: los escribe ProcessThread.astro en un <style> propio. */
+
+.thread__seg,
+.thread__step {
+  position: relative;
+}
+.thread__seg {
+  height: calc(var(--ch) * 3);
+}
+.thread__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.thread__step {
+  padding: var(--ch) 0 var(--ch) calc(var(--cw) * 7);
+}
+.art.thread__rail {
+  position: absolute;
+  inset: 0 auto 0 calc(var(--cw) * 3);
+  width: var(--cw);
+  padding-block: 0;
+  color: var(--t3);
+}
+.art.thread__rail--lit {
+  color: var(--t9);
+  font-weight: 800;
+}
+.art.thread__node {
+  position: absolute;
+  top: calc(var(--ch) * 2);
+  left: calc(var(--cw) * 3);
+  width: calc(var(--cw) * 3);
+  height: var(--ch);
+  padding-block: 0;
+}
+.art.thread__node--off {
+  color: var(--t5);
+}
+.art.thread__node--on {
+  color: var(--t13);
+  font-weight: 800;
+  text-shadow:
+    0 0 0.6em var(--t11),
+    0 0 1.4em var(--t9);
+}
+.art.thread__node--hov {
+  color: var(--t15);
+  opacity: 0;
+}
+.thread__label {
+  display: block;
+  margin: 0;
+  color: var(--ink);
+  font: 700 var(--fs-h3) / calc(var(--ch) * 3) var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.thread__badge {
+  display: inline-block;
+  margin-inline-start: var(--space-3);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--t7);
+  border-radius: 2px;
+  color: var(--accent-text);
+  font: 500 var(--fs-label) / 1.6 var(--font-mono);
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+@media (hover: hover) {
+  .thread__step:hover .thread__node--hov {
+    opacity: 1;
+  }
+}
+.thread__step:focus-within .thread__node--hov {
+  opacity: 1;
+}
+
+@keyframes thread-rail {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes thread-node {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes thread-word {
+  from {
+    color: var(--t4);
+    text-shadow: calc(var(--cw) * 2) var(--ch) 0 var(--t2);
+  }
+  to {
+    color: var(--t9);
+    text-shadow: calc(var(--cw) * 2) var(--ch) 0 var(--t3);
+  }
+}
+/* El «plano de lectura» está al 65 % de la altura de la pantalla: view(block 0px 35%) acorta por abajo el visor de cada pieza. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .art.thread__rail--lit {
+      animation-name: thread-rail;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view(block 0px 35%);
+      animation-range: entry 0% entry 100%;
+    }
+    .art.thread__node--on {
+      animation-name: thread-node;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view(block 0px 35%);
+      animation-range: entry 0% entry 100%;
+    }
+    .thread__cap--bottom .art.thread__w {
+      animation-name: thread-word;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view(block 0px 35%);
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+/* ── Colores forzados, contraste alto e impresión ───────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .art.rule,
+  .art.word-mini,
+  .art.thread__w,
+  .art.thread__rail,
+  .art.thread__node,
+  .art.poster-ssr__l {
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+    text-shadow: none;
+  }
+}
+@media (prefers-contrast: more) {
+  .art.rule,
+  .art.word-mini,
+  .art.thread__w,
+  .art.thread__rail,
+  .art.thread__node,
+  .art.poster-ssr__l {
+    color: var(--ink);
+    text-shadow: none;
+  }
+  .art.thread__rail {
+    color: var(--muted);
+  }
+}
+@media print {
+  .art.rule,
+  .art.word-mini,
+  .art.thread__w,
+  .art.thread__rail,
+  .art.thread__node,
+  .art.poster-ssr__l {
+    color: #000;
+    -webkit-text-fill-color: #000;
+    text-shadow: none;
+  }
+  .art {
+    animation: none !important; /* el papel no tiene scroll: sin esto el hilo saldría apagado */
+  }
+  .art.thread__rail--lit,
+  .art.thread__node--off,
+  .art.thread__node--hov {
+    display: none;
+  }
+}

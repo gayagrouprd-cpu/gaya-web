@@ -1,0 +1,23 @@
+---
+// Proceso (#proceso / #process): el hilo de HOLA a LISTO es arte en DOM (ProcessThread, sin lienzo) con el `ol` real de los cuatro pasos.
+// Sobre la bruma: el `h2` va bajo pozo y cada paso del hilo lleva el suyo (ProcessThread). La insignia «24–48 h» sale sola si `brand.json › confirmed.proposalHours` es true.
+import PosterSection from './PosterSection.astro';
+import ProcessThread from './ProcessThread.astro';
+import { processSteps, t } from '../i18n/copy.ts';
+import { sectionId } from '../data/services.ts';
+import type { Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<PosterSection scene="mist" id={sectionId(lang, 'process')} labelledby="process-h" class="proc">
+  <div class="wrap">
+    <h2 id="process-h" data-well="ink">{t(lang).process.h2}</h2>
+    <div class="proc__thread">
+      <ProcessThread lang={lang} steps={processSteps(lang)} />
+    </div>
+  </div>
+</PosterSection>

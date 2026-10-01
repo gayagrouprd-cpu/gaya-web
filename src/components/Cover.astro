@@ -1,0 +1,42 @@
+---
+// Portada (#inicio / #home): el cartel GAYA. El `h1` es el LCP: texto real sobre fondo T0; el póster SSR (PosterSsr) solo se muestra
+// sin JS o si el motor falla, y el lienzo del motor lo pinta detrás. `h1` y botones van bajo pozo «ink», el lead bajo pozo «muted» (§4.4, §5.8).
+import Icon from './Icon.astro';
+import PosterSection from './PosterSection.astro';
+import PosterSsr from './PosterSsr.astro';
+import { READY } from '../data/site.ts';
+import { sectionId } from '../data/services.ts';
+import { waGeneric } from '../lib/wa.ts';
+import { t } from '../i18n/copy.ts';
+import { path, type Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = t(lang).home;
+// La palabra de acento del titular sale de la copia (`home.accent`): el resto del `h1` se pinta tal cual.
+const [before, after] = c.h1.split(c.accent);
+---
+
+<PosterSection scene="cover" id={sectionId(lang, 'home')} labelledby="h1" class="cover">
+  <PosterSsr lang={lang} />
+  <div class="cover__text">
+    <h1 id="h1" data-well="ink">{before}<span class="accent">{c.accent}</span>{after}</h1>
+    <p class="cover__lead" data-well="muted">{c.lead}</p>
+    <div class="cover__actions" data-well="ink">
+      <a class="btn btn--primary" data-cta="primary" href={waGeneric(lang)} target="_blank" rel="noopener">
+        <Icon name="whatsapp" />
+        {c.primary}
+      </a>
+      {
+        READY.refs && (
+          <a class="btn btn--ghost" href={path(lang, 'refs')}>
+            {c.secondary}
+            <Icon name="arrow-right" />
+          </a>
+        )
+      }
+    </div>
+  </div>
+</PosterSection>

@@ -12,7 +12,7 @@ export interface GridSpec {
   cols: number;
   rows: number; // celdas del motor, tras el tier
   cw: number;
-  ch: number; // px de dispositivo, enteros, ch = 2·cw
+  ch: number; // px de dispositivo, enteros; ch = round(--ch · dpr) del CSS (≈ 2·cw; a ≥ 1600 px es 12×25 CSS, no 12×24)
   cssCw: number;
   cssCh: number; // px CSS de la celda (6×12 · 9×18 · 12×25, o agrandada por el tier)
   dpr: number; // dpr efectivo (≤ 2; ≤ 1,5 en tier low)

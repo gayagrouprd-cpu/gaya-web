@@ -1,0 +1,79 @@
+---
+// Ejemplos (#ejemplos / #samples): el cartel VER. Filas de `builtRefs()` (solo lo construido): emblema · nombre · rubro y tipo ·
+// «Ver ejemplo» · «Quiero una así» (WhatsApp con el mensaje del ejemplo). Sello «Datos ficticios» junto al `h2` y bajo cada emblema (§7.7).
+// El número del enlace final es el real (`samplesCount()`). Los emblemas son arte decorativo de src/data/emblems.ts.
+import Icon from './Icon.astro';
+import PosterSection from './PosterSection.astro';
+import Plate from './Plate.astro';
+import { emblemArt } from '../data/emblems.ts';
+import { samplesCount } from '../data/site.ts';
+import { sectionId } from '../data/services.ts';
+import { waSample } from '../lib/wa.ts';
+import { builtRefs, types } from '../lib/refs';
+import { t } from '../i18n/copy.ts';
+import { path, url, type Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = t(lang).samples;
+const refs = builtRefs();
+// «Rubro · Tipo»; si el rubro ya dice el tipo («App / SaaS» y «App»), no se repite el tipo.
+const typeOf = (sector: string, type: string) => (sector.toLowerCase().includes(type.toLowerCase()) ? null : type);
+---
+
+{
+  refs.length > 0 && (
+    <PosterSection scene="ver" id={sectionId(lang, 'samples')} labelledby="samples-h" class="smp">
+      <div class="stage">
+        <div class="stage__in" data-well="ink">
+          <h2 id="samples-h">{c.h2}</h2>
+          <span class="stamp">{c.stamp}</span>
+        </div>
+      </div>
+      <div class="wrap">
+        <Plate class="smp__plate">
+          <ul class="smp__list">
+            {refs.map((r) => (
+              <li class="smp__row">
+                <div class="smp__mark">
+                  <span class="art smp__emblem" aria-hidden="true" translate="no" data-art={emblemArt(r.icon)} />
+                  <span class="stamp">{c.stamp}</span>
+                </div>
+                <div class="smp__info">
+                  <h3 id={`sample-${r.slug}`}>{r.name}</h3>
+                  <p class="smp__kind">
+                    <span>{r.sector[lang]}</span>
+                    {typeOf(r.sector[lang], types[r.type][lang]) && <span>{types[r.type][lang]}</span>}
+                  </p>
+                </div>
+                <div class="smp__acts">
+                  <a class="btn btn--ghost" href={path(lang, 'ref', { slug: r.slug })} aria-label={c.viewFor(r.name)}>
+                    {c.view}
+                  </a>
+                  <a
+                    class="btn btn--primary"
+                    href={waSample(lang, { name: r.name, sector: r.sector[lang], url: url(lang, 'ref', { slug: r.slug }) })}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={c.wantFor(r.name)}
+                  >
+                    <Icon name="whatsapp" />
+                    {c.want}
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div class="smp__foot">
+            <a class="smp__all" href={path(lang, 'refs')}>
+              {c.all(samplesCount())}
+              <Icon name="arrow-right" />
+            </a>
+          </div>
+        </Plate>
+      </div>
+    </PosterSection>
+  )
+}

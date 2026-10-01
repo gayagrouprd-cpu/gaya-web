@@ -1,0 +1,25 @@
+---
+// Dato local de una ficha, con su fuente enlazada (DIRECTION §8.9). La fecha de lectura y la caducidad viven en src/data/facts.ts:
+// aquí no se muestran. Si el dato caducó (`serviceFact()` devuelve `null`) no se pinta nada.
+import type { Fact } from '../data/facts.ts';
+import type { Lang } from '../ascii/types.ts';
+import { t } from '../i18n/copy.ts';
+
+interface Props {
+  fact: Fact | null;
+  lang: Lang;
+}
+const { fact, lang } = Astro.props;
+const c = t(lang).services;
+---
+
+{
+  fact && (
+    <p class="fact">
+      <span class="fact__text">{fact.text[lang]}</span>
+      <a class="fact__src" href={fact.src} target="_blank" rel="noopener">
+        {c.source(fact.source[lang])}
+      </a>
+    </p>
+  )
+}

@@ -48,20 +48,33 @@ test('mismo hash con V8 sin JIT (intérprete puro: nada de la aritmética depend
   }
 });
 
+// golden.json lo comparten el núcleo (este archivo: claves sin prefijo) y las escenas reales de WP6 (scenes-a.test.mjs: claves «scene/…»);
+// las claves que empiezan por «_» son metadatos (estado de aprobación). Cada prueba solo lee y escribe lo suyo.
+const readGold = () => (existsSync(GOLDEN) ? JSON.parse(readFileSync(GOLDEN, 'utf8')) : {});
+const isOwn = (k) => !k.startsWith('scene/') && !k.startsWith('_');
+
 test('coincide con los hashes dorados guardados (tests/ascii/golden.json)', () => {
-  if (process.env.UPDATE_GOLDEN === '1' || !existsSync(GOLDEN)) {
-    writeFileSync(GOLDEN, JSON.stringify(here, null, 2) + '\n');
+  const all = readGold();
+  const own = Object.keys(all).filter(isOwn);
+  if (process.env.UPDATE_GOLDEN === '1' || own.length === 0) {
+    const keep = Object.fromEntries(Object.entries(all).filter(([k]) => !isOwn(k)));
+    writeFileSync(GOLDEN, JSON.stringify({ ...keep, ...here }, null, 2) + '\n');
     return;
   }
-  const gold = JSON.parse(readFileSync(GOLDEN, 'utf8'));
-  assert.deepEqual(Object.keys(here).sort(), Object.keys(gold).sort(), 'cambió el conjunto de huellas');
-  for (const k of Object.keys(gold)) assert.equal(here[k], gold[k], `huella «${k}» cambió (si es un cambio de arte aprobado: UPDATE_GOLDEN=1)`);
+  assert.deepEqual(Object.keys(here).sort(), own.sort(), 'cambió el conjunto de huellas');
+  for (const k of Object.keys(here)) assert.equal(here[k], all[k], `huella «${k}» cambió (si es un cambio de arte aprobado: UPDATE_GOLDEN=1)`);
 });
 
 test('las huellas son distintas entre sí donde deben serlo', () => {
   assert.notEqual(here['still-desktop'], here['still-mobile']);
-  assert.notEqual(here['tide-advance-25'], here['tide-advance-50']);
-  assert.notEqual(here['tide-advance-50'], here['tide-retreat-50']);
+  // la marea FIJA algo: cada fotograma con el frente en pantalla difiere del cartel saliente y del entrante, y de los demás
+  const adv = ['tide-advance-76', 'tide-advance-52', 'tide-advance-28'];
+  for (const k of adv) {
+    assert.notEqual(here[k], here['still-cover-desktop'], `${k} es idéntico al cartel saliente: el frente no entró en pantalla`);
+    assert.notEqual(here[k], here['still-on-desktop'], `${k} es idéntico al cartel entrante`);
+  }
+  assert.equal(new Set(adv.map((k) => here[k])).size, 3, 'los tres fotogramas de la marea son distintos');
+  assert.notEqual(here['tide-advance-52'], here['tide-retreat-52']);
   assert.notEqual(here['still-desktop'], here['arrival-p30-desktop']);
   assert.notEqual(here['still-desktop'], here['heat-rings-desktop']);
   assert.equal(here['water-tile'], here['water-tile-default']);

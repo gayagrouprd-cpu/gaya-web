@@ -1,0 +1,48 @@
+---
+// Quiénes somos (#nosotros / #about): el cartel HOLA. El `h2` y la frase de marca van DEBAJO de la palabra (nunca sobre «OLA», §7.2);
+// la lectura es una placa `dl` con `aboutRows()`, y al pie la firma y la hora de Santo Domingo (la pone clock.ts con Intl; sin API).
+import PosterSection from './PosterSection.astro';
+import Plate from './Plate.astro';
+import brand from '../../brand.json';
+import { aboutRows, t } from '../i18n/copy.ts';
+import { sectionId } from '../data/services.ts';
+import type { Lang } from '../routes';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = t(lang).about;
+const rows = aboutRows(lang);
+---
+
+<PosterSection scene="hola" id={sectionId(lang, 'about')} labelledby="about-h" class="about">
+  <div class="stage">
+    <div class="stage__in" data-well="ink">
+      <h2 id="about-h">{c.h2}</h2>
+      <p class="phrase">{c.phrase}</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <Plate class="about__plate">
+      <dl class="rows">
+        {
+          rows.map((r) => (
+            <div class="rows__row">
+              <dt>{r.label}</dt>
+              <dd>{r.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="sign">
+        <span class="sign__name">{c.signature}</span>
+        <span class="sign__time" data-clock data-lang={lang} data-tz={brand.timezone} data-tpl={c.clock('{time}')}>{c.place}</span>
+      </p>
+    </Plate>
+  </div>
+</PosterSection>
+
+<script>
+  import '../scripts/clock.ts';
+</script>

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   bakeWaterTile, waterTile, agua, GAUSS, GAUSS_SCALE, bn, edt, faceFn, bevel, paintRing, paintFace, waterLevel, shadow, halo, mist, ringAmount,
   applyRings, isSolidGlyph, RING_TONES, C_AIR, C_FACE, C_EDGE, TILE, smooth, easeInOut, easeOutExpo, clamp,
+  faceLevelRow, waterTone, G_GLASS, ring, glowField, fogTile, bakeFogTile, fogAt,
 } from '../../src/ascii/kit.ts';
 import { Grid, put, fill, getGlyph, getTone, hashCells, countExplicitBg } from '../../src/ascii/grid.ts';
 import { glyphIndex, glyphChar, QUAD_GLYPH } from '../../src/ascii/glyphs.ts';
@@ -203,26 +204,36 @@ function checkGaya(GAYA_M) {
   assert.ok(face > 50 && edge > 100, `cara ${face}, borde ${edge}`);
 }
 
-test('bevel: luz T13 arriba-izquierda, T9 abajo-derecha, T12 mixto; parciales T12 o T14 con luz', () => {
+test('bevel: luz arriba-izquierda, sombra abajo-derecha, pared neutra; parciales con luz o piel', () => {
+  const T = RING_TONES;
   const w = solid(6, 6);
-  assert.equal(bevel(w, 0, 0), 13, 'esquina superior izquierda: solo luz');
-  assert.equal(bevel(w, 5, 5), 9, 'esquina inferior derecha: solo sombra');
-  assert.equal(bevel(w, 5, 0), 12, 'esquina superior derecha: luz y sombra');
-  assert.equal(bevel(w, 0, 5), 12);
-  assert.equal(bevel(w, 2, 0), 13, 'borde superior');
-  assert.equal(bevel(w, 0, 3), 13, 'borde izquierdo');
-  assert.equal(bevel(w, 5, 3), 9, 'borde derecho');
-  assert.equal(bevel(w, 3, 5), 9, 'borde inferior');
+  assert.equal(bevel(w, 0, 0), T.lit, 'esquina superior izquierda: solo luz');
+  assert.equal(bevel(w, 5, 5), T.dark, 'esquina inferior derecha: solo sombra');
+  assert.equal(bevel(w, 5, 0), T.edge, 'esquina superior derecha: luz y sombra');
+  assert.equal(bevel(w, 0, 5), T.edge);
+  assert.equal(bevel(w, 2, 0), T.lit, 'borde superior');
+  assert.equal(bevel(w, 0, 3), T.lit, 'borde izquierdo');
+  assert.equal(bevel(w, 5, 3), T.dark, 'borde derecho');
+  assert.equal(bevel(w, 3, 5), T.dark, 'borde inferior');
   const p = solid(3, 3);
   p.cells[1 * 3 + 1] = 12; // ▄: tiene vacío arriba (dentro de la celda) ⇒ luz
-  assert.equal(bevel(p, 1, 1), 14);
+  assert.equal(bevel(p, 1, 1), T.light);
   const q = solid(3, 3, 0);
   q.cells[1 * 3 + 1] = 15;
   q.cells[0 * 3 + 1] = 15; // encima hay tinta
   q.cells[1 * 3 + 0] = 15;
   q.cells[2 * 3 + 1] = 15;
   q.cells[1 * 3 + 2] = 15;
-  assert.equal(bevel(q, 1, 1), 12, 'rodeada por cuatro: sin luz ni sombra directas ⇒ T12');
+  assert.equal(bevel(q, 1, 1), T.edge, 'rodeada por cuatro: sin luz ni sombra directas ⇒ pared');
+  // parcial sin luz directa (vacío solo abajo o a la derecha) = piel
+  const r = solid(4, 3);
+  r.cells[1 * 4 + 1] = 3; // ▀: tinta arriba, vacío abajo; rodeada por tinta arriba/izquierda/derecha ⇒ sin luz
+  assert.equal(bevel(r, 1, 1), T.skin, 'parcial a la sombra = piel');
+});
+
+test('RING_TONES de WP6: piel luminosa (T9–T10) sobre pared (T8); ningún tono del aro pasa de T10 (los destellos son del glint)', () => {
+  assert.deepEqual({ ...RING_TONES }, { edge: 8, skin: 9, light: 10, lit: 10, dark: 7 });
+  for (const v of Object.values(RING_TONES)) assert.ok(v <= 10);
 });
 
 test('paintRing: parciales con su cuadrante, llenas a 1 del borde con █ y bisel; nada en la cara', () => {
@@ -231,21 +242,48 @@ test('paintRing: parciales con su cuadrante, llenas a 1 del borde con █ y bise
   const g = new Grid(12, 9);
   paintRing(g, w, 2, 1, f);
   assert.equal(getGlyph(g, 2, 1), glyphIndex('▗'));
-  assert.equal(getTone(g, 2, 1), 14, 'parcial con vacío arriba = luz T14');
+  assert.equal(getTone(g, 2, 1), RING_TONES.light, 'parcial con vacío arriba = luz');
   assert.equal(getGlyph(g, 3, 1), glyphIndex('▄'));
   assert.equal(getGlyph(g, 2, 2), glyphIndex('█'), 'llena a 1 del borde');
-  assert.equal(getTone(g, 2, 2), 13);
-  assert.equal(getTone(g, 5, 3), 9, 'borde derecho llena = sombra');
+  assert.equal(getTone(g, 2, 2), RING_TONES.lit);
+  assert.equal(getTone(g, 5, 3), RING_TONES.dark, 'borde derecho llena = sombra');
   // la cara (centro) no se toca; las celdas sin tinta tampoco
   assert.equal(getGlyph(g, 3, 3), 0, 'la cara no es del aro');
   assert.equal(getGlyph(g, 0, 0), 0);
+  const ALLOWED = new Set([RING_TONES.edge, RING_TONES.skin, RING_TONES.light, RING_TONES.lit, RING_TONES.dark]);
   for (let y = 0; y < g.rows; y++) for (let x = 0; x < g.cols; x++) {
     const gl = getGlyph(g, x, y);
-    if (gl) assert.ok([9, 12, 13, 14].includes(getTone(g, x, y)), `tono de aro ${getTone(g, x, y)}`);
+    if (gl) assert.ok(ALLOWED.has(getTone(g, x, y)), `tono de aro ${getTone(g, x, y)}`);
   }
 });
 
-test('RingTones: el aro acepta otros tonos (el presupuesto de §5.4 se ajusta por escena)', () => {
+test('paintRing: los destellos (glint) suben +gain a una fracción de las celdas con luz, por hash, sin tocar glifos; `ring` es el alias de §6.3', () => {
+  assert.equal(ring, paintRing);
+  const w = GAYA_L;
+  const f = faceFn(w, 0, 0);
+  const a = new Grid(130, 20);
+  const b = new Grid(130, 20);
+  paintRing(a, w, 0, 0, f);
+  paintRing(b, w, 0, 0, f, RING_TONES, 0.5, 2);
+  let lit = 0;
+  let raised = 0;
+  for (let i = 0; i < a.b.length; i += 4) {
+    assert.equal(a.b[i], b.b[i], 'los glifos no cambian');
+    if (a.b[i] && a.b[i + 1] === RING_TONES.light && a.b[i] !== glyphIndex('█')) lit++;
+    if (b.b[i + 1] > a.b[i + 1]) {
+      raised++;
+      assert.equal(b.b[i + 1], a.b[i + 1] + 2);
+      assert.equal(a.b[i + 1], RING_TONES.light, 'solo las celdas con luz brillan');
+    }
+  }
+  assert.ok(lit > 100, `celdas con luz ${lit}`);
+  assert.ok(Math.abs(raised / lit - 0.5) < 0.12, `fracción con destello ${raised / lit}`);
+  const c = new Grid(130, 20);
+  paintRing(c, w, 0, 0, f, RING_TONES, 0.5, 2);
+  assert.equal(hashCells(c), hashCells(b), 'determinista');
+});
+
+test('RingTones: el aro acepta otros tonos (el presupuesto de §5.4 se ajusta por escena); `skin` omitido = `edge`', () => {
   const w = wordFromLines(['▗▄▄▖', '████', '████', '████', '▝▀▀▘']);
   const f = faceFn(w, 0, 0);
   const g = new Grid(6, 6);
@@ -254,8 +292,9 @@ test('RingTones: el aro acepta otros tonos (el presupuesto de §5.4 se ajusta po
   assert.equal(getTone(g, 0, 1), 11);
   assert.equal(getTone(g, 3, 2), 7);
   assert.equal(bevel(w, 0, 0, { edge: 1, light: 2, lit: 3, dark: 4 }), 2);
-  assert.equal(RING_TONES.edge, 12);
-  assert.deepEqual({ ...RING_TONES }, { edge: 12, light: 14, lit: 13, dark: 9 });
+  assert.equal(bevel(w, 3, 0, { edge: 1, skin: 6, light: 2, lit: 3, dark: 4 }), 2, 'con luz manda light aunque haya skin');
+  const sh = wordFromLines(['▀▀▀', '███']);
+  assert.equal(bevel(sh, 1, 0, { edge: 1, skin: 6, light: 2, lit: 3, dark: 4 }), 2, 'parcial superior: vacío arriba = luz');
 });
 
 test('waterLevel: fila del menisco, todo vidrio en 0 y todo lleno en 1', () => {
@@ -266,12 +305,29 @@ test('waterLevel: fila del menisco, todo vidrio en 0 y todo lleno en 1', () => {
   assert.equal(waterLevel(w, 5, 0.85), 5 + 10 - 9);
 });
 
-test('paintFace: tono = base + round(1,5·agua + 1,2·profundidad); vidrio T2 sobre el nivel, menisco T14, agua abajo', () => {
+test('faceLevelRow: el nivel se mide sobre la altura de la CARA, no de la palabra (0,85 de la palabra caía dentro del aro)', () => {
+  const w = solid(20, 14);
+  const f = faceFn(w, 4, 3);
+  assert.equal(f.fy0, 1, 'la cara empieza dos filas bajo el borde (dist ≥ 2)');
+  assert.equal(f.fy1, 12);
+  const n = f.fy1 - f.fy0 + 1; // 12 filas de cara
+  assert.equal(faceLevelRow(f, 1), 3 + f.fy0 - 1, 'todo agua: sin menisco');
+  assert.equal(faceLevelRow(f, 0), 3 + f.fy1 + 1, 'todo vidrio');
+  assert.equal(faceLevelRow(f, 0.5), 3 + f.fy0 + n - 6);
+  // con 0,85 de la palabra el menisco (fila 3 + 14 − 12 = 5) caería en el aro (fila 3 + 0..1); sobre la cara cae dentro de ella
+  const row = faceLevelRow(f, 0.85);
+  assert.ok(row >= 3 + f.fy0 && row <= 3 + f.fy1, `menisco en ${row}`);
+  const none = faceFn({ cols: 6, rows: 2, accentRows: 0, cells: new Uint8Array(12).fill(15) }, 0, 0); // dos filas: todo es aro
+  assert.equal(none.fy0, -1);
+  assert.equal(none.fy1, -2);
+});
+
+test('paintFace: agua oscura hacia el fondo con cáusticas (filamentos), vidrio translúcido sobre el nivel y menisco sin muescas', () => {
   const w = solid(20, 12);
   const f = faceFn(w, 4, 3);
   const tile = waterTile();
   const g = new Grid(30, 18);
-  paintFace(g, w, 4, 3, f, { base: 8, tile, t: 21.7 });
+  paintFace(g, w, 4, 3, f, { base: 7, tile, t: 21.7 });
   let min = 99;
   let max = -1;
   for (let y = 0; y < w.rows; y++) for (let x = 0; x < w.cols; x++) {
@@ -281,38 +337,40 @@ test('paintFace: tono = base + round(1,5·agua + 1,2·profundidad); vidrio T2 so
       const t = getTone(g, 4 + x, 3 + y);
       min = Math.min(min, t);
       max = Math.max(max, t);
-      const expect = 8 + Math.round(1.5 * agua(tile, 4 + x, 3 + y, 21.7) + 1.2 * Math.min(1, Math.max(0, (f.dist[y * 20 + x] - 2) * 0.5)));
-      assert.equal(t, Math.min(15, expect));
+      const expect = waterTone(7, y / w.rows, f.dist[y * 20 + x], agua(tile, 4 + x, 3 + y, 21.7));
+      assert.equal(t, Math.max(1, Math.min(15, expect)));
     } else assert.equal(gl, 0, 'el aro y el aire no son de la cara');
   }
-  assert.ok(min >= 8 && max <= 11, `rango de la cara T${min}–T${max}`);
-  // sin cáusticas la cara solo depende de la profundidad
+  assert.ok(min >= 4 && max <= 11, `rango de la cara T${min}–T${max}`);
+  assert.ok(max - min >= 3, 'las cáusticas dan relieve a la cara');
+  // sin cáusticas la cara solo depende de la profundidad: nunca más clara que la superficie
   const g0 = new Grid(30, 18);
-  paintFace(g0, w, 4, 3, f, { base: 8, tile, t: 21.7, caustic: 0 });
-  assert.equal(getTone(g0, 4 + 1, 3 + 1), 8, 'dist 2: profundidad 0');
-  assert.equal(getTone(g0, 4 + 2, 3 + 2), 9, 'dist 3: profundidad 0,5 ⇒ +round(0,6)');
+  paintFace(g0, w, 4, 3, f, { base: 7, tile, t: 21.7, caustic: 0 });
+  for (let y = 2; y < 10; y++) assert.ok(getTone(g0, 8, 3 + y) <= 8 && getTone(g0, 8, 3 + y) >= 5);
+  assert.ok(getTone(g0, 8, 3 + 2) >= getTone(g0, 8, 3 + 9), 'el agua se oscurece hacia el fondo');
   // tope
   const gc = new Grid(30, 18);
   paintFace(gc, w, 4, 3, f, { base: 14, tile, t: 21.7, cap: 10 });
   for (let i = 1; i < gc.b.length; i += 4) assert.ok(gc.b[i] <= 10);
-  // vidrio con agua al 50 %: nivel en la fila 3 + 12 − 6 = 9
+  // vidrio con agua al 50 %: nivel sobre la altura de la cara
   const gv = new Grid(30, 18);
-  paintFace(gv, w, 4, 3, f, { base: 8, tile, t: 21.7, level: 0.5 });
-  assert.equal(waterLevel(w, 3, 0.5), 9);
+  paintFace(gv, w, 4, 3, f, { base: 7, tile, t: 21.7, level: 0.5 });
+  const yw = faceLevelRow(f, 0.5);
   for (let x = 2; x < 18; x++) {
-    assert.equal(getGlyph(gv, 4 + x, 5), glyphIndex('█'));
-    assert.equal(getTone(gv, 4 + x, 5), 2, 'vidrio vacío T2 sobre el nivel');
-    assert.equal(getTone(gv, 4 + x, 9), 14, 'menisco T14');
-    assert.ok([glyphIndex('▄'), glyphIndex('▅')].includes(getGlyph(gv, 4 + x, 9)));
-    assert.ok(getTone(gv, 4 + x, 11) >= 8, 'agua luminosa bajo el nivel');
+    assert.equal(getGlyph(gv, 4 + x, yw - 1), G_GLASS, 'vidrio sobre el nivel');
+    assert.equal(getTone(gv, 4 + x, yw - 1), 5, 'vidrio translúcido: textura, no losa negra');
+    assert.notEqual(G_GLASS, glyphIndex('█'));
+    assert.equal(getGlyph(gv, 4 + x, yw), glyphIndex('█'), 'menisco de bloque lleno: sin media celda vacía (muesca negra) ni trama sucia');
+    assert.ok([11, 12].includes(getTone(gv, 4 + x, yw)), 'menisco luminoso T11 (T12 en la cresta de la onda)');
+    assert.ok(getTone(gv, 4 + x, yw + 2) >= 4, 'agua bajo el nivel');
   }
   // nivel 0 todo vidrio; nivel 1 todo agua y sin menisco
   const g1 = new Grid(30, 18);
-  paintFace(g1, w, 4, 3, f, { base: 8, tile, t: 21.7, level: 1 });
-  for (let y = 2; y < 10; y++) assert.ok(getTone(g1, 10, 3 + y) >= 8);
+  paintFace(g1, w, 4, 3, f, { base: 7, tile, t: 21.7, level: 1 });
+  for (let y = 2; y < 10; y++) assert.equal(getGlyph(g1, 10, 3 + y), glyphIndex('█'));
   const g0l = new Grid(30, 18);
-  paintFace(g0l, w, 4, 3, f, { base: 8, tile, t: 21.7, level: 0 });
-  for (let y = 2; y < 10; y++) assert.equal(getTone(g0l, 10, 3 + y), 2);
+  paintFace(g0l, w, 4, 3, f, { base: 7, tile, t: 21.7, level: 0 });
+  for (let y = 2; y < 10; y++) assert.equal(getGlyph(g0l, 10, 3 + y), G_GLASS);
 });
 
 // ---------- sombra y halo ----------
@@ -371,23 +429,26 @@ test('halo: bruma ▒░:· en primer plano a ≤ radio de la palabra, T3/T2/T1 
 
 // ---------- bruma ----------
 
-test('mist: solo primer plano, tono 3..cap, glifos de bruma, 15 % de puntos omitidos y determinista', () => {
+test('mist: solo primer plano, tono 1..cap, glifos de bruma, determinista, se mueve con t y nace de la luz de la palabra', () => {
   const sp = spec(160, 50);
   const tl = waterTile();
-  const o = { cx: 80, cy: 14, rx: 88, ry: 20, gain: 1, cap: 6 };
+  const o = { cx: 80, cy: 14, rx: 60, ry: 15, gain: 1, cap: 6 };
   const g = new Grid(160, 50);
   mist(g, sp, o, 21.7, tl);
-  const ALLOWED = new Set(['·', ':', '░', '▒', '▓'].map(glyphIndex));
+  const ALLOWED = new Set(['·', '.', "'", '░', '▒', '▓'].map(glyphIndex));
   let n = 0;
+  const gl = {};
   for (let i = 0; i < g.b.length; i += 4) {
     if (!g.b[i]) continue;
     n++;
+    gl[glyphChar(g.b[i])] = (gl[glyphChar(g.b[i])] ?? 0) + 1;
     assert.ok(ALLOWED.has(g.b[i]), `glifo ${glyphChar(g.b[i])}`);
-    assert.ok(g.b[i + 1] >= 3 && g.b[i + 1] <= 6, `tono ${g.b[i + 1]}`);
+    assert.ok(g.b[i + 1] >= 2 && g.b[i + 1] <= 6, `tono ${g.b[i + 1]}`);
     assert.equal(g.b[i + 2], 0, 'sin bg');
     assert.equal(g.b[i + 3], 1);
   }
   assert.ok(n > 1500, `bruma demasiado escasa: ${n}`);
+  assert.ok((gl['░'] ?? 0) > 300 && (gl['▒'] ?? 0) > 100, `textura ░▒ en el cuerpo: ${JSON.stringify(gl)}`);
   const h = hashCells(g);
   const g2 = new Grid(160, 50);
   mist(g2, sp, o, 21.7, tl);
@@ -395,15 +456,95 @@ test('mist: solo primer plano, tono 3..cap, glifos de bruma, 15 % de puntos omit
   const g3 = new Grid(160, 50);
   mist(g3, sp, o, 22.7, tl);
   assert.notEqual(hashCells(g3), h, 'el tiempo mueve la bruma');
-  // con mucha ganancia cada celda del elipse se dibuja salvo el 15 % omitido por hash
+  // con mucha ganancia y una elipse enorme el cuerpo se llena de ▓ (el peldaño máximo) y no queda ni una celda vacía en el centro
   const gg = new Grid(160, 50);
   mist(gg, sp, { cx: 80, cy: 25, rx: 400, ry: 400, gain: 50, cap: 6 }, 3, tl);
   let drawn = 0;
-  for (let i = 0; i < gg.b.length; i += 4) if (gg.b[i]) drawn++;
-  assert.ok(Math.abs(drawn / 8000 - 0.85) < 0.02, `fracción dibujada ${drawn / 8000}`);
+  let dense = 0;
+  for (let y = 10; y < 40; y++) for (let x = 40; x < 120; x++) {
+    const k = (y * 160 + x) * 4;
+    if (gg.b[k]) drawn++;
+    if (gg.b[k] === glyphIndex('▓')) dense++;
+  }
+  assert.equal(drawn, 30 * 80, 'con ganancia enorme el centro está lleno');
+  assert.ok(dense > 0.9 * drawn, 'y en el peldaño máximo');
 });
 
-test('mist: cap, pozos y ganancia 0', () => {
+test('mist: bruma suave de baja frecuencia — sin rayado vertical (columna a columna) ni granulado de celda suelta', () => {
+  const sp = spec(160, 50);
+  const tl = waterTile();
+  const g = new Grid(160, 50);
+  mist(g, sp, { cx: 80, cy: 14, rx: 60, ry: 16, gain: 1, cap: 6 }, 21.7, tl);
+  // luz por celda (glifo × tono): 0 vacía; la escalera es monótona en luz
+  const light = (x, y) => {
+    const k = (y * 160 + x) * 4;
+    const c = { '·': 0.04, '.': 0.04, "'": 0.04, '░': 0.25, '▒': 0.5, '▓': 0.75 }[glyphChar(g.b[k])] ?? 0;
+    return c * 2 ** (g.b[k + 1] / 2);
+  };
+  // rayado: la diferencia entre columnas vecinas (promediada por filas) no debe superar a la diferencia entre filas vecinas
+  let dx = 0;
+  let dy = 0;
+  let n = 0;
+  for (let y = 4; y < 26; y++) for (let x = 30; x < 130; x++) {
+    dx += Math.abs(light(x + 1, y) - light(x, y));
+    dy += Math.abs(light(x, y + 1) - light(x, y));
+    n++;
+  }
+  assert.ok(dx / n < 1.6 * (dy / n), `rayado vertical: Δcolumna ${(dx / n).toFixed(3)} frente a Δfila ${(dy / n).toFixed(3)}`);
+  // granulado: pocas celdas vacías rodeadas de celdas con bruma (agujeros) dentro del cuerpo
+  let holes = 0;
+  let body = 0;
+  for (let y = 6; y < 22; y++) for (let x = 40; x < 120; x++) {
+    const around = [light(x - 1, y), light(x + 1, y), light(x, y - 1), light(x, y + 1)];
+    if (around.every((v) => v > 0.3)) {
+      body++;
+      if (light(x, y) === 0) holes++;
+    }
+  }
+  assert.ok(holes <= 0.02 * Math.max(body, 1), `agujeros negros en el cuerpo: ${holes} de ${body}`);
+});
+
+test('mist: campo de luz de la palabra (glowField) y calor: la bruma emana de las letras y se enciende bajo el puntero', () => {
+  const sp = spec(160, 50);
+  const tl = waterTile();
+  const w = GAYA_L;
+  const lines = [{ word: w, x0: 20, y0: 6 }];
+  const field = glowField(160, 50, lines, 4);
+  const ink = w.cells.findIndex((m) => m === 15);
+  assert.equal(field[(6 + ((ink / w.cols) | 0)) * 160 + 20 + (ink % w.cols)], 255, 'sobre la tinta el campo vale 255');
+  assert.ok(field[10 * 160 + 17] < 255 && field[10 * 160 + 17] > 0, "fuera de la tinta cae pero no es cero");
+  // cae con la distancia (1/(1+(d/s)²)): a d = s vale la mitad
+  const one = { cols: 1, rows: 1, accentRows: 0, cells: Uint8Array.of(15) };
+  const f1 = glowField(40, 30, [{ word: one, x0: 10, y0: 10 }], 4);
+  assert.ok(Math.abs(f1[10 * 40 + 14] - 128) <= 1, `a d = s: ${f1[10 * 40 + 14]}`);
+  assert.ok(f1[10 * 40 + 18] < f1[10 * 40 + 14] && f1[10 * 40 + 14] < f1[10 * 40 + 11]);
+  // con campo y elipse mínima, la bruma rodea la palabra y no llena la pantalla
+  const g = new Grid(160, 50);
+  mist(g, sp, { cx: 80, cy: 14, rx: 1, ry: 1, gain: 1, cap: 6, field, fieldGain: 1 }, 21.7, tl);
+  let near = 0;
+  let far = 0;
+  for (let y = 0; y < 50; y++) for (let x = 0; x < 160; x++) {
+    if (!g.b[(y * 160 + x) * 4]) continue;
+    if (y >= 2 && y <= 24 && x >= 14 && x <= 146) near++;
+    else far++;
+  }
+  assert.ok(near > 600 && far < near * 0.25, `cerca ${near}, lejos ${far}`);
+  // calor: enciende la bruma donde no había
+  const heat = new Float32Array(160 * 50);
+  for (let y = 36; y < 44; y++) for (let x = 70; x < 90; x++) heat[y * 160 + x] = 1;
+  const h0 = new Grid(160, 50);
+  const h1 = new Grid(160, 50);
+  mist(h0, sp, { cx: 80, cy: 14, rx: 1, ry: 1, gain: 1, cap: 6, field, fieldGain: 1 }, 21.7, tl);
+  mist(h1, sp, { cx: 80, cy: 14, rx: 1, ry: 1, gain: 1, cap: 6, field, fieldGain: 1, heat }, 21.7, tl);
+  const cnt = (gr) => {
+    let c = 0;
+    for (let y = 36; y < 44; y++) for (let x = 70; x < 90; x++) if (gr.b[(y * 160 + x) * 4]) c++;
+    return c;
+  };
+  assert.ok(cnt(h1) > cnt(h0) + 40, `calor: ${cnt(h0)} → ${cnt(h1)}`);
+});
+
+test('mist: cap, pozos, ganancia 0 y jirones (wisp)', () => {
   const sp = spec(160, 50);
   const tl = waterTile();
   const base = { cx: 80, cy: 14, rx: 88, ry: 20, gain: 3, cap: 4 };
@@ -426,6 +567,14 @@ test('mist: cap, pozos y ganancia 0', () => {
   const g0 = new Grid(160, 50);
   mist(g0, sp, { ...base, gain: 0 }, 5, tl);
   assert.equal(g0.toText(), '\n'.repeat(49), 'ganancia 0: la bruma está cerrada');
+  // wisp: con 1 los jirones ralos (niebla baja) dejan menos bruma que sin wisp
+  const a = new Grid(160, 50);
+  const b = new Grid(160, 50);
+  mist(a, sp, { cx: 80, cy: 25, rx: 90, ry: 30, gain: 0.8, cap: 6 }, 7, tl);
+  mist(b, sp, { cx: 80, cy: 25, rx: 90, ry: 30, gain: 0.8, cap: 6, wisp: 1 }, 7, tl);
+  const lumA = [...a.b].filter((_, i) => i % 4 === 1).reduce((s, v) => s + v, 0);
+  const lumB = [...b.b].filter((_, i) => i % 4 === 1).reduce((s, v) => s + v, 0);
+  assert.notEqual(lumA, lumB, 'wisp cambia la bruma');
 });
 
 // ---------- anillos y utilidades ----------

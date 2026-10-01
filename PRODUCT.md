@@ -1,32 +1,33 @@
 # PRODUCT — Gaya Digital (gaya.com.do)
 
-**Registro:** marca (el diseño ES el producto). Sitio de presentación + galería de referencias.
+**Registro:** marca (el diseño ES el producto). Sitio de presentación: una serie de ocho carteles hechos de luz, más una galería de ejemplos.
 
 ## Quién y para qué
 - **Quién visita:** dueños de negocios pequeños y medianos de República Dominicana (sobre todo desde el celular, llegando por el enlace de Instagram, TikTok o WhatsApp) y clientes internacionales. No son técnicos.
-- **Qué debe pasar:** en pocos segundos entienden que Gaya Digital hace webs de otro nivel, ven referencias de su rubro, eligen la que les gusta y escriben por WhatsApp con la referencia ya escrita.
-- **Acción principal:** WhatsApp (mensaje prellenado). Secundaria: correo. Terciaria: ver todas las referencias.
+- **Qué debe pasar:** en pocos segundos entienden qué hace Gaya Digital (web y apps, automatización e IA, marketing, soporte IT), ven ejemplos de su rubro y escriben por WhatsApp con el servicio o el ejemplo ya escrito.
+- **Acción principal:** WhatsApp (mensaje prellenado). Secundaria: correo. Terciaria: ver todos los ejemplos.
 - **Escena:** un dueño de negocio, de noche, con un Android modesto, abre el enlace de la bio de Instagram. Debe sentir que descubrió algo que no creía posible en una web, y querer escribir.
 
 ## Marca
-- **Nombre:** Gaya Digital (decisión del usuario, 29-sep-2026; antes «Gaya Group»). Handle de redes: @gayagrouprd (sin cambiar todavía). Santo Domingo, República Dominicana. Marca personal de Giancarlo González (Director).
-- **Servicios:** desarrollo web y apps · marketing digital y manejo de redes · soporte e infraestructura IT · automatización e IA.
+- **Nombre:** Gaya Digital (decisión del usuario, 29-sep-2026; antes «Gaya Group», que queda como `alternateName` en los datos estructurados). Handle de redes: @gayagrouprd (sin cambiar todavía). Santo Domingo, República Dominicana. Marca personal de Giancarlo González (Director).
+- **Servicios:** desarrollo web y apps · automatización e IA · marketing digital y manejo de redes · soporte e infraestructura IT. Orden de la página: ese.
 - **Voz:** cercana y directa, sin jerga; español dominicano neutro con «tú», inglés simple. Titulares cortos (≤ 7 palabras). «Wao» es de la casa.
-- **Bilingüe:** español por defecto, inglés en `/en/`.
-- **Colores y logo:** paleta nueva (se decide en M1 viendo tres iluminaciones en vivo). El logo lo hace un diseñador externo: la marca en el sitio es provisional en texto y se sustituye editando un solo archivo.
+- **Bilingüe:** español por defecto, inglés en `/en/`, con los mismos componentes y paridad de copia.
+- **Colores:** paleta Cobalto (luz fría de pantalla bajo el agua): 16 tonos T0–T15 derivados de `--glow-0..3`. **Logo:** lo hace un diseñador externo; la marca en el sitio es provisional (`▞ Gaya Digital`) y se sustituye editando un solo archivo (`Logo.astro`).
 
 ## Reglas (del dueño y del oficio)
 - **La interfaz se explica sola.** Cero texto instructivo, cero «cómo funciona», cero subtítulos que narran el control. Etiquetas, iconos, layout y estado.
-- **Honestidad:** sin testimonios, cifras, premios ni logos inventados. Las referencias son ejemplos con datos ficticios y llevan sello.
+- **Honestidad:** sin clientes, testimonios, cifras, años, premios ni logos inventados. Los ejemplos son webs de muestra con datos ficticios y llevan sello «Datos ficticios». Los datos locales llevan su fuente y caducan solos. Las capacidades que el dueño no ha confirmado no se publican (`brand.json › confirmed`).
 - **No se menciona que la web la hizo una IA.** Ni sección ni crédito. (El servicio «Automatización e IA» sí se ofrece.)
-- **Cero terceros:** fuentes propias, sin analítica, sin CDN. Guardia de red en cada página.
-- **Rendimiento real:** celulares modestos primero (Galaxy A07). Calidad adaptativa, respaldo estático, `prefers-reduced-motion` respetado.
-- Anti-plantilla: nada de cuadrícula de tarjetas iguales, rótulos sobre cada sección, fondos de puntos, degradados en texto, cremas/arenas, cursivas en titulares.
+- **Cero terceros:** fuentes propias, sin analítica, sin CDN, sin formularios. CSP `default-src 'self'`; guardia de red en cada página.
+- **El arte es decoración.** Todo lo que se lee es texto real; el arte ASCII va en `aria-hidden`, nunca lleva información y se degrada a fotograma fijo.
+- **Rendimiento real:** celulares modestos primero (Galaxy A07). Lighthouse móvil ≥ 90, LCP < 2,5 s, CLS 0. Respaldo estático hermoso, `prefers-reduced-motion` respetado.
+- **Anti-plantilla:** nada de cuadrícula de tarjetas iguales (las cuatro fichas de servicio no comparten plantilla), rótulos sobre cada sección, fondos de puntos, degradados en texto, cremas/arenas, cursivas en titulares, marcas de terminal (prompt, cursor, corchetes, verde).
 
 ## Antirreferencias
-La landing SaaS crema-y-violeta, la agencia con cuatro tarjetas iguales y un chat de ejemplo, el «hero + 3 features + CTA» de manual, el mockup de laptop con degradado.
+La landing SaaS crema-y-violeta, la agencia con cuatro tarjetas iguales y un chat de ejemplo, el «hero + 3 features + CTA» de manual, el mockup de laptop con degradado, el campo de letras que cae y la placa de circuito.
 
 ## Sitio
-- `/` y `/en/` — portada cinemática, baraja de referencias, escenas de servicios, proceso, contacto.
-- `/referencias/` y `/en/references/` — galería; `/referencias/<slug>/` — visor con la web de ejemplo en vivo.
+- `/` y `/en/` — ocho carteles (`GAYA · HOLA · WEB · LISTO · ECO · ON · VER · TÚ`; en inglés `GAYA · HELLO · WEB · READY · ECHO · ON · SEE · YOU`) que una marea cambia: portada, quiénes somos, servicios (índice y cuatro fichas), ejemplos, proceso y contacto. Especificación cerrada: `docs/ascii/DIRECTION.md`.
+- `/referencias/` y `/en/references/` — galería de **Ejemplos** (la URL conserva «referencias»); `/referencias/<slug>/` — visor con la web de ejemplo en vivo.
 - `/ref/<slug>/` — las webs de ejemplo (estáticas, `noindex`).

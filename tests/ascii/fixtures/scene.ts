@@ -5,7 +5,7 @@
 import type { Cells, Frame, GridSpec, Lang, Scene, SceneId, SceneState, WordSet } from "../../../src/ascii/types.ts";
 import type { FaceInfo } from "../../../src/ascii/kit.ts";
 import {
-  C_EDGE, C_FACE, applyRings, bevel, clear, easeOutExpo, faceFn, halo, hu, layoutLines, makeCells, makeState, markAura, mist, overlay, paintFace, paintRing,
+  C_EDGE, C_FACE, RING_TONES, applyRings, bevel, clear, easeOutExpo, faceFn, halo, hu, layoutLines, makeCells, makeState, markAura, mist, overlay, paintFace, paintRing,
   getTone, setTone, shadow, smooth, stampCls, waterTile,
 } from "../../../src/ascii/scenes/common.ts";
 
@@ -74,7 +74,7 @@ export function createTestScene(o: TestSceneOpts = {}): Scene {
       const faceCells: [number, number][] = [];
       for (const l of lines) for (let y = 0; y < l.word.rows; y++) for (let x = 0; x < l.word.cols; x++) {
         const i = y * l.word.cols + x;
-        if (l.face.cls[i] === C_EDGE && l.word.cells[i] === 15 && bevel(l.word, x, y) === 13) faceCells.push([l.x0 + x, l.y0 + y]);
+        if (l.face.cls[i] === C_EDGE && l.word.cells[i] === 15 && bevel(l.word, x, y) === RING_TONES.lit) faceCells.push([l.x0 + x, l.y0 + y]);
       }
       const sparks: [number, number][] = [];
       for (let k = 0; k < 5 && faceCells.length > 0; k++) sparks.push(faceCells[hu(k, 7, 99) % faceCells.length]);

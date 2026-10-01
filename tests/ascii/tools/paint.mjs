@@ -24,17 +24,18 @@ export async function createPainter() {
 
   /**
    * Pinta una o varias rejillas apiladas en vertical. `grids` = [{ cols, rows, b: Uint8Array }]. Devuelve un Buffer PNG.
-   * `o`: cssCw (9), dpr (1), gap (px entre rejillas), grid (dibuja las líneas de celda, para depurar).
+   * `o`: cssCw (9), cssCh (2·cssCw; 25 con celda de 12), dpr (1), gap (px entre rejillas).
    */
   async function paint(grids, o = {}) {
     const cssCw = o.cssCw ?? 9;
+    const cssCh = o.cssCh ?? cssCw * 2;
     const dpr = o.dpr ?? 1;
     const gap = o.gap ?? 12;
     const payload = grids.map((g) => ({ cols: g.cols, rows: g.rows, data: Buffer.from(g.b.buffer, g.b.byteOffset, g.b.byteLength).toString('base64') }));
     const dataUrl = await page.evaluate(
-      ({ payload, cssCw, dpr, gap, palette, glyphs }) => {
+      ({ payload, cssCw, cssCh, dpr, gap, palette, glyphs }) => {
         const cw = Math.round(cssCw * dpr);
-        const ch = cw * 2;
+        const ch = Math.round(cssCh * dpr);
         const dot = Math.max(1, Math.round(dpr));
         const W = Math.max(...payload.map((g) => g.cols)) * cw;
         const H = payload.reduce((s, g) => s + g.rows * ch, 0) + gap * (payload.length - 1);
@@ -77,10 +78,14 @@ export async function createPainter() {
           const hz = '▏▎▍▌▋▊▉'.indexOf(c);
           if (hz >= 0) return R(x, y, Math.round(((hz + 1) * cw) / 8), ch);
         };
+        // Las tramas `░ ▒ ▓` se calculan con la PARIDAD DEL PÍXEL GLOBAL (como lo haría el fragment shader), no la de la baldosa: con celdas de
+        // ancho o alto impar (9×18 o 12×25 a dpr 1) una trama por baldosa reinicia su fase en cada celda y sale rayada (columnas o filas).
         const drawShade = (c, x, y) => {
           for (let j = 0; j * dot < ch; j++) {
             for (let i = 0; i * dot < cw; i++) {
-              const on = c === '░' ? (i & 1) === 0 && (j & 1) === 0 : c === '▒' ? ((i + j) & 1) === 0 : !((i & 1) === 0 && (j & 1) === 0);
+              const gi_ = Math.floor((x + i * dot) / dot);
+              const gj_ = Math.floor((y + j * dot) / dot);
+              const on = c === '░' ? (gi_ & 1) === 0 && (gj_ & 1) === 0 : c === '▒' ? ((gi_ + gj_) & 1) === 0 : !((gi_ & 1) === 0 && (gj_ & 1) === 0);
               if (on) R(x + i * dot, y + j * dot, Math.min(dot, cw - i * dot), Math.min(dot, ch - j * dot));
             }
           }
@@ -131,7 +136,7 @@ export async function createPainter() {
         }
         return cv.toDataURL('image/png');
       },
-      { payload, cssCw, dpr, gap, palette: TONE_HEX, glyphs: [...GLYPHS] },
+      { payload, cssCw, cssCh, dpr, gap, palette: TONE_HEX, glyphs: [...GLYPHS] },
     );
     return Buffer.from(dataUrl.split(',')[1], 'base64');
   }

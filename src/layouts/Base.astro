@@ -7,6 +7,8 @@ import { t } from '../i18n/copy';
 import bricolageLatin from '../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
 import geistMonoLatin from '../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
 import geistMonoSymbols from '../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-symbols2-wght-normal.woff2?url';
+import archivoWdth from '../../node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+import bodoniItalic from '../../node_modules/@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-opsz-italic.woff2?url';
 import '../styles/tokens.css';
 import '../styles/fonts.css';
 import '../styles/base.css';
@@ -23,7 +25,7 @@ interface Props {
   themeColor?: string;
   jsonLd?: Record<string, unknown>;
   /** Gramática visual de los controles: «cartel» = rótulos con sombra en bloque (la portada); «classic» = la actual (galería, visor, 404). */
-  ui?: 'cartel' | 'classic';
+  ui?: 'cartel' | 'classic' | 'poster';
   /** Precarga las fuentes del inicio: Geist Mono `latin` (el `h1` es el LCP), Bricolage `latin` (lead y párrafos) y Geist Mono `symbols2` (cajas y
    *  bloques del arte en el DOM). Solo donde hay arte: si la página no usa un archivo, Chrome avisa por consola. La galería, el visor y el 404
    *  («classic») usan una sola familia (mono, ver base.css) y precargan solo su `latin`. */
@@ -93,6 +95,8 @@ const csp = [
     <meta property="og:locale" content={locale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@GayaGroupRD" />
+    {ui === 'poster' && <link rel="preload" href={archivoWdth} as="font" type="font/woff2" crossorigin />}
+    {ui === 'poster' && <link rel="preload" href={bodoniItalic} as="font" type="font/woff2" crossorigin />}
     {(preloadMono || ui === 'classic') && <link rel="preload" href={geistMonoLatin} as="font" type="font/woff2" crossorigin />}
     {preloadMono && <link rel="preload" href={bricolageLatin} as="font" type="font/woff2" crossorigin />}
     {preloadMono && <link rel="preload" href={geistMonoSymbols} as="font" type="font/woff2" crossorigin fetchpriority="low" />}

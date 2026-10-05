@@ -1,35 +1,15 @@
 ---
-// Inicio en español: ocho carteles hechos de luz y una marea que los cambia (DIRECTION §4). Los mismos componentes que /en/, con `lang`.
-// Orden de documento = orden de `main [data-poster]`: cover · hola · mist · web · listo · eco · on · ver · mist · tu.
+// Inicio en español: estilo «cartel editorial» + ASCII (decisión del dueño, 5-oct-2026). Mismo componente que /en/, con `lang`.
 import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Field from '../components/Field.astro';
-import Cover from '../components/Cover.astro';
-import About from '../components/About.astro';
-import ServiceIndex from '../components/ServiceIndex.astro';
-import ServiceArticle from '../components/ServiceArticle.astro';
-import Examples from '../components/Examples.astro';
-import Process from '../components/Process.astro';
-import Contact from '../components/Contact.astro';
-import { SERVICES } from '../data/services';
+import Home from '../components/v3/Home.astro';
 import { jsonLd } from '../lib/jsonld';
 import { t } from '../i18n/copy';
 import { url } from '../routes';
-import '../styles/home.css';
+import '../styles/v3.css';
 
 const lang = 'es';
 ---
 
-<Base lang={lang} title={t(lang).home.title} routeKey="home" preloadMono jsonLd={jsonLd(lang, { pageUrl: url(lang, 'home') })}>
-  <Field />
-  <Nav lang={lang} />
-  <main id="contenido">
-    <Cover lang={lang} />
-    <About lang={lang} />
-    <ServiceIndex lang={lang} />
-    {SERVICES.map((service) => <ServiceArticle lang={lang} service={service} />)}
-    <Examples lang={lang} />
-    <Process lang={lang} />
-    <Contact lang={lang} />
-  </main>
+<Base lang={lang} title={t(lang).home.title} routeKey="home" ui="poster" themeColor="#f2461a" jsonLd={jsonLd(lang, { pageUrl: url(lang, 'home') })}>
+  <Home lang={lang} />
 </Base>

@@ -2,7 +2,7 @@
 // Recorre la página de inicio sección por sección y captura cada pantalla cuando el motor ya se asentó
 // (sin marea en vuelo y dormido): es lo que ve una persona al llegar a cada cartel.
 // Uso: node scripts/tour.mjs [--url http://127.0.0.1:4321/] [--out reports/ascii/tour] [--w 1440] [--h 900] [--mobile]
-//        [--lang es|en] [--ids nosotros,servicios,web,...]   (por omisión: todas las secciones con id, y un paso de media pantalla entre ellas)
+//        [--lang es|en] [--ids nosotros,servicios,web,...] [--wait 350]   (por omisión: todas las secciones con id, y un paso de media pantalla entre ellas)
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { launchBrowser } from './lib/browser.mjs';
@@ -20,6 +20,7 @@ const h = Number(arg('h', 900));
 const mobile = !!arg('mobile', false);
 const lang = arg('lang', 'es');
 const ids = arg('ids', '') ? String(arg('ids', '')).split(',') : null;
+const extra = Number(arg('wait', 350)); // espera extra por parada (revelados y animaciones)
 const url = lang === 'en' && !base.includes('/en/') ? new URL('en/', base).href : base;
 
 mkdirSync(out, { recursive: true });
@@ -41,7 +42,7 @@ const settle = async () => {
     if (ok) break;
     await page.waitForTimeout(150);
   }
-  await page.waitForTimeout(350);
+  await page.waitForTimeout(extra);
 };
 
 const sections = await page.evaluate(() => [...document.querySelectorAll('main > section[id], main [data-poster][id]')].map((s) => ({ id: s.id, top: s.getBoundingClientRect().top + scrollY, h: s.getBoundingClientRect().height })));

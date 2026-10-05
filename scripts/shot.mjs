@@ -2,7 +2,7 @@
 // Captura de páginas para la revisión visual (Chrome real, con GPU si la hay).
 // Uso: node scripts/shot.mjs --url http://127.0.0.1:4321/ --out reports/shots/home.png
 //        [--w 1440] [--h 900] [--dpr 1] [--wait 3500] [--mobile] [--full]
-//        [--paleta plata] [--tier low] [--still] [--reduced] [--lang en]
+//        [--tier high|mid|low|min] [--still] [--reduced] [--nogl] [--savedata]
 //        [--move 0.3,0.5]      mueve el puntero (fracciones del viewport) antes de capturar
 //        [--click 0.5,0.5]     hace clic
 //        [--scroll 400]        desplaza antes de capturar
@@ -28,7 +28,7 @@ const frames = Number(arg('frames', 1));
 const gap = Number(arg('gap', 900));
 
 const u = new URL(url0);
-for (const k of ['paleta', 'tier', 'lang']) if (arg(k, false)) u.searchParams.set(k, String(arg(k)));
+for (const k of ['tier']) if (arg(k, false)) u.searchParams.set(k, String(arg(k)));
 if (arg('still', false)) u.searchParams.set('still', '');
 
 const browser = await launchBrowser({ args: ['--ignore-gpu-blocklist', '--enable-gpu-rasterization', '--use-angle=d3d11'] });
@@ -59,7 +59,8 @@ page.on('console', (m) => ['error', 'warning'].includes(m.type()) && logs.push(`
 page.on('pageerror', (e) => logs.push(`excepción: ${e.message}`));
 await page.goto(u.href, { waitUntil: 'load' });
 await page.evaluate(() => document.fonts.ready);
-if (arg('still', false)) await page.waitForFunction(() => window.__heroReady === true, null, { timeout: 15000 }).catch(() => logs.push('el shader no avisó de que estaba listo'));
+// el motor del arte avisa con html[data-field] = live | still | off | ssr (solo las páginas con lienzo: la galería y el visor no lo tienen)
+if (await page.locator('canvas.field').count()) await page.waitForFunction(() => ['live', 'still', 'off', 'ssr'].includes(document.documentElement.dataset.field), null, { timeout: 15000 }).catch(() => logs.push('el motor del arte no avisó de que estaba listo'));
 await page.waitForTimeout(wait);
 if (arg('scroll', false)) {
   await page.evaluate((y) => window.scrollTo(0, y), Number(arg('scroll')));
@@ -85,10 +86,17 @@ for (let i = 1; i <= frames; i++) {
   if (i < frames) await page.waitForTimeout(gap);
 }
 const info = await page.evaluate(() => {
-  const c = document.querySelector('.hero__gl');
+  const c = document.querySelector('canvas.field');
+  const f = window.__field;
   const gl = document.createElement('canvas').getContext('webgl2');
   const ext = gl?.getExtension('WEBGL_debug_renderer_info');
-  return { hero: document.querySelector('.hero')?.dataset.hero, canvas: c ? [c.width, c.height] : null, gpu: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null };
+  return {
+    field: document.documentElement.dataset.field ?? null,
+    renderer: f?.renderer ?? null,
+    poster: f?.poster ?? null,
+    canvas: c ? [c.width, c.height] : null,
+    gpu: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null,
+  };
 });
 console.log(JSON.stringify(info));
 if (logs.length) console.log('registro:\n  ' + logs.join('\n  '));

@@ -15,7 +15,7 @@ const CASES = [
   ['móvil 65×70 (pila)', gridSpec(65, 70, 6, 12, 2), GAYA_STACK],
 ];
 
-test('reglas de escena (§6.3): determinista, escribe toda la pantalla, still ≡ paint(p=1, STILL_T), tonos y glifos válidos, sin bg', () => {
+test('reglas de escena (§6.3): determinista, escribe toda la pantalla, still ≡ paint(p=1, STILL_T), tonos y glifos válidos; la escena de prueba no usa bg (la regla `noBg` de checkSceneRules sigue disponible para las escenas sin fondo; la portada oficial SÍ usa bg: DIRECTION §6.3)', () => {
   for (const [name, spec, set] of CASES) {
     const bad = checkSceneRules(cover, spec, [set], { noBg: true });
     assert.deepEqual(bad, [], `${name}: ${bad.join(' | ')}`);

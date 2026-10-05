@@ -6,12 +6,14 @@
 //     1,4 s (avance) o 1,0 s (retroceso) aunque el scroll se detenga a mitad. Política de interrupciones: se termina la marea en
 //     curso y se encola UNA pendiente; las intermedias se descartan.
 //
-// Aquí sí hay coseno de agua y espuma, pero no hay póster SSR: aun así todo usa enteros, el ruido de noise.ts y `sinp`, así que
-// el hash dorado de la marea no depende del motor.
+// El agua de la marea es TEXTO, como el resto del estilo Duotono: la banda es movimiento de la rampa de caracteres (`. : ; = +`) sobre un fondo de agua y la espuma
+// (`*` y `~`, con su propio fondo de agua) no pasa de T12. Aquí no hay póster SSR, pero todo usa enteros, el ruido de noise.ts y `sinp`, así que el hash dorado de la
+// marea no depende del motor.
 import type { Cells } from "./types.ts";
-import { G_DOT, glyphIndex } from "./glyphs.ts";
+import { glyphIndex } from "./glyphs.ts";
 import { agua, bn, clamp01, easeInOut, waterTile } from "./kit.ts";
 import { fbm, h2, sinp } from "./noise.ts";
+import { DUO_RAMP } from "./scenes/ramp.ts";
 
 /** Semiamplitud máxima de la ondulación del frente: |front(x, yb) − yb| ≤ 7,7 < 8. */
 export const FRONT_AMPLITUDE = 8;
@@ -47,17 +49,15 @@ export interface TideOpts {
   k?: number;
   /** Tesela de agua; por defecto la compartida del kit. */
   tile?: Uint8Array | null;
-  /** Escala de la espuma (1 = §6.4: `*` 45 % y `~` 30 % en ±1 fila del frente; 0 = sin espuma). */
+  /** Escala de la espuma (1 = `*` 10 % y `~` 40 % en ±1 fila del frente; 0 = sin espuma). */
   foam?: number;
 }
 
-const G_SHADE_L = glyphIndex("░");
-const G_SHADE_M = glyphIndex("▒");
-const G_SHADE_D = glyphIndex("▓");
-const G_COLON = glyphIndex(":");
-const G_STAR = glyphIndex("*");
+/** Glifos de la marea: la rampa de caracteres del estilo Duotono (`. : ; = +`) y la espuma (`*` y `~`, que son de la espuma y las olas). */
+const G_STAR = DUO_RAMP[5 * 4]; // `*`
 const G_TILDE = glyphIndex("~");
-const WET: readonly number[] = [G_DOT, G_COLON, G_SHADE_L, G_SHADE_M];
+/** Tope de tono de la banda de agua: T12 (la espuma de `*` T14 del primer diseño era «terminal»: ver docs/ascii/reports/WP6c.md). */
+const BAND_MAX = 12;
 
 // Cachés por tamaño (se rehacen al cambiar cols·rows, NUNCA por cuadro): el umbral τ de cada celda y el frente por columna.
 let TAU: Uint8Array = new Uint8Array(0);
@@ -84,15 +84,23 @@ export function tau(cols: number, rows: number): Uint8Array {
   return TAU;
 }
 
+/** Escribe una celda de la marea directamente en el búfer (la marea escribe bytes, no llama a `put`): glifo, primer plano, fondo explícito. */
+function wr(ob: Uint8Array, j: number, gl: number, fg: number, bg: number): void {
+  ob[j] = gl;
+  ob[j + 1] = fg > BAND_MAX ? BAND_MAX : fg;
+  ob[j + 2] = bg > 15 ? 15 : bg < 0 ? 0 : bg;
+  ob[j + 3] = bg > 0 ? 3 : 1;
+}
+
 /**
  * Compone un cuadro de marea en `out` (no puede ser el mismo objeto que `outgoing` ni `incoming`). `dist = (y − front) · dir`:
  *   dist < −band−reach        el saliente tal cual (el `still` cacheado)
- *   −band−reach ≤ dist < −band  el saliente SE DESHACE: primero el interior, al final el aro → agua `▒` T5–T8
- *   |dist| ≤ band              banda de agua `░▒▓` T4–T10 con espuma `*` `~` T12–T14 a ±1 fila
- *   band < dist ≤ band+reach   el entrante CRISTALIZA: primero el aro, después la cara (lo que falta es agua que se retira)
+ *   −band−reach ≤ dist < −band  el saliente SE DESHACE: primero el interior, al final el aro → agua de caracteres `; " + =` sobre fondo de agua T4–T7
+ *   |dist| ≤ band              banda de agua: densidad de la rampa (`. : ; = +`) según la cresta del agua, fondo T2–T8, espuma `~` y `*` (fondo T8) a ±1 fila
+ *   band < dist ≤ band+reach   el entrante CRISTALIZA: primero el aro, después la cara (lo que falta es agua que se retira: `. : ; =` en tonos bajos)
  *   dist > band+reach          el entrante en su `paint(p)`
- * `clsOut`/`clsIn` son los `SceneState.cls` de cada escena (0 aire · 1 cara · 2 borde · 3 sombra/halo): solo cara y borde se
- * deshacen; el aire y la atmósfera (bruma, halo, sombra) del entrante aparecen sin retraso y los del saliente se quedan
+ * `clsOut`/`clsIn` son los `SceneState.cls` de cada escena (0 aire · 1 cara · 2 borde · 3 sombra/aura): solo cara y borde se
+ * deshacen; el aire y la atmósfera (bruma, aura, sombra) del entrante aparecen sin retraso y los del saliente se quedan
  * hasta que los cubre la banda.
  */
 export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Uint8Array, clsIn: Uint8Array, yb: number, o: TideOpts): void {
@@ -140,10 +148,8 @@ export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Ui
             const cres = agua(tile, x, y, t);
             let tn = 5 + ((cres * 1.5 + p * 1.8) | 0);
             if (tn > 8) tn = 8;
-            ob[j] = G_SHADE_M;
-            ob[j + 1] = tn;
-            ob[j + 2] = 0;
-            ob[j + 3] = 1;
+            const lv = cres > 0.6 ? 4 : 3;
+            wr(ob, j, DUO_RAMP[(lv << 2) | (((x * 7 + y * 3) >> 1) & 3)], tn + 2, tn - 1);
             continue;
           }
         }
@@ -160,19 +166,13 @@ export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Ui
           // fase propia de la celda: el «tic» de cada celda cae en un instante distinto, así la espuma centellea celda a celda y nunca
           // como un pulso síncrono de toda la línea (con un tic común cada medio segundo se veía un parpadeo global de ~2 Hz)
           const r = h2(x, y, 40 + ((t2 + h2(x, y, 39)) | 0)) / foam;
-          if (r < 0.45) {
-            ob[j] = G_STAR;
-            ob[j + 1] = ad <= 0.5 ? 14 : 13;
-            ob[j + 2] = 0;
-            ob[j + 3] = 1;
+          if (r < 0.1) {
+            wr(ob, j, G_STAR, ad <= 0.5 ? 12 : 11, 8);
             if (mem !== null) mem[i] = 0;
             continue;
           }
-          if (r < 0.75) {
-            ob[j] = G_TILDE;
-            ob[j + 1] = ad <= 0.5 ? 13 : 12;
-            ob[j + 2] = 0;
-            ob[j + 3] = 1;
+          if (r < 0.5) {
+            wr(ob, j, G_TILDE, ad <= 0.5 ? 12 : 11, 8);
             if (mem !== null) mem[i] = 0;
             continue;
           }
@@ -183,10 +183,9 @@ export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Ui
           tn16 = m === 0 ? tn16 : m + (((tn16 - m) * k256) >> 8);
           mem[i] = tn16;
         }
-        ob[j] = d < 0.35 ? G_SHADE_L : d < 0.65 ? G_SHADE_M : G_SHADE_D;
-        ob[j + 1] = (tn16 + 8) >> 4;
-        ob[j + 2] = 0;
-        ob[j + 3] = 1;
+        const tn = (tn16 + 8) >> 4; // 4..10: la luz de la celda
+        const lv = 1 + ((d * 3.99) | 0); // `. : ; = +` según la cresta del agua (sin `x X *`: eso es espuma)
+        wr(ob, j, DUO_RAMP[(lv << 2) | (((x * 5 + y * 11) >> 1) & 3)], tn + 2, tn - 2);
         continue;
       }
       // el entrante cristaliza (dist en (band, A])
@@ -204,10 +203,7 @@ export function compose(out: Cells, outgoing: Cells, incoming: Cells, clsOut: Ui
       // lo que todavía no cristalizó es agua que se retira
       const w = (1 - p) * (0.35 + 0.65 * agua(tile, x, y, t));
       const wi = w < 0.2 ? 0 : w < 0.4 ? 1 : w < 0.6 ? 2 : 3;
-      ob[j] = WET[wi];
-      ob[j + 1] = 3 + wi;
-      ob[j + 2] = 0;
-      ob[j + 3] = 1;
+      wr(ob, j, DUO_RAMP[((1 + wi) << 2) | (((x * 3 + y * 13) >> 1) & 3)], 3 + wi, wi > 1 ? wi - 1 : 0);
     }
   }
 }

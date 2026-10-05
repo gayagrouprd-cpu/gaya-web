@@ -1,14 +1,16 @@
-// `mist` · bruma (DIRECTION §7.10): el fondo de las secciones sin palabra (Índice y Proceso). Es la bruma de la portada sin la palabra y con
-// `dawn` propio: dos velos de luz en diagonal sobre una niebla que deriva con la energía del scroll. Densidad ≤ 35 % de celdas no vacías. Se dibuja en vivo: no tiene estático propio
-// ni póster SSR, así que no hay regla de `bg` (no la usa: solo necesita el primer plano).
+// `mist` · bruma (DIRECTION §7.10): el fondo de las secciones sin palabra (Índice y Proceso). Es la bruma de la portada sin la palabra y con `dawn` propio: dos velos de
+// luz en diagonal sobre una niebla que deriva con la energía del scroll, hecha de CARACTERES (`mistDuo`: `. : ; = +` en racimos con huecos T0 entre ellos). Densidad ≤ 30 %
+// de celdas con glifo. Se dibuja en vivo: no tiene estático propio ni póster SSR.
 //
 // `paint` solo usa enteros y polinomios; `t` mueve la niebla (el motor lo hace avanzar con la energía de scroll y lo detiene al dormir).
 import type { Cells, Frame, GridSpec, Lang, Scene, SceneState, WordSet } from "./common.ts";
-import { GAUSS, GAUSS_SCALE, clear, makeState, mist, smooth, waterTile } from "./common.ts";
+import { GAUSS, GAUSS_SCALE, clear, makeState, smooth, waterTile } from "./common.ts";
+import { clusterField, mistDuo } from "./duo.ts";
 
 interface Inner {
   spec: GridSpec;
   field: Uint8Array;
+  dens: Uint8Array;
   cx: number;
   cy: number;
   rx: number;
@@ -61,7 +63,7 @@ export const mistScene: Scene = {
   build(spec: GridSpec, _lang: Lang, _words: WordSet[]): SceneState {
     const st = makeState(spec);
     // la elipse base de `mist` se deja en un punto (no aporta): toda la luz sale de las dos manchas del campo
-    INNER.set(st, { spec, field: veils(spec.cols, spec.rows), cx: spec.cols / 2, cy: spec.rows / 2, rx: 1, ry: 1 });
+    INNER.set(st, { spec, field: veils(spec.cols, spec.rows), dens: clusterField(spec.cols, spec.rows, 19, 0.0, 0.36 + 0.14 * smooth(160, 213, spec.cols)), cx: spec.cols / 2, cy: spec.rows / 2, rx: 1, ry: 1 });
     return st;
   },
   paint(g: Cells, s: SceneState, f: Frame): void {
@@ -70,8 +72,8 @@ export const mistScene: Scene = {
     const open = smooth(0, 0.35, f.p);
     if (open <= 0) return;
     // el scroll «respira» la bruma: hasta +15 % de luz con energía plena
-    const gain = 1.15 * open * (1 + 0.15 * f.e);
-    mist(g, I.spec, { cx: I.cx, cy: I.cy, rx: I.rx, ry: I.ry, gain, cap: 6, wells: f.cap, field: I.field, fieldGain: 1.5 * open, wisp: 1 }, f.t, waterTile());
+    const gain = 1.9 * open * (1 + 0.15 * f.e);
+    mistDuo(g, I.spec, { cx: I.cx, cy: I.cy, rx: I.rx, ry: I.ry, gain, cap: 6, wells: f.cap, field: I.field, fieldGain: 2.2 * open, dens: I.dens, wisp: 1, wash: 1, starAt: 2.8 }, f.t, waterTile());
   },
 };
 

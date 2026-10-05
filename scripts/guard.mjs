@@ -3,8 +3,11 @@
 //  - cualquier petición a otro origen (cero terceros),
 //  - errores de consola o excepciones de la página,
 //  - subrecursos con estado >= 400 o peticiones fallidas.
-// Uso: node scripts/guard.mjs [--dir dist] [--base http://127.0.0.1:4173] [--urls /,/en/] [--self-test]
+// Uso: node scripts/guard.mjs [--dir dist] [--base http://127.0.0.1:4173] [--urls /,/en/] [--self-test] [--matrix]
 //   sin --urls recorre todas las páginas HTML del directorio servido.
+//   --matrix: las portadas (por omisión «/» y «/en/») en TODOS los modos del arte (T3 de DIRECTION §13): normal (WebGL2 si hay),
+//   «?still», «?nogl», movimiento reducido, ahorro de datos y sin JavaScript; en cada uno, 0 peticiones a otro origen y 0 errores o
+//   avisos de consola. Informa del modo que el motor tomó (data-field y renderer), para que un «normal» que cayó a 2D no pase por WebGL2.
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,7 +29,7 @@ export function listPages(dir) {
 }
 
 /** Visita una URL y devuelve los hallazgos. */
-export async function guardPage(context, base, path, { viewport, selfTest = false } = {}) {
+export async function guardPage(context, base, path, { viewport, selfTest = false, init = null, probe = null, noScript = false } = {}) {
   const baseOrigin = new URL(base).origin;
   const page = await context.newPage();
   if (viewport) await page.setViewportSize(viewport);
@@ -57,6 +60,7 @@ export async function guardPage(context, base, path, { viewport, selfTest = fals
     findings.push(`petición fallida: ${req.url()} (${req.failure()?.errorText ?? '?'})`);
   });
 
+  if (init) await page.addInitScript(init);
   if (selfTest) {
     await page.addInitScript(() => {
       window.addEventListener('DOMContentLoaded', () => {
@@ -68,13 +72,52 @@ export async function guardPage(context, base, path, { viewport, selfTest = fals
   }
 
   await page.goto(base + path, { waitUntil: 'load' });
-  await scrollThrough(page);
+  // sin JavaScript no hay `evaluate` (Chrome tumba la pestaña): solo se espera a la red
+  if (!noScript) await scrollThrough(page);
   await page.waitForLoadState('networkidle', { timeout: 6000 }).catch(() => {});
   await page.waitForTimeout(250);
+  if (probe && !noScript) findings.probe = await page.evaluate(probe).catch(() => null);
   await page.close();
 
   for (const u of external) findings.push(`PETICIÓN EXTERNA: ${u}`);
   return findings;
+}
+
+/** Modos del arte que T3 pide recorrer (nombre, opciones del contexto, parámetro de URL, script de inicio). */
+export const MATRIX_MODES = [
+  { name: 'normal', ctx: {}, query: '' },
+  { name: 'still', ctx: {}, query: '?still' },
+  { name: 'nogl', ctx: {}, query: '?nogl' },
+  { name: 'reducido', ctx: { reducedMotion: 'reduce' }, query: '' },
+  {
+    name: 'saveData',
+    ctx: {},
+    query: '',
+    init: "Object.defineProperty(navigator, 'connection', { value: { saveData: true, effectiveType: '3g' }, configurable: true });",
+  },
+  { name: 'sin JS', ctx: { javaScriptEnabled: false }, query: '', noScript: true },
+];
+const fieldProbe = () => ({ field: document.documentElement.dataset.field ?? null, renderer: window.__field?.renderer ?? null, mode: window.__field?.mode ?? null });
+
+/** T3: cada portada en cada modo. Devuelve [{ path, mode, findings, probe }]. */
+export async function runMatrix({ base, paths, log = true }) {
+  const browser = await launchBrowser({ args: ['--ignore-gpu-blocklist', '--use-angle=d3d11'] });
+  const results = [];
+  for (const p of paths) {
+    for (const mode of MATRIX_MODES) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block', ...mode.ctx });
+      const findings = await guardPage(context, base, p + mode.query, { init: mode.init, probe: fieldProbe, noScript: mode.noScript });
+      const probe = findings.probe ?? null;
+      results.push({ path: p, mode: mode.name, findings: [...findings], probe });
+      if (log) {
+        const what = probe ? `data-field=${probe.field}${probe.renderer ? '/' + probe.renderer : ''}` : 'sin sondeo';
+        console.log(`${findings.length ? 'FALLA' : 'ok   '}  ${(p + mode.query).padEnd(14)} ${mode.name.padEnd(9)} ${what}${findings.length ? '\n   - ' + findings.join('\n   - ') : ''}`);
+      }
+      await context.close();
+    }
+  }
+  await browser.close();
+  return results;
 }
 
 export async function runGuard({ base, paths, selfTest = false, log = true }) {
@@ -104,6 +147,15 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
     server = createPagesServer({ dir });
     const port = await listen(server, 0);
     base = `http://127.0.0.1:${port}`;
+  }
+  if (process.argv.includes('--matrix')) {
+    const homes = arg('urls') ? arg('urls').split(',') : ['/', '/en/'];
+    const rows = await runMatrix({ base, paths: homes });
+    server?.close();
+    const failed = rows.filter((r) => r.findings.length).length;
+    console.log(`
+${rows.length} combinaciones (página × modo), ${failed} con hallazgos.`);
+    process.exit(failed ? 1 : 0);
   }
   const paths = arg('urls') ? arg('urls').split(',') : listPages(dir);
   const results = await runGuard({ base, paths, selfTest });

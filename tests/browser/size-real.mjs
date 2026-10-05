@@ -1,13 +1,13 @@
 // T2 (parte del motor) sobre el BUILD REAL de Astro (Vite 8 / Rolldown) en una copia aislada: los .js que el navegador pide antes del
 // primer fotograma (arranque + motor + kit + palabras + escena cover + datos de GAYA), medidos con gzip -9 por archivo (como budgets.mjs).
 // Además comprueba que la página real (con la CSP de producción) arranca sin avisos y mide el primer fotograma con CPU ×4.
-//   node tests/browser/size-real.mjs               → el proyecto tal cual (la puerta de T2: ASCII_FIRST_JS_GZ_KB, por defecto 18,5)
+//   node tests/browser/size-real.mjs               → el proyecto tal cual (la puerta de T2: ASCII_FIRST_JS_GZ_KB, por defecto 22,5 desde el estilo Duotono (WP6c))
 //   node tests/browser/size-real.mjs --art-chunk   → además, la propuesta de trozo único para astro.config.mjs (ver real-build.mjs)
 // La segunda medida sale siempre como INFORMACIÓN (no es un cambio hecho en el proyecto: astro.config.mjs es de WP1).
 import { check, finish, info, launchBrowser, open, ready, sleep } from './lib.mjs';
 import { buildReal, serveDir } from './real-build.mjs';
 
-const GATE = Number(process.env.ASCII_FIRST_JS_GZ_KB ?? 18.5);
+const GATE = Number(process.env.ASCII_FIRST_JS_GZ_KB ?? 22.5);
 const browser = await launchBrowser();
 
 /** Construye, sirve y mide. Devuelve los KB de primera carga por idioma. */

@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ALL = ['boot', 'tide', 'resize', 'context', 'inputs', 'wells', 'lifecycle', 'parity', 'seams', 'a11y', 'size', 'size-real', 'perf', 'lighthouse', 'shots'];
+const ALL = ['boot', 'tide', 'resize', 'context', 'inputs', 'wells', 'lifecycle', 'parity', 'seams', 'a11y', 'size', 'size-real', 'perf', 'render2d', 'motion', 'lighthouse', 'shots'];
 const pick = process.argv.slice(2);
 const list = pick.length ? pick : ALL;
 const results = [];

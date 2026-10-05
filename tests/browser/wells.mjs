@@ -21,7 +21,8 @@ async function measure(page) {
   const rects = await page.evaluate(() =>
     [...document.querySelectorAll('[data-well]')].map((el) => {
       const b = el.getBoundingClientRect();
-      return { kind: el.dataset.well, x: Math.max(0, Math.floor(b.left)), y: Math.max(0, Math.floor(b.top)), w: Math.ceil(b.width), h: Math.ceil(b.height), vis: b.bottom > 0 && b.top < innerHeight };
+      // `bottom` y no «y + alto»: un pozo medio fuera por arriba (y recortado a 0) no debe medir píxeles por debajo de su borde real
+      return { kind: el.dataset.well, x: Math.max(0, Math.floor(b.left)), y: Math.max(0, Math.floor(b.top)), w: Math.ceil(b.width), h: Math.max(0, Math.ceil(b.bottom) - Math.max(0, Math.floor(b.top))), vis: b.bottom > 0 && b.top < innerHeight };
     }),
   );
   const buf = await page.screenshot();
@@ -50,7 +51,7 @@ async function measure(page) {
   return out;
 }
 
-const s = await open({ browser, w: 1440, h: 900, init: `window.addEventListener('DOMContentLoaded',()=>{const st=document.createElement('style');st.textContent='main#contenido *{color:transparent!important}.btn{visibility:hidden!important}';document.head.append(st)})` });
+const s = await open({ browser, w: 1440, h: 900, init: `window.addEventListener('DOMContentLoaded',()=>{const st=document.createElement('style');st.textContent='main#contenido *{color:transparent!important;border-color:transparent!important;box-shadow:none!important;outline:none!important}.btn,.art,.thread,svg,header.nav,.skip{visibility:hidden!important}';document.head.append(st)})` });
 await ready(s.page);
 await sleep(3000);
 const max = await s.page.evaluate(() => document.documentElement.scrollHeight - innerHeight);

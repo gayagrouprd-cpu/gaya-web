@@ -1,6 +1,7 @@
 ---
-// Póster SSR de la portada (DIRECTION §6.9): el fotograma `still` de la escena `cover` cuantizado a 4 tonos (dim · mid · hot ·
-// spark), sin `bg`, en tres variantes (wide 160×50 · mid 113×44 · stack 65×70) que el CSS conmuta por columnas del contenedor.
+// Póster SSR de la portada (DIRECTION §6.9): el fotograma `still` de la escena `cover` (estilo Duotono, con `bg`) colapsado a una rejilla sin `bg`
+// (`posterCollapse`: el fondo claro con poco carácter pasa a bloque `█`) y cuantizado a 4 tonos (dim · mid · hot · spark), en tres variantes
+// (wide 160×50 · mid 113×44 · stack 65×70) que el CSS conmuta por columnas del contenedor. Mismas 4 capas de siempre: ni una capa de HTML más.
 //
 // Con JS no se pinta (display:none): Chrome cuenta el texto generado por ::before como candidato de LCP y el LCP de la portada
 // es el `h1`. Se muestra sin JS (el <noscript> de abajo) o cuando el motor falla y pone html[data-field="ssr"].
@@ -9,7 +10,7 @@
 import '../styles/dom-art.css';
 import type { Lang, Scene } from '../ascii/types.ts';
 import { loadWords, getWords } from '../ascii/words.ts';
-import { renderPosterLayers, POSTER_TONES } from '../ascii/ssr.ts';
+import { renderPosterLayersDuo, POSTER_TONES } from '../ascii/ssr.ts';
 import { POSTER_VARIANTS, posterSpec, escapeAttr } from '../ascii/dom-art.ts';
 
 interface Props {
@@ -34,7 +35,7 @@ if (!scene) console.warn('[PosterSsr] no hay escena `cover` (src/ascii/scenes/in
 await loadWords(lang, ['GAYA']);
 const LAYERS = ['dim', 'mid', 'hot', 'spark'] as const;
 const variants = POSTER_VARIANTS.map((v) => {
-  const layers = scene ? renderPosterLayers(scene, posterSpec(v), lang, [getWords('GAYA', lang, v.cols, v.rows)]) : { dim: '', mid: '', hot: '', spark: '' };
+  const layers = scene ? renderPosterLayersDuo(scene, posterSpec(v), lang, [getWords('GAYA', lang, v.cols, v.rows)]) : { dim: '', mid: '', hot: '', spark: '' };
   return { key: v.key, layers };
 });
 // Color de cada capa: los tonos representativos de WP4 (T4 · T8 · T11 · T14).

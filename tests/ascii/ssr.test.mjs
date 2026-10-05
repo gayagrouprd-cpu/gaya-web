@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { gzipSync } from 'node:zlib';
 import { createTestScene } from './fixtures/scene.ts';
 import { GAYA_L_SET, GAYA_M_SET, GAYA_STACK } from './fixtures/words.mjs';
-import { renderPosterLayers, renderStill, stillFrame } from '../../src/ascii/ssr.ts';
+import { renderPosterLayers, renderPosterLayersDuo, posterCollapse, renderStill, stillFrame } from '../../src/ascii/ssr.ts';
 import { makeCells, clear, put, fill, toLayers, countExplicitBg, POSTER_TONES, LAYER_OF_TONE, hashCells, gridSpec, makeFrame, specDesktop, STILL_T, GLYPHS } from '../../src/ascii/scenes/common.ts';
 import { glyphIndex } from '../../src/ascii/glyphs.ts';
 
@@ -127,4 +127,35 @@ test('peso: el póster de la escena de prueba cabe en el orden de magnitud del d
   }
   assert.ok(sizes['wide 160×50'] < 4200, `wide ${sizes['wide 160×50']} B gz`);
   assert.ok(sizes['stack 65×70'] < 3000, `stack ${sizes['stack 65×70']} B gz`);
+});
+
+test('escenas con bg (estilo Duotono): posterCollapse pasa la masa de fondo a bloques, conserva el carácter denso y el de fondo oscuro, y deja las mismas 4 capas', () => {
+  const g = gridSpec(6, 1, 9, 18, 1);
+  const scene = {
+    id: 'cover', dawn: 0, arrival: { ms: 1 },
+    build: (spec) => ({ cls: new Uint8Array(spec.cols * spec.rows) }),
+    paint(gr) {
+      clear(gr, 0);
+      put(gr, 0, 0, glyphIndex(':'), 8, 6); // poco carácter sobre fondo claro → bloque T6
+      put(gr, 1, 0, 0, 7, 7); // solo fondo claro → bloque T7
+      put(gr, 2, 0, glyphIndex('#'), 10, 6); // carácter denso → se conserva (T10)
+      put(gr, 3, 0, glyphIndex('.'), 4, 2); // fondo oscuro (bruma) → se conserva el glifo, sin fondo
+      put(gr, 4, 0, glyphIndex('▀'), 11); // cuadrante: igual
+      put(gr, 5, 0, 0, 1, 1); // sombra T1: no se ve
+    },
+  };
+  const L = renderPosterLayersDuo(scene, g, 'es', []);
+  assert.deepEqual(Object.keys(L), ['dim', 'mid', 'hot', 'spark']);
+  assert.equal(L.mid.slice(0, 2), '██', 'los dos bloques de masa T6 y T7 están en la capa mid');
+  assert.equal(L.hot[2], '#');
+  assert.equal(L.dim[3], '.');
+  assert.equal(L.hot[4], '▀');
+  assert.equal(renderPosterLayersDuo.length, 4);
+  const st = renderStill(scene, g, 'es', []);
+  const c = makeCells(6, 1);
+  c.b.set(st.b);
+  posterCollapse(c);
+  assert.equal(countExplicitBg(c), 0, 'el colapso no deja bg');
+  assert.deepEqual(toLayers(c), L);
+  assert.notDeepEqual(renderPosterLayers(scene, g, 'es', []), L, 'sin colapso las paredes desaparecen');
 });

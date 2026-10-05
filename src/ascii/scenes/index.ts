@@ -1,10 +1,10 @@
-// Registro de escenas (DIRECTION §6.14). WP6 aporta `cover`, `hola` y `mist`; WP7–WP9 añaden las suyas con UNA línea en `LOADERS` (su id ya
-// está en `SceneId`). `cover` se importa en estático (es la escena de la primera carga y la del póster SSR); el resto, bajo demanda con
-// `loadScene(id)` (JS diferido, §11.1: `import()` al faltar ≤ 1,5 pantallas).
+// Registro de escenas (DIRECTION §6.14). `cover`, `hola` y `mist` son el estilo oficial Duotono (docs/ascii/KIT.md); WP7–WP9 añaden las suyas con UNA línea en
+// `LOADERS` (su id ya está en `SceneId`) y su prueba con tests/ascii/fixtures/scene-template.test.mjs. `cover` se importa en estático (es la escena de la primera
+// carga y la del póster SSR); el resto, bajo demanda con `loadScene(id)` (JS diferido, §11.1: `import()` al faltar ≤ 1,5 pantallas).
 //
 // Uso del motor: `const scene = getScene(id) ?? (await loadScene(id))`; las palabras de la escena salen de
 // `getWords(sceneWord(id, lang), lang, spec.cols)` (words.ts) y se pasan a `scene.build(spec, lang, [set])`; `mist` no lleva palabra (`[]`).
-// Variante de exploración de la portada: `createCover({ face: 'glyph' })` (?face=glyph) y `createCover({ level })` (?level=).
+// Exploración de la portada: `createCover({ level })` (?level=).
 import type { Scene, SceneId } from "../types.ts";
 import { cover, createCover } from "./cover.ts";
 

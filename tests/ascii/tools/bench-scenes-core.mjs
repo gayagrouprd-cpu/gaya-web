@@ -8,7 +8,7 @@ import { hola } from '../../../src/ascii/scenes/hola.ts';
 import { mistScene } from '../../../src/ascii/scenes/mist.ts';
 import { compose, tideParams, tideYb } from '../../../src/ascii/tide.ts';
 import { applyCap, buildCap, makeCap } from '../../../src/ascii/wells.ts';
-import { renderPosterLayers } from '../../../src/ascii/ssr.ts';
+import { renderPosterLayersDuo } from '../../../src/ascii/ssr.ts';
 
 const now = () => performance.now();
 const pct = (a, q) => a[Math.min(a.length - 1, Math.floor(q * a.length))];
@@ -39,7 +39,7 @@ export async function runBench(cells, { frames = 300, warm = 100 } = {}) {
   const stM = mistScene.build(spec, 'es', []);
   res.buildMistMs = now() - t0;
   t0 = now();
-  renderPosterLayers(cover, spec, 'es', words('GAYA'));
+  renderPosterLayersDuo(cover, spec, 'es', words('GAYA'));
   res.posterMs = now() - t0;
 
   const gC = makeCells(cols, rows);

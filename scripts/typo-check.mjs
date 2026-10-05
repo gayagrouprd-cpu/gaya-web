@@ -102,6 +102,8 @@ const inPage = (scope) => {
       right: Math.round(r.right),
       overflowBox: el.scrollWidth > el.clientWidth + 1,
       textOut: Math.round(Math.max(0, ti.maxRight - r.right, r.left - ti.minLeft)),
+      // recorte deliberado con puntos suspensivos (el título de la barra del visor en el teléfono): no es un desborde
+      ellipsis: cs.textOverflow === 'ellipsis' && cs.overflowX !== 'visible' && cs.whiteSpace === 'nowrap',
       menu: !!el.closest('.menu'),
     });
   }
@@ -216,7 +218,8 @@ for (const pg of PAGES) {
       const label = `${h.name} «${h.text}»`;
       if (!h.mono) fail(tag, `${label}: no está en Geist Mono`);
       if (h.broken.length) fail(tag, `${label}: palabra(s) partida(s): ${h.broken.join(', ')}`);
-      if (h.overflowBox || h.textOut > 1) fail(tag, `${label}: el texto desborda su caja (${h.textOut} px)`);
+      if (h.ellipsis && (h.overflowBox || h.textOut > 1)) known.add(`${tag}: ${label} se acorta con puntos suspensivos en una caja de ${h.w} px (barra del visor en el teléfono, decisión de e4b724c)`);
+      else if (h.overflowBox || h.textOut > 1) fail(tag, `${label}: el texto desborda su caja (${h.textOut} px)`);
       if (h.right > r.vw + 0.5 || h.left < -0.5) fail(tag, `${label}: sale de la pantalla (${h.left}–${h.right} de ${r.vw})`);
       if (pg.home && /^h1$/.test(h.name.split('.')[0]) && (h.lines < 2 || h.lines > 3)) fail(tag, `h1 en ${h.lines} líneas (se esperan 2 o 3)`);
       rows.push({ tag, kind: 'head', ...h });
@@ -253,7 +256,7 @@ if (table) {
   for (const r of rows.filter((x) => x.kind === 'btn' && /\bbtn\b/.test(x.name))) console.log(`  ${r.tag.padEnd(16)} ${r.text.slice(0, 26).padEnd(26)} ${r.w}×${r.h} px · ${r.fs.toFixed(1)} px`);
 }
 console.log(`\nTipografía mixta: ${PAGES.filter((p) => !only || only === p.lang).length} páginas × ${WIDTHS.length} anchos · ${rows.length} elementos medidos`);
-for (const k of [...known].slice(0, 2)) console.log(`  aviso  ${k}`);
+for (const k of [...known].slice(0, 3)) console.log(`  aviso  ${k}`);
 for (const f of [...new Set(fails)]) console.log(`  FALLA  ${f}`);
 console.log(fails.length ? `\n✗ ${new Set(fails).size} fallos` : '\n✓ Pasa');
 process.exit(fails.length ? 1 : 0);

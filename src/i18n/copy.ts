@@ -71,8 +71,6 @@ const es = {
     about: 'Nosotros',
     services: 'Servicios',
     samples: 'Ejemplos',
-    /** Alias heredado del Nav.astro anterior (mismo texto que `samples`); WP10 lo retira al reescribir el menú. */
-    refs: 'Ejemplos',
     process: 'Proceso',
     contact: 'Contacto',
     menu: 'Menú',
@@ -87,14 +85,6 @@ const es = {
     h1: h1Es,
     /** Palabra del `h1` que lleva el color de acento. */
     accent: 'imposible',
-    lead: leadEs,
-    primary: 'Escríbenos por WhatsApp',
-    secondary: 'Ver ejemplos',
-  },
-  /** Forma heredada de la portada anterior (Hero.astro); se alimenta de `home`. */
-  hero: {
-    words: h1Es.split(' '),
-    accentWord: 2,
     lead: leadEs,
     primary: 'Escríbenos por WhatsApp',
     secondary: 'Ver ejemplos',
@@ -211,7 +201,6 @@ const en: Copy = {
     about: 'About',
     services: 'Services',
     samples: 'Samples',
-    refs: 'Samples',
     process: 'Process',
     contact: 'Contact',
     menu: 'Menu',
@@ -225,13 +214,6 @@ const en: Copy = {
     title: `${brand.name} · ${brand.tagline.en}`,
     h1: h1En,
     accent: 'impossible',
-    lead: leadEn,
-    primary: 'Message us on WhatsApp',
-    secondary: 'See samples',
-  },
-  hero: {
-    words: h1En.split(' '),
-    accentWord: 2,
     lead: leadEn,
     primary: 'Message us on WhatsApp',
     secondary: 'See samples',

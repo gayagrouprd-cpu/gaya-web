@@ -14,7 +14,6 @@ export * from "../grid.ts";
 export * from "../glyphs.ts";
 export { STILL_T, TONES } from "../types.ts";
 export type { Cells, Frame, GridSpec, Lang, Ring, Scene, SceneId, SceneState, Variant, Word, WordId, WordSet } from "../types.ts";
-export { stillFrame, renderStill } from "../ssr.ts";
 
 /** GridSpec de una celda CSS `cssCw × cssCh` a `dpr` (celda de dispositivo entera; a ≥ 1600 px la celda es 12×25, no 12×24). */
 export function gridSpec(cols: number, rows: number, cssCw: number = 9, cssCh: number = cssCw * 2, dpr: number = 2): GridSpec {

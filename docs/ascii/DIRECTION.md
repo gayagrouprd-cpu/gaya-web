@@ -428,23 +428,50 @@ Se generan con `scripts/tones.mjs`: interpolación en OKLCH entre las claves `--
 
 **Presupuesto de tono** (área de tinta sobre el área de pantalla; se verifica en CI sobre el fotograma `still`): T≥9 ≤ **12 %** · T≥11 ≤ **4 %** · T≥13 ≤ **1,5 %** · T≥14 ≤ **0,5 %** · celdas no vacías ≤ **60 %** en la portada y ≤ **55 %** en el resto (CA-3: reconcilia el 46 % ≥ T11 del concepto con lo medido: **8,7 / 2,7 / 1,2 %**). Acento (`--accent`) ≤ 5 % del área.
 
+**Presupuesto del estilo oficial Duotono (WP6c; es el que miden las pruebas y el barrido `npm run ascii:sweep`).** Las escenas de caracteres pintan la masa con el FONDO de cada celda, así que el tono del primer plano ya no basta: se miden DOS cosas, y las dos deben cumplir los topes.
+- **Literal**: el tono del primer plano de cada celda con glifo (la medida de la base de bloques).
+- **Efectivo**: la luminancia media de cada celda (fondo y primer plano ponderados por la tinta MEDIDA del glifo, `GLYPH_INK`) convertida al tono T0–T15 más cercano: lo que ve el ojo. `toneBudget` y `effectiveBudget` (tests/ascii/fixtures/scene-rules.mjs); `checkToneBudget` compara las dos.
+- **Topes de la adopción** (más estrictos en T≥9, T≥11 y T≥14): T≥9 ≤ **11 %** · T≥11 ≤ **3,5 %** · T≥13 ≤ **1,5 %** · T≥14 ≤ **0,4 %**; celdas con glifo ≤ **60 %** (portada) · **55 %** (resto) · **30 %** (bruma).
+- **Primer plano de caras y paredes**: ≤ **T8** (T10 solo en los peldaños ≥ 7 de las cáusticas y T11–T13 en la luz de borde, el menisco y la espuma). La luz de la masa vive en el FONDO (la pared T9–T11, el aura T6–T8): un fondo claro lleva el carácter más oscuro (grabado), un fondo oscuro, el carácter más claro (`inkTone`).
+- **Luz**: la luminancia media efectiva de `cover` y `hola` queda a ≥ **95 %** de la de la base de bloques sólidos (tests/ascii/fixtures/base-solid-light.json), en los 7 visores de referencia y en los dos idiomas.
+- **Adaptación al aire** (`accentDensity`): con la palabra cubriendo > 14 % de la pantalla, o en rejillas de < 6 000 celdas, la luz de borde, el menisco y la cresta bajan un peldaño (y a los tonos de la base si cubre > 40 %). El barrido de 289 visores × 2 idiomas (celda, tier y dpr del motor) lo verifica.
+
 **Deriva cromática «noche → amanecer»** (MA-8): el arco de la página no es plano. Cada cartel lleva un parámetro `dawn` ∈ [0, 1] que **solo agranda el radio y sube un tono el tope de la bruma y el halo**, sin tocar el fondo ni la paleta: portada 0 · nosotros 0,15 · servicios 0,3 · ejemplos 0,5 · contacto 1 (el cierre es el más luminoso). Es deriva **dentro** del Cobalto.
 
-### 5.5 Anatomía del cartel (la receta que se vio en color)
+### 5.5 Anatomía del cartel (estilo oficial Duotono, adoptado en WP6c)
 
-Para cada celda de una palabra con máscara de cuadrantes `m` (0–15):
+El arte se lee como TEXTO: cada celda de una superficie es un glifo de la rampa de §5.6 en un tono de primer plano sobre un fondo de otro tono de la misma familia (`putDuo(nivel, hash, fg, bg)`; recetas y funciones en docs/ascii/KIT.md). La base de bloques sólidos que se vio en color (cara `█`, aro, sombra `░`, halo `▒`) se sustituyó por esto por decisión del dueño («más ASCII visible»); la imagen de referencia de la base está en reports/ascii/WP6/.
 
-1. **Cara.** Celda llena (`m = 15`) a ≥ 2 celdas del borde: glifo `█`, tono `= base + round(1,5·agua + 1,2·profundidad)`; `base` 8 (cartel de agua) o 9 (ECO, VER).
-2. **Aro.** Celda parcial (`m ≠ 15`): el cuadrante de `m` en **T12**, y **T14** si tiene vacío arriba o a la izquierda (luz). Celdas llenas a 1 celda del borde: `█` en T12 con bisel (T13 arriba/izquierda, T9 abajo/derecha).
-3. **Sombra proyectada** (+2 col, +1 fila): celdas vacías cuyo `(x−2, y−1)` es sólido: `░` en T4 (nunca sobre otra palabra).
-4. **Halo**: celdas vacías a ≤ 4 celdas de la palabra: tono de fondo T3 (≤ 1), T2 (≤ 2), T1 (≤ 4), solo con **bruma de glifos `░▒▓·:` en fg** (sin `bg`, para que el póster SSR sea fiel, §6.9).
-5. **Bruma**: `d = (0,15 + 0,85·cresta) · exp(−(dx² + dy²)·1,6)` con `cresta = (1 − |2h − 1|)³` del agua; glifo `·` (d < 0,16), `:` (< 0,24), `░` (< 0,34), `▒` (< 0,5), `▓`; tono T3–T6; 15 % de los puntos se omiten por hash. **Viñeta** hacia las esquinas.
-6. **Agua** (cartel de vidrio: GAYA, TÚ): nivel `L` (fracción llena, 0→0,85 en la ignición); **arriba del nivel**, vidrio vacío (T2, aro visible); **en el menisco**, fila `~`/`=` en T14; **abajo**, cara luminosa T7–T12 con cáusticas.
-7. **Espuma**: solo en la marea y en el menisco: `*` y `~` en T12–T14 (≤ 0,5 % de las celdas).
+Para cada celda de una palabra con máscara de cuadrantes `m` (0–15), de atrás adelante:
+
+1. **Bruma** (`mistDuo`): la luz de una elipse gaussiana (tabla entera `GAUSS`) y del campo que emana de la palabra (`1/(1+(d/3,6)²)`), con niebla de baja frecuencia y viñeta, convertida en TEXTO: cada celda lleva un glifo con probabilidad creciente con la luz (ruido azul anclado a la celda) y la modulan RACIMOS de ≈ 11 × 6 celdas con huecos T0 entre ellos (`clusterField`); el peldaño `. : ; + =` (y un `*` suelto junto a la palabra) sube con la luz, T3–T6 sobre fondo T0–T2. A ≤ 1 celda del trazo ≤ 45 % de las celdas llevan glifo; a 8 celdas ≤ 15 %; fuera del halo (> 3 celdas) ≤ 30 %. La bruma se apaga bajo la base de la palabra (el sitio del texto queda limpio) y deja los contrapunzones (A, O, G…) a T0. **Nunca `~` ni `^`**: son del menisco, las crestas y la espuma.
+2. **Aura** (`bakeAura`): las celdas vacías a ≤ 1 ancho de celda del trazo llevan fondo T8 (T7 con poco aire) y las de ≤ 2, T6 (solo en escritorio), con un glifo `. :` T8 suelto en 1 de cada 4: es la luz de borde de un rótulo luminoso y devuelve la luz que quita pasar de bloques a texto.
+3. **Sombra proyectada** (`bakeShadow`): desplazamiento de **UNA celda en diagonal**; las celdas vacías cuyo `(x−1, y−1)` es tinta, en **T1–T2** (fondo T1, `:` T2 en 1 de cada 3); nunca sobre tinta. Aparece al final de la llegada.
+4. **Aro.** Celda parcial (`m ≠ 15`): el cuadrante de `m` en T9–T10 y, con vacío arriba o a la izquierda, T11 (T10 con poco aire) con destellos +2 (+1). Celda llena a 1 del borde (la pared): fondo T9 con bisel (T11 con luz arriba/izquierda, T8 abajo/derecha) y caracteres `: ; + =` TRES tonos más oscuros que el fondo, en una de cada tres celdas siempre (retícula `x + 2y ≡ 0 mod 3`: nunca tres celdas de pared seguidas sin glifo) y el resto con probabilidad (`putWall`).
+5. **Cara.** Celda llena a ≥ 2 del borde: **todas** llevan un glifo de la rampa (≥ 60 % exigido; en la práctica ≈ 94 %) y ninguna carrera horizontal de ≥ 3 celdas del trazo tiene el mismo fondo sin glifo. Fondo T3–T7 repartido entre dos tonos con ruido azul (sin facetas planas) según cáusticas, profundidad y bisel; primer plano `inkTone` (≤ T8; los peldaños ≥ 7 de las cáusticas, `x X # % @`, llegan a T10).
+6. **Agua** (cartel de vidrio: GAYA, TÚ): nivel `L` (fracción llena, 0→0,78 en la ignición); **arriba del nivel**, vidrio vacío (fondo T3, `. :` T6 en todas las celdas y un reflejo de `/` T9 sobre T6); **en el menisco**, una fila de `~` y `=` en T12 (T13 en la cresta) sobre T8; **abajo**, la cara con cáusticas.
+7. **Espuma**: solo en la marea y en el menisco: `*` y `~` en T11–T12 sobre T8.
 
 ### 5.6 Alfabeto de glifos
 
 Permitido: ASCII imprimible; `· ¯`; cajas `U+2500–257F` y bloques `U+2580–259F` (**en el lienzo se dibujan por código**, sin `symbols2` ni costuras; en DOM salen de `symbols2`); `« » ¿ ¡ × ± ° §`; `– — …`. **Prohibido** dentro de rejillas (caen a otra fuente y cambian de ancho): `← → ■ □ ● ○ ◆ ◇ ▲ ▶ ★ ≈ ≠ ≤ ≥ ✓`, Braille, emoji (R03 §1.3). Lo comprueba `npm run ascii:lint` sobre `data-art`, los `.txt` de palabras y los emblemas (Anexo C.4).
+
+**La rampa de densidad** (src/ascii/scenes/ramp.ts; la tinta es la MEDIDA de Geist Mono 500, % del área de la celda a 9×18 con dpr 2, `tests/ascii/tools/measure-ramp.mjs`): glifos ordenados por tinta real, no por la clásica de memoria (` .:-=+*#%@` no es monótona: `:` 5,7 y `-` 5,6 valen lo mismo y entre `*` 15,0 y `#` 27,6 hay un salto de 12,6 puntos). Diez peldaños de cuatro glifos de tinta casi igual (se elige por hash de la celda: una zona del mismo valor sale como textura y no como un renglón `=====`); el hueco máximo entre peldaños es de 5,3 puntos.
+
+| Peldaño | Glifos | Tinta media | Dónde sale |
+|---:|---|---:|---|
+| 0 | espacio | 0 | solo fondo |
+| 1 | `. · . .` | 2,9 | polvo, borde de la bruma, vidrio vacío |
+| 2 | `: - : '` | 5,8 | bruma, pared, agua profunda |
+| 3 | `; ; " ;` | 8,7 | bruma media, agua |
+| 4 | `+ = + =` | 12,7 | bruma junto a la palabra, banda de la marea, cresta de la ola |
+| 5 | `* x * +` | 15,3 | cáusticas suaves, espuma |
+| 6 | `x * x X` | 19,0 | cáusticas |
+| 7 | `X x # X` | 23,8 | cáusticas (T10) |
+| 8 | `# # % X` | 27,4 | cáusticas (T10) |
+| 9 | `% @ % @` | 32,7 | núcleo de las cáusticas (T10) |
+
+**Reservados** (no están en la rampa): `~` (menisco, cresta y espuma de las olas), `^` (sin uso: no se pinta ninguno), `/` y `\` (reflejo del vidrio y pendiente de la cresta); el `-` del peldaño 2 sirve también de tramo plano de la cresta. Los bloques `█`, cuadrantes `▘▝▖▗▀▄▌▐▚▞▙▛▜▟` y octavos siguen siendo la masa del aro, de la H de HOLA y del póster colapsado; `░▒▓` ya no se pintan en las escenas (la tramas siguen en el atlas por la prueba de paridad y para escenas futuras). Los tonos máximos de cada uso están en §5.4 y en KIT.md.
 
 ### 5.7 Composición vertical de referencia (escritorio, 50 filas)
 
@@ -593,7 +620,7 @@ export interface Scene {
 }
 ```
 
-**Reglas de una escena** (las comprueban las pruebas de §13): (1) `paint` es **determinista**; (2) **solo enteros y polinomios** en la ruta del fotograma `still` (prohibido `Math.sin/cos/pow/exp` ahí: R06 §4.1; las olas y la marea sí pueden usarlas porque no tienen póster; la gaussiana de la bruma `exp(−r²·1,6)` de §5.5 es una **tabla entera `GAUSS[256]`** de `kit.ts`, no una llamada a `Math.exp`); (3) la escena `cover` **no usa `bg`** (tiene póster SSR: pinta solo en fg; donde hace falta «vidrio», `█` en T1–T2); las demás escenas pueden usarlo; (4) sin asignaciones por cuadro; (5) `still` ≡ `paint(…, p = 1, t = STILL_T, e = 0, heat = null)` con `STILL_T = 21,7` (el de `hero.ts`).
+**Reglas de una escena** (las comprueban las pruebas de §13): (1) `paint` es **determinista**; (2) **solo enteros y polinomios** en la ruta del fotograma `still` (prohibido `Math.sin/cos/pow/exp` ahí: R06 §4.1; las olas y la marea sí pueden usarlas porque no tienen póster; la gaussiana de la bruma `exp(−r²·1,6)` de §5.5 es una **tabla entera `GAUSS[256]`** de `kit.ts`, no una llamada a `Math.exp`); (3) **toda escena puede usar `bg`**, `cover` incluida (el estilo Duotono pinta la masa con el fondo de cada celda: glifo claro sobre fondo más oscuro); el póster SSR de la portada pasa por `posterCollapse` (ssr.ts), que convierte la rejilla con `bg` en otra sin `bg` y con el mismo reparto de masa (§6.9) (hasta WP6c la regla era «`cover` no usa `bg`»); (4) sin asignaciones por cuadro (`mistDuo`, `putDuo`, `putWall`; lo que asigna —`distField`, `bakeShadow`, `bakeAura`, `clusterField`, `enclosedCells`— se llama una vez por tamaño desde `build`); (5) `still` ≡ `paint(…, p = 1, t = STILL_T, e = 0, heat = null)` con `STILL_T = 21,7` (el de `hero.ts`).
 
 **`src/ascii/kit.ts`** (WP4) entrega las piezas comunes para que las cuatro manos de escenas no se pisen: `mist()`, `halo()`, `shadow()`, `faceFn()` (cara + aro + bisel), `waterLevel()`, `bevel()`, `ring()`, `edt()` (distancia exacta anisótropa 1:2), `bn(x, y)` (ruido azul 32×32 + *jitter* de hash), `h2/vnoise/fbm` enteros y `tile()` (§6.8).
 
@@ -613,8 +640,8 @@ const BAND = isMobile ? 3 : 4;                      // semiancho de la banda de 
 | Zona | Qué se pinta |
 |---|---|
 | `dist < −BAND − REACH` | el cartel saliente **tal cual** (`still` cacheado) |
-| `−BAND − REACH ≤ dist < −BAND` | el saliente **se deshace**: `p = 1 − (−BAND − dist)/REACH`; `τ = 0,55·bn + 0,45·fbm`; la celda pasa a agua (`▒`, T5–T8) si `p·(borde ? 0,75 : 1,1) > τ` → **primero se vacía el interior, al final el aro** |
-| `|dist| ≤ BAND` | **banda de agua**: `d = cresta·0,8 + 0,35·(1 − |dist|/BAND)`; glifo `░ ▒ ▓` por `d`; tono T4–T10; espuma `*` (45 %) y `~` (30 %) en T12–T14 a ±1 fila |
+| `−BAND − REACH ≤ dist < −BAND` | el saliente **se deshace**: `p = 1 − (−BAND − dist)/REACH`; `τ = 0,55·bn + 0,45·fbm`; la celda pasa a agua de caracteres (`; " + =` T7–T10 sobre fondo T4–T7) si `p·(borde ? 0,75 : 1,1) > τ` → **primero se vacía el interior, al final el aro** |
+| `|dist| ≤ BAND` | **banda de agua de TEXTO**: `d = cresta·0,8 + 0,35·(1 − |dist|/BAND)`; glifo del peldaño `1 + ⌊3,99·d⌋` de la rampa (`. : ; = +`, nunca `x X *`) con fondo de agua T2–T8; tono máximo **T12**; espuma `*` (10 %) y `~` (40 %) en T11–T12 sobre fondo T8 a ±1 fila |
 | `BAND < dist ≤ BAND + REACH` | el entrante **cristaliza**: `p = (dist − BAND)/REACH`; se muestra la celda si `p·(borde ? 1,3 : 0,9) ≥ τ` → **primero el aro, después la cara** |
 | `dist > BAND + REACH` | el cartel entrante en su `paint(p)` |
 
@@ -681,8 +708,8 @@ export const agua = (tile: Uint8Array, c: number, r: number, t: number, asp = 2)
 **Hecho medido [M]:** Chrome 154 cuenta el texto generado por `::before` como candidato de LCP (el elemento es el anfitrión). Por eso:
 
 - **Con JS** (ruta normal): el HTML trae el `h1`, el lead y los botones (texto real: **eso es el LCP**); el póster SSR está en el HTML pero con `display: none` y **no se pinta**. El lienzo aparece tras `load` + inactividad y arranca la ignición. Antes de eso hay un fondo T0 con el texto: es un arranque limpio, no una pantalla rota.
-- **Sin JS** (`<noscript><style>`), **o si el motor falla o no puede arrancar** (`data-field="ssr"` puesto por el motor): se **muestra** el póster de la portada (la variante que corresponda por `@container`), como `div[data-nosnippet][aria-hidden][translate="no"]` con **4 capas de tono** (`dim`, `mid`, `hot`, `spark`, cada una un `span.art[data-art]` con la misma rejilla y color `var(--tN)`; **sin `bg`**). Es el fotograma `still` cuantizado a 4 tonos: **no es idéntico celda por celda al del motor de 16 tonos** (CI-2) y no se promete que lo sea; la prueba de paridad (§13, T6) comprueba que **capa y glifo** coinciden con el cuantizado del motor.
-- **Tres variantes** del póster (`wide` 160×50, `mid` 113×44, `stack` 65×70) conmutadas por `@container (min-width: Nch)` con **N = columnas** (133 · 96 · 60): los umbrales van en **celdas** (`ch` del propio contenedor), no en píxeles de ventana (MI-5); el zoom de solo texto y la escala de fuente de Android **se prueban** en T13, porque pueden descuadrar el arte si el navegador impone un tamaño mínimo de fuente (R03 §1.4, [no verificado]); medidas [M]: **`wide` 2,05 KB gz**, **`stack` 1,59 KB gz**, `mid` ≈ 1,8 KB [C]. Total ≈ 5,5 KB gz de HTML por idioma.
+- **Sin JS** (`<noscript><style>`), **o si el motor falla o no puede arrancar** (`data-field="ssr"` puesto por el motor): se **muestra** el póster de la portada (la variante que corresponda por `@container`), como `div[data-nosnippet][aria-hidden][translate="no"]` con **4 capas de tono** (`dim`, `mid`, `hot`, `spark`, cada una un `span.art[data-art]` con la misma rejilla y color `var(--tN)`; **sin `bg`**). Es el fotograma `still` cuantizado a 4 tonos: **no es idéntico celda por celda al del motor de 16 tonos** (CI-2) y no se promete que lo sea; la prueba de paridad (§13, T6) comprueba que **capa y glifo** coinciden con el cuantizado del motor. **Cómo se degrada una escena con `bg`** (PosterSsr.astro usa `renderPosterLayersDuo`): `posterCollapse(g)` pasa el `still` a una rejilla sin `bg` con el mismo reparto de masa, y `toLayers` la cuantiza a las 4 capas de siempre (ni una capa de HTML más). Regla de colapso, celda a celda y solo en función de su glifo y su fondo: **(a)** fondo ≥ T4 y glifo de tinta < 14 % (o espacio) → bloque `█` del tono del fondo (la masa luminosa); **(b)** fondo ≥ T4 y glifo denso (`x * X # % @`) → conserva el glifo en su tono (el brillo de las cáusticas); **(c)** fondo < T4 (bruma, sombra) → conserva el glifo y pierde el fondo (queda sobre T0). **Paridad documentada y probada** (tests/ascii/scenes.test.mjs): (1) la regla se comprueba celda a celda contra el `still` del motor, y (2) capa y glifo del póster coinciden al 100 % con la cuantización del fotograma COLAPSADO (wide, mid y stack × ES/EN). Se lee como un rótulo plano limpio con bruma de texto y racimos de cáusticas: **más plano que el vivo** (se pierden las texturas de baja tinta de la cara).
+- **Tres variantes** del póster (`wide` 160×50, `mid` 113×44, `stack` 65×70) conmutadas por `@container (min-width: Nch)` con **N = columnas** (133 · 96 · 60): los umbrales van en **celdas** (`ch` del propio contenedor), no en píxeles de ventana (MI-5); el zoom de solo texto y la escala de fuente de Android **se prueban** en T13, porque pueden descuadrar el arte si el navegador impone un tamaño mínimo de fuente (R03 §1.4, [no verificado]); medidas [M]: **`wide` 2,05 KB gz**, **`stack` 1,59 KB gz**, `mid` ≈ 1,8 KB [C] con la base de bloques. **Con el estilo Duotono** (póster colapsado, WP6c) [M]: `wide` **2,26 KB gz**, `mid` 1,20 KB, `stack` 1,43 KB: ≈ **4,5 KB gz** de HTML por idioma (techo de la prueba: `wide` ≤ 3 KB y las tres ≤ 5,5 KB).
 - **Sin JS, el resto de la página**: textos, placas, hilo, reglas y emblemas (arte en DOM) **sí están**; los carteles de WEB…TÚ **no** (CI-7: «solo la portada tiene arte sin JS», dicho con honestidad).
 - **Movimiento reducido con JS**: el motor arranca en `still` y dibuja los carteles (2D o WebGL) **sin póster SSR**.
 - `og:image`: `scripts/og.mjs` renderiza la portada a `STILL_T` con Playwright y el motor real (1200×630), sin mencionar cómo se hizo.
@@ -697,7 +724,7 @@ const gl = canvas.getContext('webgl2', { antialias: false, depth: false, stencil
 // Segunda barrera: WEBGL_debug_renderer_info ~ /SwiftShader|llvmpipe|Software/i ⇒ still
 ```
 - **Vivo (WebGL2)**: textura de celdas `RGBA8UI` + atlas de máscaras + paleta de 16 entradas; 1 `drawArrays`; `texelFetch`; contexto **por defecto** (no `alpha:false`); `gl.disable(gl.DITHER)`; `WEBGL_lose_context` al destruir; `webglcontextlost` con `preventDefault()`, `webglcontextrestored` reconstruye; si falla dos veces → `still`.
-- **Fotograma fijo (Canvas 2D)**: `fillRect` para bloques y cuadrantes; `fillText` por celda para glifos de fuente; con diff respecto al fotograma anterior no hace falta (se dibuja entero una vez por cambio de cartel). Coste esperado 70–100 ms con CPU ×4 (R05 §1.3) → se divide en **dos cuadros** por filas para no pasar de 50 ms por tarea. Nunca `getImageData`, nunca `globalCompositeOperation='copy'` (R05 §7 #2–3).
+- **Fotograma fijo (Canvas 2D)**: `fillRect` para bloques y cuadrantes; para los glifos de fuente, `drawImage` de su baldosa desde UNA copia del atlas teñida por tono (≤ 15 copias, hechas bajo demanda y el resto en inactividad con `warm()`); con diff respecto al fotograma anterior no hace falta (se dibuja entero una vez por cambio de cartel). **Partido por TIEMPO** (WP6c): se pintan filas hasta gastar `CHUNK_MS` = 4,5 ms de reloj de pared y se cede el hilo; las filas vacías (la mitad inferior de los carteles) se limpian de una vez. Medido [M] sobre el arnés empaquetado con la escena Duotono a 160×50: **en frío con CPU ×6 cada tarea ≤ 5 ms y ninguna > 50 ms; en caliente con CPU ×4 cada tarea ≤ 4,8 ms** (el fotograma entero cuesta ≈ 1,5 ms a ×1, ≈ 5–6 ms a ×4). El atlas se hornea también en tareas (`buildAtlasAsync`: cede cada 10 ms). Nunca `getImageData`, nunca `globalCompositeOperation='copy'` (R05 §7 #2–3).
 - **Ningún otro respaldo**: el Canvas 2D de 8 fps de R05 **se elimina** (MI-4, CI-5).
 - **Lighthouse en tres rutas** (puerta de M1): WebGL2, `?nogl` (2D fijo) y sin JS (`--disable-javascript`), las tres ≥ 90.
 
@@ -743,7 +770,11 @@ src/ascii/
   render-2d.ts       fotograma fijo en Canvas 2D (2 cuadros)                     WP5
   engine.ts          arranque, estados, relojes, marea, calor, sueño, tiers      WP5
   scenes/common.ts   reexporta kit + utilidades de escena                        WP4
-  scenes/{cover,hola,mist}.ts  WP6 · {web,listo}.ts WP7 · {eco,on}.ts WP8 · {ver,tu}.ts WP9
+  scenes/duo.ts      kit Duotono: putDuo, putWall, mistDuo, bakeShadow, bakeAura…   WP6c
+  scenes/ramp.ts     rampa de densidad medida (10 peldaños × 4 glifos)            WP6c
+  scenes/ink.ts · ink.gen.ts   tinta medida de cada glifo (pruebas, póster, medidas) WP6c
+  scenes/_template.ts          plantilla de escena nueva (con su prueba en tests/ascii/fixtures)  WP6c
+  scenes/{cover,hola,mist}.ts  WP6 (estilo Duotono desde WP6c) · {web,listo}.ts WP7 · {eco,on}.ts WP8 · {ver,tu}.ts WP9
 ```
 
 ---
@@ -754,9 +785,9 @@ src/ascii/
 
 ### 7.1 `cover` · GAYA — «el agua hecha del nombre»
 
-- **Dibuja.** La palabra `GAYA` (L/M/S/XS) con la anatomía de §5.5 y **vidrio con agua**: aro de luz, sombra `░`, **nivel de agua** (en reposo 0,85, menisco `~` T14), cáusticas T7–T12, halo y **bruma** `░▒▓·:` que emana de la palabra con viñeta hacia las esquinas. Sin `bg` (tiene póster SSR).
-- **Guion** (`p`: 0→1 en **2,6 s** desde el arranque del motor): `0–0,15` bruma que se abre desde el centro (radio 0→100 %); `0,05–0,25` aro de luz (solo celdas parciales); `0,10–0,85` **el nivel sube de 0 a 0,85** (`easeOutExpo`); `0,30–0,80` cáusticas (su contraste 0→1); `0,75–1` sombra, halo completo y 3–6 chispas T15. Después, **reposo**: 0 fps.
-- **Reacción.** *Calor*: el puntero ilumina el vidrio vacío (celdas por encima del nivel dentro del radio suben a T6–T9, «linterna») y acelera las cáusticas ×3 en su radio; se recompone en 0,45 s. *Toque*: anillo que recorre la palabra.
+- **Dibuja.** La palabra `GAYA` (L/M/S/XS) con la anatomía de §5.5 y **vidrio con agua de caracteres**: aro de luz (piel de cuadrantes T10–T11, pared T9 con caracteres grabados), aura T8/T6, sombra de una celda T1–T2, **nivel de agua** (en reposo 0,78 de la cara, menisco `~ =` T12–T13), cáusticas `x * X # % @` y **bruma** `. : ; + =` en racimos que emana de la palabra con viñeta hacia las esquinas y deja limpia la mitad inferior. Usa `bg` (el póster SSR la colapsa, §6.9).
+- **Guion** (`p`: 0→1 en **2,6 s** desde el arranque del motor): `0–0,15` bruma que se abre desde el centro (radio 0→100 %); `0,05–0,25` aro de luz (solo celdas parciales); `0,10–0,90` **el nivel sube de 0 a 0,78** (salida cúbica); `0,30–0,80` cáusticas (su contraste 0→1); `0,70–0,95` sombra y `0,75–1` 3–6 chispas T15 (el aura y la sombra se forman celda a celda). Medido [M]: la ignición dura 2,66 s hasta el último cuadro y después **duerme** (WCAG 2.2.2, tests/browser/motion.mjs). Después, **reposo**: 0 fps.
+- **Reacción.** *Calor*: el puntero ilumina el vidrio vacío (celdas por encima del nivel dentro del radio suben a T6–T9, «linterna»), enciende la bruma y el aro y acelera las cáusticas ×3 en su radio; se recompone en 0,45 s. *Toque*: anillo que recorre la palabra.
 - **Móvil.** `GA / YA` de 12 filas, la 2.ª línea desplazada 3 columnas; bruma viñeteada; texto abajo (§4.4). Verificado [M] a 360×800.
 - **Estático.** `p = 1`, `t = 21,7`. Es también el `og:image` y el póster SSR (cuantizado a 4 tonos).
 - **Coste.** Caras ≈ 1 500–2 000 celdas (L) + bruma en todas las celdas (2 lecturas de tesela). Con CPU ×4 ≈ 2 ms (estimado [C]).
@@ -764,7 +795,7 @@ src/ascii/
 
 ### 7.2 `hola` · HOLA / HELLO — «hola contiene ola» (**momento firma**)
 
-- **Dibuja.** `HOLA`: la **H sólida** (cara T8 con cáusticas, aro, sombra) y **«OLA» hecha de olas**: dentro de las tres letras, **rayas de ola** `s = sin(0,34·x + 0,55·y + φ)` → tonos T10 (`s > 0,55`), T8 (`> 0,05`), T6 (`> −0,45`), T5; cresta `~` T14 donde `s > 0,86` (vista [M]). En inglés: **H sólida y «ELLO»** con olas.
+- **Dibuja.** `HOLA`: la **H quieta** (masa de agua cobalto con cáusticas y un grano de caracteres grabados, aro, aura y sombra) y **«OLA» hecha de olas de caracteres**: dentro de las tres letras, rayas de ola con la **cresta `~` continua (una celda por columna enlazada con la vecina)** y el cuerpo que baja hacia el seno por `+ = ; : .` (peldaños 5→1) sobre una **losa de agua T4–T9 que sigue a la ola**; ≥ 50 % de las celdas del cuerpo llevan glifo de la rampa (en la práctica 75–85 %). En inglés: **H y «ELLO»** con olas.
 - **Guion.** La llegada es la **marea** (§6.4) y la palabra **nace por su contorno**: primero el aro, luego la cara; después la H cristaliza y «OLA» gana amplitud (0→1) entre `p = 0,3` y `1` (`arrival.ms` = 900). **El guion es el momento firma completo (1,4 s):**
 
 | t | En pantalla |
@@ -775,7 +806,7 @@ src/ascii/
 | 0,9–1,4 s | Del nombre solo queda un aro fantasma que se disuelve; la H cristaliza sólida; «OLA» ondula |
 | después | Reposo; fase de las olas `t` avanza solo con energía de scroll y duerme a los 1,6 s |
 
-- **Reacción.** *Calor* sobre «OLA»: la amplitud sube ×2 y la fase ×3 en su radio; sobre la H, la cara brilla +2 tonos. *Toque*: anillo.
+- **Reacción.** *Calor* sobre «OLA»: la amplitud sube ×2 y la fase ×3 en su radio; sobre la H, la masa brilla +2 tonos. *Toque*: anillo.
 - **Móvil.** `HO / LA` (`HEL / LO`), H sólida en la primera línea.
 - **Estático.** `p = 1`, fase de olas en `t = 21,7`.
 - **CA-2 resuelto:** dura 1,4 s **independientemente** de la velocidad del dedo; se prueba en un fling de 2 400 px/s (§13, T9). **CN-8 resuelto:** el texto **nunca** va sobre «OLA»: el `h2` y la frase de marca van **debajo** de la palabra (filas 28–40) y la placa sube después.
@@ -845,7 +876,7 @@ Es la única pieza **sin lienzo** (alineación exacta con el texto): el **hilo**
 
 ### 7.10 `mist` · bruma
 
-Fondo de las secciones sin palabra (Índice, Proceso): la bruma de `cover` con `dawn` propio y densidad ≤ 35 %, sin palabra; **se dibuja en vivo** (no tiene estático propio) y respira con la energía de scroll.
+Fondo de las secciones sin palabra (Índice, Proceso): dos velos de luz en diagonal hechos de **caracteres** (`mistDuo` con `wash`: texto `. : ; + =` T3–T6 sobre un fondo T1–T3 que da la luz del velo, `*` casi ausente) con `dawn` propio y ≤ **30 %** de celdas con glifo; **se dibuja en vivo** (no tiene estático propio) y respira con la energía de scroll. Su luz media es ≈ 90 % de la de la base de bloques (no se exige paridad: no tiene trazo).
 
 ### 7.11 El ritmo completo: un acontecimiento por pantalla (R10)
 
@@ -1122,7 +1153,7 @@ El arte es **decoración** (R8); lo que se lee es **semántica real**. La matriz
 | **HTML** (gzip) | ≤ 34 KB | ≈ 30 KB: contenido ≈ 14 · póster SSR (3 variantes) ≈ 5,5 · arte DOM (reglas, palabras mini, hilo, emblemas) ≈ 6 · marcado ≈ 4 | GitHub Pages sirve **gzip**, no brotli (§2.3) |
 | **CSS** (gzip) | ≤ 10 KB | ≈ 8 KB | sin `@import` externos |
 | **Fuentes** | ≤ 72 KB | Bricolage `latin` 41,3 + Geist Mono `latin` 23,1 + `symbols2` 5,8 = **70,2 KB** | hoy se precargan 68,6 KB solo de Bricolage |
-| **JS de primera carga del arte** | ≤ **18,5 KB gz** | motor (kit, grid, atlas, render-gl, tide, wells, tones) ≈ 12 · escena `cover` + sus palabras ≈ 4,5 · arranque, menú, scroll-spy ≈ 2 | R05 midió el núcleo en 7,8 KB + ruido azul 4,4 KB (32×32: 1,4 KB) + wells/tide/heat ≈ 2,5 KB |
+| **JS de primera carga del arte** | ≤ **22,5 KB gz** (era 18,5: sube por el kit Duotono y la escena de caracteres) | motor (kit, grid, atlas, render-gl, wells, tones) ≈ 15 · escena `cover` + kit Duotono ≈ 5 · palabras de GAYA 1 · arranque 1,4 | **medido [M] 22,36 KB gz** (build real de Astro, `size-real.mjs`), 21,56 KB con el trozo único `art` propuesto para `astro.config.mjs` |
 | **JS diferido** | ≤ 21 KB gz | 7 escenas ≈ 2,2 KB c/u (R05: 1,7–2,7) ≈ 15 · palabras restantes ≈ 4 · render-2d fijo ≈ 1,5 · emblemas ≈ 0,7 | `import()` al faltar ≤ 1,5 pantallas |
 | **JS total del arte** | ≤ **40 KB gz** | | techo del sitio: 60 KB (`budgets.mjs › homeJsGz`) |
 | **Transferencia de la primera carga** (HTML + CSS + JS + fuentes) | ≤ **140 KB** | ≈ 126 KB | medida con `npm run budgets` ampliado |
@@ -1272,8 +1303,8 @@ Una rama por paquete; `types.ts` solo se cambia con revisión de todos los propi
 | `brand.json`, `src/data/site.ts`, `src/i18n/copy.ts` | §8.10, `READY.*` a `true`, copia nueva | 2 |
 | `src/components/Nav.astro` | píldora con 5 enlaces localizados, `popover` móvil, barra inferior, `aria-current` | 10 |
 | `src/components/Logo.astro` | `▞ Gaya Digital` provisional (sigue siendo **un solo archivo**) | 10 |
-| `Hero.astro`, `HeroCards.astro`, `src/scripts/hero.ts`, `public/hero/*`, `public/noise.png` | **retirar** tras M1 | 10 |
-| `scripts/budgets.mjs`, `guard.mjs`, `og.mjs` | puertas de §11.1; `og` desde el motor real; `hero-*.mjs` se retiran | 11 |
+| `Hero.astro`, `HeroCards.astro`, `src/scripts/hero.ts`, `public/hero/*`, `public/noise.png` | **retirar** tras M1 (**hecho en WP11, 2026-10-01**; también `scripts/hero-*.mjs`, las variables `--glow-gloss/prism/flow` y `--hero-poster-*`, la copia `hero` de `copy.ts`, y `gsap`/`lenis` de `node_modules`) | 10 |
+| `scripts/budgets.mjs`, `guard.mjs`, `og.mjs` | puertas de §11.1 (**hecho en WP11**: `asciiFirstJsGz` = 22,5 KB y no 18,5 KB desde la decisión de dirección del 2026-10-01; WP5 midió 21,4 KB solo con el motor, el kit, los glifos y GAYA); `og` desde el motor real (`?still&poster=cover`); `hero-*.mjs` se retiran | 11 |
 | `DESIGN.md`, `PRODUCT.md` | actualizar a la nueva dirección (principio 1 «Luz + webs» → «Carteles»; «portada cinemática») | 10 |
 | `CREDITS.md` | + Geist Mono (© 2024 The Geist Project Authors, OFL-1.1) | 1 |
 
@@ -1286,6 +1317,10 @@ Una rama por paquete; `types.ts` solo se cambia con revisión de todos los propi
 5. Reglas de tono (§5.4) y de glifos (§5.6): `npm run ascii:lint` sin hallazgos; presupuesto de tono medido.
 6. Coste por cuadro medido a 6 500 y 9 000 celdas en Node y con CPU ×4; `dispose()` probado.
 7. Sin texto ni cifras en la imagen; sin `Math.random`.
+8. **Estilo Duotono** (docs/ascii/KIT.md): la escena sale de `scenes/_template.ts` y su prueba de `tests/ascii/fixtures/scene-template.test.mjs`; cada superficie es `putDuo`; nada de `░▒▓`, `~` ni `^` fuera del menisco, la cresta y la espuma.
+9. **Presupuesto literal Y efectivo** (§5.4) en los 7 visores y en el barrido de 289 visores × 2 idiomas (`npm run ascii:sweep`); sin carreras planas de ≥ 3 celdas del trazo sin glifo; ≥ 60 % de la cara con glifo de la rampa; ≤ 45 % de celdas con glifo a 1 celda del trazo y ≤ 15 % a 8; el sitio del texto (bajo la palabra) limpio.
+10. **Póster** (solo la portada): lo que no es la portada no lo tiene; pero toda escena con `bg` que alguien quiera servir sin JS pasa por `posterCollapse` (§6.9).
+11. **WCAG 2.2.2**: la llegada y las reacciones terminan solas y el motor duerme (nada de bucles de reposo): `node tests/browser/motion.mjs`.
 
 ---
 
@@ -1299,14 +1334,14 @@ Se ejecutan con `npm run check:ascii` (WP11) salvo las marcadas *manual*. «**Pu
 | **T2** | **Presupuestos** | `npm run budgets` ampliado (§11.1) | HTML ≤ 34 KB gz · CSS ≤ 10 KB gz · fuentes ≤ 72 KB · JS primera carga del arte ≤ 18,5 KB gz · JS total del arte ≤ 40 KB gz · 1.ª carga ≤ 140 KB | todos |
 | **T3** | **Red y consola** | Playwright: 0 peticiones a otro origen; 0 errores y 0 *warnings* de consola en `live`, `still`, `?nogl`, `reduced-motion`, `saveData`, ES y EN | **0** | todos |
 | **T4** | **axe** (wcag2a, wcag2aa, wcag22aa) | `@axe-core/playwright`, escritorio, móvil y movimiento reducido | **0** violaciones | todos |
-| **T5** | **Contraste por tokens y presupuesto de tono** | `npm run contrast` con los pares de §5.8; `ascii-stills` mide el área de tinta por tono sobre cada `still` | pares ≥ 7 / 6,5 / 6 / 16 / 6 / 3 · **T≥9 ≤ 12 %, T≥11 ≤ 4 %, T≥13 ≤ 1,5 %, T≥14 ≤ 0,5 %** · no vacías ≤ 60 % (portada) | M1 |
-| **T6** | **Paridad del póster SSR** | `renderPosterLayers` (Node) vs cuantización a 4 tonos del fotograma del motor en `STILL_T`, por variante `wide/mid/stack` y por idioma | **100 %** de celdas con la misma capa y el mismo glifo | M0 |
+| **T5** | **Contraste por tokens y presupuesto de tono** | `npm run contrast` con los pares de §5.8; `ascii-stills` mide el área de tinta por tono sobre cada `still` | pares ≥ 7 / 6,5 / 6 / 16 / 6 / 3 · **T≥9 ≤ 12 %, T≥11 ≤ 4 %, T≥13 ≤ 1,5 %, T≥14 ≤ 0,5 %** · no vacías ≤ 60 % (portada) · **con el estilo Duotono (§5.4): literal Y efectivo, T≥9 ≤ 11 %, T≥11 ≤ 3,5 %, T≥14 ≤ 0,4 %, y barrido de 289 visores × 2 idiomas con `npm run ascii:sweep`** | M1 |
+| **T6** | **Paridad del póster SSR** | `renderPosterLayersDuo` (Node: `still` colapsado con `posterCollapse`) vs cuantización a 4 tonos del fotograma del motor COLAPSADO en `STILL_T`, por variante `wide/mid/stack` y por idioma; además el colapso se comprueba celda a celda contra el `still` (§6.9) | **100 %** de celdas con la misma capa y el mismo glifo | M0 |
 | **T7** | **Contraste por píxeles bajo los pozos** (CI-3) | Playwright: se oculta el texto (`color: transparent`), se captura y se mide el fondo de cada rectángulo `[data-well]` en **12 posiciones de scroll** y en **una pasada a 2 400 px/s**; contraste con `--ink`/`--lead`/`--muted` | **≥ 4,5:1** en todas | M1 |
 | **T8** | **Costuras** (R03 §2.9) | `ascii-seams`: `█` y `│` a DPR {1, 1,5, 2, 2,625, 3} × cuerpos {9, 10, 12, 14, 15, 16, 18, 20, 24} px | hueco **≤ 40/255** | M0 |
 | **T9** | **Fling y marea** (CA-2, MA-4) | Playwright: scroll de 2 400 px/s por toda la página; y un scroll lento (300 px/s) por la misma | la marea dura **1,4 s ± 0,1** en ambos; estado `arrived` del último cartel en **≤ 1,6 s** tras parar; 0 errores; nunca se queda el frente detenido | M1 |
 | **T10** | **Movimiento reducido y ahorro de datos** | `emulateMedia({ reducedMotion: 'reduce' })` y `saveData` | **0** `requestAnimationFrame` vivos tras el primer `still`; `__field.sleeping === true`; `still` de cada cartel = hash dorado | M1 |
 | **T11** | **`forced-colors`, `prefers-contrast: more`, impresión** | Playwright con `forcedColors: 'active'`, `contrast: 'more'`, `emulateMedia({ media: 'print' })` | lienzo oculto; texto íntegro; 0 violaciones axe; captura sin arte negro sobre negro | M5 |
-| **T12** | **Rendimiento del motor** (§6.12) | Chrome con CPU ×4 y ×6 **y en el A07 físico**; `__field` durante portada en reposo 10 s, ignición, scroll continuo 10 s, cada marea y un fling | `costP50 ≤ 6 ms` · `costP95 ≤ 12 ms` · `tier` no baja · ninguna tarea > **50 ms** tras el horneado · 1.er fotograma **< 600 ms** tras `load` · `sleeping === true` a los 2 s | **M1 (bloqueante)** |
+| **T12** | **Rendimiento del motor** (§6.12) | Chrome con CPU ×4 y ×6 **y en el A07 físico**; `__field` durante portada en reposo 10 s, ignición, scroll continuo 10 s, cada marea y un fling | `costP50 ≤ 6 ms` · `costP95 ≤ 12 ms` · `tier` no baja · ninguna tarea > **50 ms** tras el horneado (y, con Canvas 2D, ni siquiera en frío con CPU ×6: `render2d.mjs`) · 1.er fotograma **< 600 ms** tras `load` · `sleeping === true` a los 2 s | **M1 (bloqueante)** |
 | **T13** | **Zoom y espaciado de texto** | Zoom 200 % y 400 %; `text-spacing` de WCAG 1.4.12 inyectado | sin scroll horizontal, sin texto recortado; ≥ 52 columnas o lienzo oculto | M5 |
 | **T14** | **Teclado, foco y objetivos** | Tab completo con la barra inferior visible; en cada foco, `elementFromPoint` en su centro; medidas de los objetivos | el foco **no queda oculto** (2.4.11); objetivos ≥ **24×24** (≥ 44 en primarios móviles); `outline` ≥ **3:1** | M0 |
 | **T15** | **Prueba de los 5 segundos** (manual) | **5 dueños de negocio dominicanos no técnicos**, en el navegador de Instagram de un Android modesto: 5 s de la portada; después, **3 preguntas**: «¿qué hace Gaya?», «¿dónde escribirías?», «¿qué servicio crees que es *LISTO*?» | **≥ 4/5** nombran ≥ 3 de los 4 servicios; **5/5** señalan WhatsApp; se anota cuántos asocian la palabra sola con su servicio (informativo) | M0 (página estática) y M2 |
@@ -1318,7 +1353,7 @@ Se ejecutan con `npm run check:ascii` (WP11) salvo las marcadas *manual*. «**Pu
 | **T21** | **Destellos** (2.3.1) | PEAT (Trace Center) sobre la ignición, la marea y ON; y regla de diseño comprobada en código | sin fallos; **ninguna oscilación global > 2 Hz** | M1 |
 | **T22** | **Móvil de referencia 360×800** | A07 real o emulación 360×800 @ dpr 2 | `h1` + lead + botón primario **visibles sin scroll**; la palabra en pila mide ≥ 280 px de alto; barra inferior ≥ 44 px | M0 |
 
-**Mapa de pruebas de accesibilidad** (§10): semántica/idioma/nombres → T4; contraste → T5, T7; zoom/reflow → T13; teclado, foco y objetivos → T14; 2.2.2 → T9; 2.3.1 → T21; 2.3.3 → T10; `forced-colors`/contraste/impresión → T11. **Manual**: NVDA (Windows) y TalkBack (Android) sobre la portada, el Índice y una ficha.
+**Mapa de pruebas de accesibilidad** (§10): semántica/idioma/nombres → T4; contraste → T5, T7; zoom/reflow → T13; teclado, foco y objetivos → T14; 2.2.2 → T9 y `tests/browser/motion.mjs` (el arte no se mueve solo más de 5 s: ignición 2,66 s y después duerme, 0 cuadros y lienzo idéntico píxel a píxel de los 7 a los 12 s; lo que provoca la persona termina solo en ≤ 3,3 s); 2.3.1 → T21; 2.3.3 → T10; `forced-colors`/contraste/impresión → T11. **Manual**: NVDA (Windows) y TalkBack (Android) sobre la portada, el Índice y una ficha.
 
 ---
 
@@ -1534,7 +1569,7 @@ Código = concepto (**M**undo · **I**nstrumento · **C**artel) + juez (**A**rte
 23. Modo `still` con **Canvas 2D** (un dibujo por cambio de cartel) para reducido, `saveData` y sin WebGL2; **no hay bucle 2D**.
 24. Detección con `getContext('webgl2', { failIfMajorPerformanceCaveat: true })`.
 25. **Póster SSR solo de la portada**, 4 capas de tono, `display:none` con JS (Chrome cuenta `::before` para LCP); sin JS o fallo del motor se muestra.
-26. La escena `cover` **no usa `bg`**.
+26. ~~La escena `cover` no usa `bg`~~ **Revisada en WP6c**: el estilo oficial Duotono usa `bg` en cover, hola y mist; el póster SSR pasa por `posterCollapse` (§6.9).
 
 **Página**
 27. Orden: Portada · Quiénes somos · Servicios (Índice + 4 fichas) · Ejemplos · Proceso · Contacto; ≈ 15 pantallas (22 en móvil).
@@ -1604,7 +1639,7 @@ Cada celda es «filas × columnas». **S** y **XS** son pilas de líneas (todas 
 
 El troceo **por cartel** (para cargarlas con `import()`) cuesta ≈ +10 % de gzip respecto del flujo único.
 
-### A.3 Póster SSR de la portada, 4 capas de tono, sin `bg` [M]
+### A.3 Póster SSR de la portada, 4 capas de tono, sin `bg` [M] (base de bloques; con el estilo Duotono ver §6.9: wide 2 260 · mid 1 203 · stack 1 425 B gz)
 
 | Variante | Celdas no vacías | dim | mid | hot | spark | **Total gz** | br |
 |---|---:|---:|---:|---:|---:|---:|---:|

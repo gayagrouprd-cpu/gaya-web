@@ -9,7 +9,7 @@ import { launchBrowser } from '../../scripts/lib/browser.mjs';
 export const HERE = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(HERE, '../..');
 export const BASE = process.env.FIELD_URL ?? 'http://127.0.0.1:4333';
-export const OUT = resolve(ROOT, 'reports/ascii/wp5');
+export const OUT = resolve(ROOT, 'reports/ascii/wp6c/engine');
 mkdirSync(OUT, { recursive: true });
 /** Capturas intermedias (paridad, costuras): no se guardan en el repositorio. */
 export const TMP = resolve(tmpdir(), 'gaya-wp5');
@@ -63,7 +63,9 @@ const INSTRUMENT = `
  * clock (reloj falso de Playwright desde el arranque: fluye a ritmo real hasta `page.clock.pauseAt`, y `runFor` lo avanza de forma determinista)
  */
 export async function open(opts = {}) {
-  const { path = '/lab/field/', w = 1440, h = 900, dpr = 1, mobile = false, reduced = false, saveData = false, cpu = 1, forced = false, contrast = false, init = '', wait = 'load', instrument = true, clock = false, realDsf = false } = opts;
+  // FIELD_PATH apunta estas pruebas a otra página con el mismo contrato (`main#contenido`, `[data-poster]`, `[data-well]`): p. ej. la portada
+  // construida (`FIELD_URL=<dist servido> FIELD_PATH=/ node tests/browser/wells.mjs`, T7 sobre la página real; lo hace scripts/check-ascii.mjs).
+  const { path = process.env.FIELD_PATH ?? '/lab/field/', w = 1440, h = 900, dpr = 1, mobile = false, reduced = false, saveData = false, cpu = 1, forced = false, contrast = false, init = '', wait = 'load', instrument = true, clock = false, realDsf = false } = opts;
   const own = !opts.browser;
   const browser = opts.browser ?? (await launchBrowser());
   const ctx = await browser.newContext({

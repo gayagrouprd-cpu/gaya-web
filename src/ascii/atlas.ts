@@ -80,8 +80,8 @@ export const isShade = (gl: number): boolean => gl === SHADES[0] || gl === SHADE
 /** 1 = ░ · 2 = ▒ · 3 = ▓ (0 si no es una sombra). */
 export const shadeLevel = (gl: number): number => SHADES.indexOf(gl) + 1;
 
-/** Hornea el atlas de una celda de `cw × ch` px de dispositivo (`dpr` fija el grosor de trazo). `family` = pila CSS de la fuente mono. */
-export function buildAtlas(cw: number, ch: number, dpr: number, family: string, weight: number = 500): Atlas {
+/** Prepara el atlas de una celda de `cw × ch` px de dispositivo (`dpr` fija el grosor de trazo; `family` = pila CSS de la fuente mono) y devuelve `bake(i)`, que dibuja el glifo `i` (1..GLYPH_COUNT−1). */
+function startAtlas(cw: number, ch: number, dpr: number, family: string, weight: number = 500): { atlas: Atlas; bake: (i: number) => void } {
   const t = Math.max(1, Math.round(dpr));
   const rows = Math.ceil(GLYPH_COUNT / ATLAS_COLS);
   const canvas = makeCanvas(cw * ATLAS_COLS, ch * rows);
@@ -99,20 +99,20 @@ export function buildAtlas(cw: number, ch: number, dpr: number, family: string, 
   const base = Math.round((ch - (asc + desc)) / 2 + asc);
   const kind = new Uint8Array(GLYPH_COUNT);
   const rects: (Int16Array | null)[] = new Array(GLYPH_COUNT).fill(null);
-  for (let i = 1; i < GLYPH_COUNT; i++) {
+  const bake = (i: number): void => {
     const c = GLYPHS[i];
     const gx = (i % ATLAS_COLS) * cw;
     const gy = Math.floor(i / ATLAS_COLS) * ch;
     if (isShade(i)) {
       kind[i] = K_SHADE;
-      continue;
+      return;
     }
     const r = i <= 96 ? null : rectsOf(i, cw, ch, t);
     if (r) {
       kind[i] = K_RECTS;
       rects[i] = Int16Array.from(r);
       for (let k = 0; k < r.length; k += 4) x.fillRect(gx + r[k], gy + r[k + 1], r[k + 2], r[k + 3]);
-      continue;
+      return;
     }
     kind[i] = K_MASK;
     x.save();
@@ -134,6 +134,30 @@ export function buildAtlas(cw: number, ch: number, dpr: number, family: string, 
       x.stroke();
     }
     x.restore();
+  };
+  return { atlas: { canvas, cw, ch, t, rows, kind, rects }, bake };
+}
+
+/** Hornea el atlas de una celda de `cw × ch` px de dispositivo (`dpr` fija el grosor de trazo). `family` = pila CSS de la fuente mono. Síncrono: pruebas y herramientas. */
+export function buildAtlas(cw: number, ch: number, dpr: number, family: string, weight: number = 500): Atlas {
+  const job = startAtlas(cw, ch, dpr, family, weight);
+  for (let i = 1; i < GLYPH_COUNT; i++) job.bake(i);
+  return job.atlas;
+}
+
+/**
+ * El mismo atlas partido en tareas: cede el hilo (`yieldNow`) cada `budgetMs` de reloj de pared, así el horneado nunca pasa de 50 ms ni con CPU estrangulada
+ * (a ×4 el atlas entero cuesta 40–50 ms de una tacada). Lo usa el motor.
+ */
+export async function buildAtlasAsync(cw: number, ch: number, dpr: number, family: string, yieldNow: () => Promise<void>): Promise<Atlas> {
+  const job = startAtlas(cw, ch, dpr, family);
+  let t0 = performance.now();
+  for (let i = 1; i < GLYPH_COUNT; i++) {
+    job.bake(i);
+    if (performance.now() - t0 > 10) {
+      await yieldNow();
+      t0 = performance.now();
+    }
   }
-  return { canvas, cw, ch, t, rows, kind, rects };
+  return job.atlas;
 }

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { gzipSync } from 'node:zlib';
 import { readFileSync } from 'node:fs';
 import { loadWords, getWords, wordMini, wordProc, WORD_IDS } from '../../src/ascii/words.ts';
-import { renderPosterLayers } from '../../src/ascii/ssr.ts';
+import { renderPosterLayersDuo } from '../../src/ascii/ssr.ts';
 import { cover } from '../../src/ascii/scenes/index.ts';
 import { RULE_COLS, RULE_PERIOD, POSTER_VARIANTS, railText, ruleText, wordArt, emptyColumns, splitWord, stackArt, stackSize, escapeAttr, forbiddenGlyphs, posterSpec } from '../../src/ascii/dom-art.ts';
 
@@ -112,12 +112,12 @@ test('póster SSR: tres variantes en orden (133 · 96 · 0), tamaños de §6.9 y
   }
 });
 
-test('póster SSR con la escena cover real: alfabeto permitido, dentro de la rejilla y ≤ 5,5 KB gz las tres variantes', () => {
+test('póster SSR con la escena cover real (estilo Duotono, colapsado): alfabeto permitido, dentro de la rejilla y ≤ 5,5 KB gz las tres variantes', () => {
   for (const lang of LANGS) {
     let html = '';
     for (const v of POSTER_VARIANTS) {
       const spec = posterSpec(v);
-      const L = renderPosterLayers(cover, spec, lang, [getWords('GAYA', lang, v.cols, v.rows)]);
+      const L = renderPosterLayersDuo(cover, spec, lang, [getWords('GAYA', lang, v.cols, v.rows)]);
       for (const [name, s] of Object.entries(L)) {
         assert.deepEqual(forbiddenGlyphs(s), [], `${lang}/${v.key}/${name}`);
         const lines = s.split('\n');

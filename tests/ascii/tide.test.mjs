@@ -1,5 +1,6 @@
 // La marea (§6.4): las cinco zonas por celda contra la fórmula, los extremos exactos, la determinación, la memoria de tono y el
-// reloj POR TIEMPO (una marea detenida a mitad termina sola; una interrupción encola una sola pendiente).
+// reloj POR TIEMPO (una marea detenida a mitad termina sola; una interrupción encola una sola pendiente). El agua de la marea es TEXTO
+// (estilo Duotono): la banda es la rampa `. : ; = +` sobre un fondo de agua y la espuma, `*` y `~` (tope T12).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -9,7 +10,9 @@ import { agua, waterTile } from '../../src/ascii/kit.ts';
 import { Grid, hashCells, put, fill } from '../../src/ascii/grid.ts';
 import { glyphIndex, glyphChar } from '../../src/ascii/glyphs.ts';
 import { h2 } from '../../src/ascii/noise.ts';
-import { TONE_LUM, GLYPH_COVERAGE } from './fixtures/tones.mjs';
+import { TONE_LUM } from './fixtures/tones.mjs';
+import { GLYPH_INK } from '../../src/ascii/scenes/ink.ts';
+import { RAMP_CHARS } from '../../src/ascii/scenes/ramp.ts';
 
 const COLS = 96;
 const ROWS = 44;
@@ -71,9 +74,9 @@ test('compose: las cinco zonas por celda siguen §6.4 al pie de la letra (avance
           const c = OUT.cls[i];
           const p = (dist + A) / TP.reach;
           if ((c === 1 || c === 2) && p * (c === 2 ? 0.75 : 1.1) * 255 > tauMap[i]) {
-            assert.equal(got[0], glyphIndex('▒'), `se deshace en agua (${x},${y})`);
-            assert.ok(got[1] >= 5 && got[1] <= 8);
-            assert.equal(got[2], 0);
+            assert.ok([...RAMP_CHARS[3], ...RAMP_CHARS[4]].includes(glyphChar(got[0])), `se deshace en agua de caracteres (${x},${y}): ${glyphChar(got[0])}`);
+            assert.ok(got[1] >= 7 && got[1] <= 10, `tono del carácter ${got[1]}`);
+            assert.ok(got[2] >= 4 && got[2] <= 7, `fondo de agua ${got[2]}`);
           } else assert.deepEqual(got, cell(OUT.g, i), `el aire y lo que aún no se deshace se quedan (${x},${y})`);
         } else if (dist <= TP.band) {
           zones.band++;
@@ -82,25 +85,30 @@ test('compose: las cinco zonas por celda siguen §6.4 al pie de la letra (avance
           d = Math.min(1, Math.max(0, d));
           const r = h2(x, y, 40 + ((t * 2 + h2(x, y, 39)) | 0)); // cada celda con su propia fase (no un tic común)
           const ch = glyphChar(got[0]);
-          if (ad <= 1 && r < 0.45) {
+          if (ad <= 1 && r < 0.1) {
             assert.equal(ch, '*');
-            assert.ok(got[1] === 13 || got[1] === 14);
-          } else if (ad <= 1 && r < 0.75) {
+            assert.ok(got[1] === 11 || got[1] === 12);
+            assert.equal(got[2], 8, 'la espuma lleva su propio fondo de agua');
+          } else if (ad <= 1 && r < 0.5) {
             assert.equal(ch, '~');
-            assert.ok(got[1] === 12 || got[1] === 13);
+            assert.ok(got[1] === 11 || got[1] === 12);
+            assert.equal(got[2], 8);
           } else {
-            assert.equal(ch, d < 0.35 ? '░' : d < 0.65 ? '▒' : '▓', `glifo de banda (${x},${y})`);
-            assert.equal(got[1], 4 + Math.round(6 * d), `tono de banda (${x},${y})`);
-            assert.ok(got[1] >= 4 && got[1] <= 10);
+            const lv = 1 + ((d * 3.99) | 0);
+            assert.ok(RAMP_CHARS[lv].includes(ch), `glifo de banda (${x},${y}): «${ch}» no es del peldaño ${lv}`);
+            const tn = 4 + Math.round(6 * d);
+            assert.equal(got[1], Math.min(12, tn + 2), `tono de banda (${x},${y})`);
+            assert.equal(got[2], tn - 2, `fondo de banda (${x},${y})`);
+            assert.ok(!['x', 'X', '#', '%', '@', '*', '~', '^'].includes(ch), 'la banda no lleva x X * (son de la espuma)');
           }
-          assert.equal(got[2], 0);
+          assert.ok(got[1] <= 12, 'tono máximo de la banda T12');
         } else if (dist <= A) {
           zones.crystal++;
           const c = INC.cls[i];
           const p = (dist - TP.band) / TP.reach;
           if (c === 0 || p * (c === 1 ? 0.9 : 1.3) * 255 >= tauMap[i]) assert.deepEqual(got, cell(INC.g, i), `el entrante cristaliza (${x},${y})`);
           else {
-            assert.ok(['·', ':', '░', '▒'].includes(glyphChar(got[0])), `agua que se retira: ${glyphChar(got[0])}`);
+            assert.ok([...RAMP_CHARS[1], ...RAMP_CHARS[2], ...RAMP_CHARS[3], ...RAMP_CHARS[4]].includes(glyphChar(got[0])), `agua que se retira: ${glyphChar(got[0])}`);
             assert.ok(got[1] >= 3 && got[1] <= 6);
           }
         } else {
@@ -130,7 +138,7 @@ test('primero el interior, al final el aro (deshacer) y primero el aro, después
     const i = y * COLS + x;
     const dist = y - front(x, ROWS * 0.5);
     if (dist >= -A && dist < -TP.band && (dist + A) / TP.reach > 0.3 && (dist + A) / TP.reach < 0.9) {
-      const wet = out.b[i * 4] === glyphIndex('▒');
+      const wet = out.b[i * 4] !== OUT.g.b[i * 4]; // el saliente es «A»: lo que cambia de glifo se ha vuelto agua
       if (OUT.cls[i] === 1) { faceN++; if (wet) faceWet++; }
       if (OUT.cls[i] === 2) { edgeN++; if (wet) edgeWet++; }
     }
@@ -261,7 +269,7 @@ test('destellos (2.3.1): una marea completa a 30 fps no hace más de 3 inversion
     const out = new Grid(COLS, ROWS);
     compose(out, solidOut.g, solidInc.g, solidOut.cls, solidInc.cls, yb, { band: TP.band, reach: TP.reach, t: 21.7 + f * dt * 0.95, mem, k });
     for (let i = 0; i < COLS * ROWS; i++) {
-      const c = GLYPH_COVERAGE[glyphChar(out.b[i * 4])] ?? 0.5;
+      const c = GLYPH_INK[out.b[i * 4]];
       series[i].push(c * TONE_LUM[out.b[i * 4 + 1]] + (1 - c) * TONE_LUM[out.b[i * 4 + 2]]);
     }
   }

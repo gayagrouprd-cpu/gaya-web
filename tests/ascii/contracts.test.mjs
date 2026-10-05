@@ -33,6 +33,10 @@ test('§12.4 · tide.ts y ssr.ts: firmas exactas', () => {
   assert.equal(tide.compose.length, 7);
   assert.equal(typeof ssr.renderPosterLayers, 'function');
   assert.equal(ssr.renderPosterLayers.length, 4);
+  // el póster de la portada oficial (estilo Duotono, con bg): colapso a una rejilla sin bg y las mismas 4 capas
+  assert.equal(typeof ssr.renderPosterLayersDuo, 'function');
+  assert.equal(ssr.renderPosterLayersDuo.length, 4);
+  assert.equal(typeof ssr.posterCollapse, 'function');
 });
 
 test('§6.3 · noise.ts: h2, vnoise, fbm enteros y deterministas', () => {
@@ -81,7 +85,7 @@ test('WP0 intacto: glyphs.ts y types.ts', () => {
 
 // ---------- reglas de archivo ----------
 
-const MINE = ['noise.ts', 'grid.ts', 'kit.ts', 'wells.ts', 'tide.ts', 'ssr.ts', 'scenes/common.ts'];
+const MINE = ['noise.ts', 'grid.ts', 'kit.ts', 'wells.ts', 'tide.ts', 'ssr.ts', 'scenes/common.ts', 'scenes/duo.ts', 'scenes/ramp.ts', 'scenes/ink.ts'];
 /** Quita comentarios y cadenas para que las reglas no salten por lo que dice un comentario. */
 const code = (file) =>
   readFileSync(resolve(SRC, file), 'utf8')

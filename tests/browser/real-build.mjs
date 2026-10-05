@@ -30,14 +30,14 @@ const posters = ${JSON.stringify(POSTERS)};
 </Base>
 `;
 
-const skip = (p) => /[\\/](node_modules|dist|\.astro|\.git)([\\/]|$)/.test(p) || /public[\\/](ref|posters|ref-shared|hero)([\\/]|$)/.test(p);
+const skip = (p) => /[\\/](node_modules|dist|\.astro|\.git)([\\/]|$)/.test(p) || /public[\\/](ref|posters|ref-shared)([\\/]|$)/.test(p);
 
 /**
  * Trozo de `vite.build` que junta el motor, el kit, los glifos, las palabras y `cover` en UN solo archivo de primera carga (Rolldown no
  * hace la optimización «ya cargado» de Rollup y deja `kit` aparte porque lo comparten la marea y las escenas diferidas). Propuesta para
  * `astro.config.mjs` (propiedad de WP1): ver docs/ascii/reports/WP5.md.
  */
-export const ART_CHUNK = `rolldownOptions: { output: { advancedChunks: { groups: [{ name: 'art', test: /src[\\\\/]ascii[\\\\/](engine|atlas|render-gl|wells|tones\\.gen|kit|grid|noise|bluenoise\\.gen|glyphs|words|scenes[\\\\/](common|index|cover))\\.ts$/ }] } } },`;
+export const ART_CHUNK = `rolldownOptions: { output: { advancedChunks: { groups: [{ name: 'art', test: /src[\\\\/]ascii[\\\\/](engine|atlas|render-gl|wells|tones\\.gen|kit|grid|noise|bluenoise\\.gen|glyphs|words|scenes[\\\\/](common|index|cover|duo|ramp))\\.ts$/ }] } } },`;
 
 /** Copia el proyecto, pone la página de sondeo (es y en) y ejecuta `astro build`. Devuelve { dir, dist, files: {ruta: {bytes, gz9, gz6}} }. */
 export function buildReal({ artChunk = false, patch = null } = {}) {

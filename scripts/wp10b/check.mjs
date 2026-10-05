@@ -13,7 +13,10 @@ import { AxeBuilder } from '@axe-core/playwright';
 import { launchBrowser, isExternal } from '../lib/browser.mjs';
 import { forbiddenGlyphs, POSTER_VARIANTS, posterSpec } from '../../src/ascii/dom-art.ts';
 import { loadWords, getWords } from '../../src/ascii/words.ts';
-import { renderPosterLayers } from '../../src/ascii/ssr.ts';
+import * as ssr from '../../src/ascii/ssr.ts';
+
+// La función que usa PosterSsr.astro: la del estilo Duotono (con `bg` colapsado) si existe; si no, la de siempre (sin `bg`).
+const renderPosterLayers = ssr.renderPosterLayersDuo ?? ssr.renderPosterLayers;
 import { getScene } from '../../src/ascii/scenes/index.ts';
 
 const arg = (n, d) => {
@@ -381,7 +384,7 @@ if (run('poster')) {
           if (got !== undefined && dec(got) === want[n]) same++;
         }
       }
-      ok(same === total && total === 12, `${p}: las 12 capas del HTML son idénticas a renderPosterLayers(cover) (${same}/${total})`);
+      ok(same === total && total === 12, `${p}: las 12 capas del HTML son idénticas al póster de la escena cover (${ssr.renderPosterLayersDuo ? 'renderPosterLayersDuo' : 'renderPosterLayers'}) (${same}/${total})`);
     }
     // con JS: no se pinta
     const a = await open(p, DESKTOP);

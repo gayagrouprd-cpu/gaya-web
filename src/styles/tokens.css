@@ -1,7 +1,7 @@
 /* Tokens de gaya.com.do — OKLCH. Espejo verificable: tokens.json (npm run contrast).
    Iluminación elegida: COBALTO — luz fría de pantalla bajo el agua, azul eléctrico que se vuelve hielo.
-   El shader de la portada lee estas mismas variables (--glow-*). Para cambiar la marca, se editan solo estos valores.
-   Los 16 tonos del arte (--t0 … --t15) salen de --glow-0..3: se regeneran con `npm run tones`, no se editan a mano.
+   Para cambiar la marca se editan solo estos valores: los 16 tonos del arte (--t0 … --t15) salen de --glow-0..3 y se
+   regeneran con `npm run tones`, no se editan a mano.
    Las familias tipográficas (--font-display, --font-mono, --font-body, --font-head) viven en fonts.css. */
 
 @import './tones.css';
@@ -21,16 +21,11 @@
   /* Párrafo sobre la luz: más claro que --muted para mantener ≥ 4,5:1 aunque la lente pase cerca */
   --lead: color-mix(in oklch, var(--ink) 84%, var(--muted));
 
-  /* Luz del shader: fondo, cuerpo, luz, chispa · brillo, dispersión prismática, flujo */
+  /* Luz de la marca: fondo, cuerpo, luz, chispa. De aquí salen los 16 tonos del arte (npm run tones) */
   --glow-0: oklch(0.13 0.05 268);
   --glow-1: oklch(0.38 0.2 266);
   --glow-2: oklch(0.66 0.22 258);
   --glow-3: oklch(0.94 0.05 225);
-  --glow-gloss: 0.6;
-  --glow-prism: 0.9;
-  --glow-flow: 0.7;
-  --hero-poster-land: url('/hero/cobalto-land.webp');
-  --hero-poster-port: url('/hero/cobalto-port.webp');
 
   /* Espacio (base 4 pt) */
   --space-1: 0.25rem;

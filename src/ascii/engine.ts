@@ -14,10 +14,11 @@ import { clamp01, waterTile } from './kit.ts';
 import type { Tide } from './tide.ts';
 import type { CellRect } from './wells.ts';
 import { applyCap, buildCap, makeCap, pxToCellRect } from './wells.ts';
-import { buildAtlas } from './atlas.ts';
+import { buildAtlasAsync } from './atlas.ts';
 import type { Atlas } from './atlas.ts';
 import { createGL } from './render-gl.ts';
 import type { Renderer } from './render-gl.ts';
+import type { Renderer2D } from './render-2d.ts';
 import { TONE_RGB } from './tones.gen.ts';
 import { getWords, loadWords, sceneWord } from './words.ts';
 // El registro (con `cover`) se importa en ESTÁTICO: así el empaquetador junta motor, kit, palabras y `cover` en UN solo trozo de
@@ -603,7 +604,8 @@ export async function mountField(o: FieldOptions): Promise<Field | null> {
     if (key !== atlasKey || !atlas) {
       await tick0(); // tareas cortas: el horneado no se suma al resto (ninguna > 50 ms con CPU estrangulada)
       if (my !== gen || disposed) return;
-      atlas = buildAtlas(spec.cw, spec.ch, spec.dpr, family);
+      atlas = await buildAtlasAsync(spec.cw, spec.ch, spec.dpr, family, tick0);
+      if (my !== gen || disposed) return;
       atlasKey = key;
       waterTile();
       await tick0();
@@ -661,6 +663,7 @@ export async function mountField(o: FieldOptions): Promise<Field | null> {
     cv = surface;
     if (oldR !== nr) oldR?.destroy();
     setField(mode);
+    if (r?.kind === '2d') (r as Renderer2D).warm(); // los tonos que faltan se hornean en inactividad: el siguiente cartel se dibuja sin coste en frío
     warm = 12;
     costN = 0;
     sleeping = true;
@@ -856,6 +859,8 @@ export async function mountField(o: FieldOptions): Promise<Field | null> {
     get fontOk() { return fontOk; },
     get firstFrameAt() { return firstFrameAt; },
     get ctxLost() { return ctxLost; },
+    /** Duración (ms) de cada tarea del último dibujo del renderizador 2D (vacío con WebGL): las pruebas miden el peor trozo en frío y el coste en caliente. */
+    get chunks() { return r?.kind === '2d' ? Array.from((r as Renderer2D).chunks) : []; },
     hash: (): string => hashCells(gMain),
   };
   w.__field = dbg;

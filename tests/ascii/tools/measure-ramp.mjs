@@ -1,7 +1,7 @@
 // Mide la TINTA real (fracción del área de la celda con cobertura de glifo) de cada glifo ASCII y de `· ¯` en Geist Mono 500, con el
 // mismo método que atlas.ts (fillText con size = cw / 0,6, línea base centrada con fontBoundingBox) y a los tamaños de celda de §5.2
-// (9×18 a dpr 2, 6×12 a dpr 2, 12×25 a dpr 1). Escribe src/ascii/scenes/variants/a/ramp.gen.ts (tinta en milésimas a 9×18 dpr 2) y
-// comprueba que el orden de la rampa de la Variante A es estable entre tamaños.   node tests/ascii/tools/measure-ramp-a.mjs [--write]
+// (9×18 a dpr 2, 6×12 a dpr 2, 12×25 a dpr 1). Escribe src/ascii/scenes/ink.gen.ts (tinta en milésimas a 9×18 dpr 2) y
+// comprueba que el orden de la rampa de la Variante A es estable entre tamaños.   node tests/ascii/tools/measure-ramp.mjs [--write]
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +9,7 @@ import { launchBrowser } from '../../../scripts/lib/browser.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const FONT = resolve(ROOT, 'node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2');
-const OUT = resolve(ROOT, 'src/ascii/scenes/variants/a/ramp.gen.ts');
+const OUT = resolve(ROOT, 'src/ascii/scenes/ink.gen.ts');
 const SIZES = [
   { name: '9×18@2', cw: 18, ch: 36 },
   { name: '6×12@2', cw: 12, ch: 24 },
@@ -70,7 +70,7 @@ console.log('\nrampa A, tinta por tamaño (%):');
 for (const s of SIZES) console.log(s.name.padEnd(8), RAMP.map((c) => `${c}${(res[s.name][c] * 100).toFixed(1).padStart(5)}`).join(' '));
 if (process.argv.includes('--write')) {
   const rows = CHARS.map((c) => `  [${JSON.stringify(c)}, ${Math.round(main[c] * 1000)}]`).join(',\n');
-  const body = `// GENERADO por tests/ascii/tools/measure-ramp-a.mjs (--write). No editar a mano.
+  const body = `// GENERADO por tests/ascii/tools/measure-ramp.mjs (--write). No editar a mano.
 // Tinta medida (milésimas del área de la celda) de cada glifo ASCII imprimible y de \`· ¯\` en Geist Mono 500, a 9×18 CSS con dpr 2
 // (mismo método que atlas.ts). El orden es estable entre tamaños (Spearman ≥ 0,98 según docs/ascii/research/02 §2.2).
 export const INK_PERMILLE: readonly (readonly [string, number])[] = [\n${rows},\n];\n`;

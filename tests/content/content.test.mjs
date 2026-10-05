@@ -145,8 +145,8 @@ test('secciones: ids localizados, únicos y en el orden de §4.1', () => {
 // ── Copia ────────────────────────────────────────────────────────────────────────────────────────────────────
 test('copia: «Referencias» → «Ejemplos» / «Samples» en nav, galería, visor y portada', () => {
   const { es, en } = copyMod.copy;
-  assert.deepEqual([es.nav.samples, es.nav.refs, es.gallery.title, es.home.secondary, es.hero.secondary], ['Ejemplos', 'Ejemplos', 'Ejemplos', 'Ver ejemplos', 'Ver ejemplos']);
-  assert.deepEqual([en.nav.samples, en.nav.refs, en.gallery.title, en.home.secondary], ['Samples', 'Samples', 'Samples', 'See samples']);
+  assert.deepEqual([es.nav.samples, es.gallery.title, es.home.secondary], ['Ejemplos', 'Ejemplos', 'Ver ejemplos']);
+  assert.deepEqual([en.nav.samples, en.gallery.title, en.home.secondary], ['Samples', 'Samples', 'See samples']);
   assert.equal(es.viewer.back, 'Volver a ejemplos');
   assert.equal(en.viewer.back, 'Back to samples');
   assert.equal(es.gallery.count(1), '1 ejemplo');
@@ -154,14 +154,16 @@ test('copia: «Referencias» → «Ejemplos» / «Samples» en nav, galería, vi
   assert.match(es.nav.switchTo.label, /English/);
 });
 
-test('copia: las claves que usan hoy Nav, Hero, galería y visor siguen ahí', () => {
+test('copia: las claves que usan hoy Nav, portada, galería y visor siguen ahí', () => {
   for (const l of ['es', 'en']) {
     const c = copyMod.t(l);
-    for (const k of ['label', 'refs', 'services', 'process', 'contact', 'menu', 'close', 'whatsapp', 'language']) assert.equal(typeof c.nav[k], 'string', `nav.${k}`);
-    for (const k of ['lead', 'primary', 'secondary']) assert.equal(typeof c.hero[k], 'string', `hero.${k}`);
-    assert.equal(c.hero.words.length, 5);
-    assert.equal(c.hero.accentWord, 2);
-    assert.equal(c.hero.words[c.hero.accentWord].toLowerCase(), c.home.accent);
+    for (const k of ['label', 'samples', 'services', 'process', 'contact', 'menu', 'close', 'whatsapp', 'language']) assert.equal(typeof c.nav[k], 'string', `nav.${k}`);
+    for (const k of ['lead', 'primary', 'secondary']) assert.equal(typeof c.home[k], 'string', `home.${k}`);
+    // la palabra de acento es la tercera del titular (el CSS la pone en su propia línea)
+    const words = c.home.h1.split(' ');
+    assert.equal(words.length, 5);
+    assert.equal(words[2].toLowerCase(), c.home.accent);
+    assert.equal(c.hero, undefined, 'la portada WebGL antigua ya no existe: nada de `hero` en la copia');
     assert.equal(typeof c.footer.rights, 'string');
     for (const k of ['title', 'metaTitle', 'metaDescription', 'all', 'filter', 'favorites', 'sendFavs']) assert.equal(typeof c.gallery[k], 'string', `gallery.${k}`);
     for (const k of ['count', 'fav', 'unfav']) assert.equal(typeof c.gallery[k], 'function');

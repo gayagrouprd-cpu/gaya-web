@@ -1,9 +1,9 @@
 // Textos del estilo «cartel editorial» (decisión del dueño del 5-oct-2026: el estilo de su presentación + arte ASCII).
 // Titulares en mayúsculas con una palabra o frase de acento en cursiva. Pocas palabras por cartel (6-oct: «hay mucho
-// texto de más» y «no mencionas mi nombre»). Sin texto instructivo; sin cifras, clientes ni testimonios inventados.
+// texto de más»). El nombre del dueño NO se publica («no menciones mi nombre»). Sin texto instructivo; sin cifras,
+// clientes ni testimonios inventados.
 import type { Lang } from '../ascii/types.ts';
 import type { ServiceId } from '../data/services.ts';
-import brand from '../../brand.json' with { type: 'json' };
 
 /** Un titular: líneas en mayúsculas y, opcionalmente, un acento en cursiva (va en su propia línea, después de `lines`). */
 export interface Headline {
@@ -33,9 +33,9 @@ export interface V3Copy {
 const es: V3Copy = {
   hero: { title: { lines: ['Tu negocio,', 'de ignorar.'], em: 'imposible', emBefore: 1 } },
   about: {
-    kicker: `${brand.founder.role.es} de ${brand.name} · Santo Domingo`,
-    title: { lines: ['Hola, soy'], em: brand.founder.name },
-    lead: 'Hablas directo conmigo, sin intermediarios, en español o en inglés.',
+    kicker: 'Quiénes somos · Santo Domingo',
+    title: { lines: ['Hola.'], em: 'somos Gaya Digital' },
+    lead: 'Hablas directo con quien hace tu proyecto, sin intermediarios, en español o en inglés.',
   },
   services: { title: { lines: ['Servicios'], em: 'todo en un mismo lugar' } },
   service: {
@@ -80,15 +80,15 @@ const es: V3Copy = {
       { big: 'Entregamos', em: 'y acompañamos' },
     ],
   },
-  contact: { title: { lines: ['Hablemos.'], em: 'te respondo yo' } },
+  contact: { title: { lines: ['Hablemos.'], em: 'tu proyecto empieza aquí' } },
 };
 
 const en: V3Copy = {
   hero: { title: { lines: ['Your business,', 'to ignore.'], em: 'impossible', emBefore: 1 } },
   about: {
-    kicker: `${brand.founder.role.en} of ${brand.name} · Santo Domingo`,
-    title: { lines: ["Hi, I'm"], em: brand.founder.name },
-    lead: 'You talk to me directly, no middlemen, in Spanish or English.',
+    kicker: 'Who we are · Santo Domingo',
+    title: { lines: ['Hello.'], em: 'we are Gaya Digital' },
+    lead: 'You talk directly to the people building your project, no middlemen, in Spanish or English.',
   },
   services: { title: { lines: ['Services'], em: 'all in one place' } },
   service: {
@@ -133,7 +133,7 @@ const en: V3Copy = {
       { big: 'We deliver', em: 'and stay by your side' },
     ],
   },
-  contact: { title: { lines: ["Let's talk."], em: "I'll answer myself" } },
+  contact: { title: { lines: ["Let's talk."], em: 'your project starts here' } },
 };
 
 export const v3: Record<Lang, V3Copy> = { es, en };

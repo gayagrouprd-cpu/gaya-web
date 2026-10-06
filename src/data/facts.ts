@@ -1,7 +1,7 @@
 // Datos locales con procedencia y caducidad (docs/ascii/DIRECTION.md §8.9).
 // Un dato por servicio, nada fiscal. Cada dato lleva su fuente (nombre + URL), la fecha en que se leyó y la fecha
 // en que caduca: pasada esa fecha `getFacts()` lo deja fuera y desaparece del HTML sin romper el build.
-// Grados C y X nunca se publican. Quién los revisa: Giancarlo, cada 90 días (`node scripts/lint-content.mjs` avisa con
+// Grados C y X nunca se publican. Quién los revisa: el dueño, cada 90 días (`node scripts/lint-content.mjs` avisa con
 // `freshness()` cuando un dato está por caducar o lleva más de 90 días sin releerse; es aviso, nunca bloquea).
 //
 // Este módulo corre igual en Vite/Astro y directamente en Node 24 (solo sintaxis borrable, imports con extensión).

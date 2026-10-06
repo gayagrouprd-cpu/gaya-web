@@ -46,7 +46,7 @@ const FORBIDDEN_ART = /[←→■□▪▫●○◆◇▲▶★≈≠≤≥✓�
 
 const BUDGET = { name: 40, promise: 72, seo: 170, include: 90, audience: 170, needs: 200, result: 220, fact: 140, headingWords: 7 };
 const SCHEMA_ALLOWED = {
-  Organization: ['@type', '@id', 'name', 'alternateName', 'url', 'description', 'email', 'telephone', 'sameAs', 'knowsLanguage', 'areaServed', 'founder'],
+  Organization: ['@type', '@id', 'name', 'alternateName', 'url', 'description', 'email', 'telephone', 'sameAs', 'knowsLanguage', 'areaServed'],
   Service: ['@type', '@id', 'name', 'description', 'url', 'provider', 'areaServed', 'availableChannel'],
   ServiceChannel: ['@type', 'serviceUrl', 'availableLanguage'],
   Person: ['@type', 'name', 'jobTitle'],
@@ -294,7 +294,7 @@ export function lintContent(d) {
   const aboutHoy = d.lib.aboutRows('es', d.confirmed).length;
   const aboutV1 = d.lib.aboutRows('es', allOff).length;
   info.push(`placa «Quiénes somos»: ${aboutHoy} filas hoy (v1: ${aboutV1}, v2: ${d.lib.aboutRows('es', allOn).length})`);
-  if (aboutV1 < 6 || d.lib.aboutRows('es', allOn).length > 8) err('structure', 'about.rows', 'la placa debe tener 6 filas v1 y como máximo 8 con las v2');
+  if (aboutV1 < 5 || d.lib.aboutRows('es', allOn).length > 7) err('structure', 'about.rows', 'la placa debe tener 5 filas v1 y como máximo 7 con las v2 (sin el nombre del dueño)');
   for (const l of LANGS) {
     const steps = d.lib.processSteps(l, allOff);
     if (steps.length !== 4 || steps.some((s) => s.badge)) err('structure', `process.${l}`, 'el Proceso tiene 4 pasos y ninguna insignia sin bandera');
@@ -383,7 +383,7 @@ export function lintContent(d) {
     if (o) {
       if (o.alternateName !== 'Gaya Group') err('jsonld', `${l}.alternateName`, `debe ser «Gaya Group», es «${o.alternateName}»`);
       if (o.name !== d.brand.name) err('jsonld', `${l}.name`, `«${o.name}» ≠ brand.name «${d.brand.name}»`);
-      if (o.founder?.name !== d.brand.founder.name) err('jsonld', `${l}.founder`, 'el founder debe ser el director de brand.json (visible en la placa)');
+      if (o.founder) err('jsonld', `${l}.founder`, 'el nombre del dueño no se publica (decisión del 6-oct-2026)');
       if (JSON.stringify(o.sameAs) !== JSON.stringify(Object.values(d.brand.social))) err('jsonld', `${l}.sameAs`, 'sameAs debe ser exactamente las redes de brand.json');
       if (JSON.stringify(o.knowsLanguage) !== '["es","en"]') err('jsonld', `${l}.knowsLanguage`, 'debe ser ["es","en"]');
     }

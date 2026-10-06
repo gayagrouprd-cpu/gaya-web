@@ -123,8 +123,8 @@ test('banderas: una línea v2 aparece sola al activarla y las sustituciones cons
 
 test('copia: la placa y el proceso crecen solo con sus banderas', () => {
   for (const l of ['es', 'en']) {
-    assert.equal(copyMod.aboutRows(l).length, 6);
-    assert.equal(copyMod.aboutRows(l, allOn).length, 8);
+    assert.equal(copyMod.aboutRows(l).length, 5);
+    assert.equal(copyMod.aboutRows(l, allOn).length, 7);
     assert.ok(copyMod.aboutRows(l, { ...allOff, proposalHours: true }).some((r) => r.id === 'proposal' && /24–48/.test(r.value)));
     const steps = copyMod.processSteps(l);
     assert.equal(steps.length, 4);
@@ -188,7 +188,7 @@ test('copia §8: textos literales de la portada, contacto y microcopy', () => {
   assert.ok(es.samples.wantFor('X').includes(es.samples.want));
   assert.equal(es.samples.all(3), 'Ver los 3 ejemplos');
   assert.equal(copyMod.aboutRows('es')[0].value, 'Gaya Digital');
-  assert.equal(es.about.signature, 'Giancarlo González · Director');
+  assert.equal(es.about.signature, 'Gaya Digital · Santo Domingo');
 });
 
 test('hora de Santo Domingo: UTC−4, sin «24:05» a medianoche', () => {
@@ -219,8 +219,7 @@ test('JSON-LD: Organization + 4 Service, sin LocalBusiness ni ratings, propiedad
     const org = ld['@graph'][0];
     assert.equal(org.alternateName, 'Gaya Group');
     assert.equal(org.name, 'Gaya Digital');
-    assert.equal(org.founder.name, 'Giancarlo González');
-    assert.equal(org.founder.jobTitle, brand.founder.role[l]);
+    assert.equal(org.founder, undefined, 'el nombre del dueño no se publica');
     assert.deepEqual(org.sameAs, Object.values(brand.social));
     assert.deepEqual(org.knowsLanguage, ['es', 'en']);
     for (const s of ld['@graph'].slice(1)) {

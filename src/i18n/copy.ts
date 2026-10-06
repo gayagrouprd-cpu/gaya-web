@@ -32,17 +32,17 @@ export interface ProcessStep {
 }
 
 const hours = `${brand.commitments.proposalHours} h`;
-const director = `${brand.founder.name} · ${brand.founder.role.es}`;
-const directorEn = `${brand.founder.name} · ${brand.founder.role.en}`;
+// El nombre del dueño no se publica (decisión del 6-oct-2026): la firma es la marca.
+const director = `${brand.name} · Santo Domingo`;
+const directorEn = `${brand.name} · Santo Domingo`;
 
 // ── Español ──────────────────────────────────────────────────────────────────────────────────────────────────
 const aboutRowsEs: AboutRow[] = [
   { id: 'brand', label: 'Marca', value: brand.name },
-  { id: 'director', label: 'Director', value: brand.founder.name },
   { id: 'from', label: 'Desde', value: 'Santo Domingo, República Dominicana · trabajo remoto' },
   { id: 'languages', label: 'Idiomas', value: 'Español · English' },
   { id: 'channel', label: 'Canal', value: 'WhatsApp primero: ahí empieza todo' },
-  { id: 'how', label: 'Trato', value: 'Directo con el director, sin intermediarios' },
+  { id: 'how', label: 'Trato', value: 'Directo, sin intermediarios' },
   { id: 'proposal', label: 'Propuesta', value: `Por escrito, en ${brand.commitments.proposalHours} horas`, flag: 'proposalHours' },
   { id: 'access', label: 'Accesos', value: 'Tus accesos y tus archivos son tuyos desde el día uno', flag: 'accessOwned' },
 ];
@@ -168,11 +168,10 @@ export type Copy = typeof es;
 // ── English ──────────────────────────────────────────────────────────────────────────────────────────────────
 const aboutRowsEn: AboutRow[] = [
   { id: 'brand', label: 'Brand', value: brand.name },
-  { id: 'director', label: 'Director', value: brand.founder.name },
   { id: 'from', label: 'Based in', value: 'Santo Domingo, Dominican Republic · remote work' },
   { id: 'languages', label: 'Languages', value: 'Español · English' },
   { id: 'channel', label: 'Channel', value: 'WhatsApp first: that is where every project starts' },
-  { id: 'how', label: 'How we work', value: 'Straight with the director, no middlemen' },
+  { id: 'how', label: 'How we work', value: 'Direct, no middlemen' },
   { id: 'proposal', label: 'Proposal', value: `In writing, within ${brand.commitments.proposalHours} hours`, flag: 'proposalHours' },
   { id: 'access', label: 'Access', value: 'Your logins and files are yours from day one', flag: 'accessOwned' },
 ];

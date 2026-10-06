@@ -25,7 +25,7 @@ export interface IncludeLine {
   replaces?: string;
 }
 
-/** Algo que depende de Giancarlo: qué hay que confirmarle y con qué bandera se activa. Interno, no se publica. */
+/** Algo que depende del dueño: qué hay que confirmarle y con qué bandera se activa. Interno, no se publica. */
 export interface ConfirmItem {
   flag: ConfirmFlag;
   ask: string;

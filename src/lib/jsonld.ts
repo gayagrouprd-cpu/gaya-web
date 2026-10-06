@@ -4,7 +4,7 @@
 // teléfono, las redes y los cuatro servicios.
 //
 // Propiedades revisadas a mano contra schema.org el 30-sep-2026:
-//   Organization: name, alternateName, url, description, email, telephone, sameAs, knowsLanguage, areaServed, founder
+//   Organization: name, alternateName, url, description, email, telephone, sameAs, knowsLanguage, areaServed (sin founder: el nombre del dueño no se publica)
 //   Service:      name, description, url, provider, areaServed, availableChannel
 //   ServiceChannel: serviceUrl, availableLanguage   (`availableLanguage` NO existe en Service: va en el canal)
 //   Person: name, jobTitle · Country: name
@@ -47,7 +47,6 @@ export function jsonLd(lang: Lang, o: JsonLdOptions = {}) {
         sameAs: Object.values(brand.social),
         knowsLanguage: ['es', 'en'],
         areaServed: area,
-        founder: { '@type': 'Person', name: brand.founder.name, jobTitle: brand.founder.role[lang] },
       },
       ...SERVICES.map((s) => ({
         '@type': 'Service',

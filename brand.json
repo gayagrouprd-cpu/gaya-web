@@ -6,7 +6,6 @@
   "city": "Santo Domingo",
   "country": "DO",
   "timezone": "America/Santo_Domingo",
-  "founder": { "name": "Giancarlo González", "role": { "es": "Director", "en": "Director" } },
   "contact": {
     "whatsapp": { "e164": "18499254426", "display": "+1 849-925-4426" },
     "email": "hola@gaya.com.do",

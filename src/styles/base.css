@@ -91,10 +91,6 @@ button {
   animation-duration: 240ms;
   animation-timing-function: var(--ease-out);
 }
-::view-transition-group(ref-stage) {
-  animation-duration: 520ms;
-  animation-timing-function: var(--ease-out);
-}
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),

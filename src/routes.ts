@@ -1,6 +1,7 @@
 // Rutas del sitio. El i18n integrado de Astro no traduce segmentos de ruta
-// (/referencias/ vs /en/references/), así que las rutas viven aquí y de aquí salen
-// los enlaces, el conmutador de idioma, hreflang y el sitemap.
+// (/referencias/<slug>/ vs /en/references/<slug>/), así que las rutas viven aquí y de aquí salen
+// los enlaces, el conmutador de idioma, hreflang y el sitemap. Los ejemplos se listan en la portada (#ejemplos · #samples);
+// /referencias/ y /en/references/ solo redirigen allí (src/pages/referencias/index.astro y su versión inglesa).
 import brand from '../brand.json';
 
 export type Lang = 'es' | 'en';
@@ -8,11 +9,10 @@ export const LANGS: Lang[] = ['es', 'en'];
 export const DEFAULT_LANG: Lang = 'es';
 export const SITE: string = brand.site;
 
-export type RouteKey = 'home' | 'refs' | 'ref';
+export type RouteKey = 'home' | 'ref';
 
 const PATTERNS: Record<RouteKey, Record<Lang, string>> = {
   home: { es: '/', en: '/en/' },
-  refs: { es: '/referencias/', en: '/en/references/' },
   ref: { es: '/referencias/:slug/', en: '/en/references/:slug/' },
 };
 
@@ -43,7 +43,6 @@ export function alternates(key: RouteKey, params: RouteParams = {}) {
 export function indexableRoutes(slugs: string[]): Array<{ key: RouteKey; params: RouteParams }> {
   return [
     { key: 'home', params: {} },
-    { key: 'refs', params: {} },
     ...slugs.map((slug) => ({ key: 'ref' as RouteKey, params: { slug } })),
   ];
 }

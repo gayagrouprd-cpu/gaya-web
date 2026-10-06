@@ -22,8 +22,6 @@ const SITE = 'https://gaya.com.do';
 const PAGES = [
   { file: 'index.html', path: '/', lang: 'es', other: '/en/', home: true },
   { file: 'en/index.html', path: '/en/', lang: 'en', other: '/', home: true },
-  { file: 'referencias/index.html', path: '/referencias/', lang: 'es', other: '/en/references/', home: false },
-  { file: 'en/references/index.html', path: '/en/references/', lang: 'en', other: '/referencias/', home: false },
 ];
 const failures = [];
 let checks = 0;
@@ -117,10 +115,25 @@ for (const p of PAGES) {
   }
 }
 
-// reciprocidad entre las dos portadas y entre las dos galerías
-for (const [a, b] of [['/', '/en/'], ['/referencias/', '/en/references/']]) {
+// reciprocidad entre las dos portadas
+for (const [a, b] of [['/', '/en/']]) {
   if (!info[a] || !info[b]) continue;
   check(info[a].en === info[b].en && info[a].es === info[b].es && info[a]['x-default'] === info[b]['x-default'], `hreflang no recíproco entre ${a} y ${b}: ${JSON.stringify(info[a])} frente a ${JSON.stringify(info[b])}`);
+}
+
+// la galería vieja ya no es una página: redirige a la sección de ejemplos de la portada, no se indexa y no entra en el sitemap
+const smXml = existsSync(join(dist, 'sitemap.xml')) ? readFileSync(join(dist, 'sitemap.xml'), 'utf8') : '';
+for (const [file, path, to, canonical] of [
+  ['referencias/index.html', '/referencias/', '/#ejemplos', SITE + '/'],
+  ['en/references/index.html', '/en/references/', '/en/#samples', SITE + '/en/'],
+]) {
+  const f = join(dist, file);
+  if (!check(existsSync(f), `${path}: falta la página que redirige a ${to}`)) continue;
+  const html = readFileSync(f, 'utf8');
+  check(html.includes(`http-equiv="refresh" content="0; url=${to}"`), `${path}: no redirige a ${to}`);
+  check(/name="robots" content="noindex/.test(html), `${path}: sin noindex`);
+  check(html.includes(`rel="canonical" href="${canonical}"`), `${path}: canonical distinto de ${canonical}`);
+  check(!smXml.includes(`<loc>${SITE + path}</loc>`), `sitemap.xml lista ${SITE + path} (solo redirige)`);
 }
 
 // sitemap y robots

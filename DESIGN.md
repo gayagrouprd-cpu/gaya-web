@@ -19,7 +19,7 @@ Definidos en `src/styles/tokens.css` y espejados en `src/styles/tokens.json` (`n
 - **Titulares en mono**: peso 800 (h1–h3) y 700 (nombres de servicio en filas), `letter-spacing` −0,03 em (h1) · −0,025 em (h2) · −0,02 em (h3), `word-spacing` −0,1 em, interlineado 1,04–1,1, romana, `text-wrap: balance`. Geist Mono avanza 0,6 em por carácter, así que el cuerpo sale de las columnas que la línea más larga debe alojar: `h1` `clamp(2.125rem, 10.6vw, 3.5rem)` en tres líneas hasta 600 px (el español `12.4vw`), `clamp(2.75rem, 7.6vw, 5.5rem)` en dos líneas desde 600 px; `h2` `clamp(2rem, 1rem + 3.4vw, 3.5rem)`; `h3` `clamp(1.625rem, 1rem + 2.4vw, 2.75rem)`. La palabra de acento del `h1` sigue en `--accent-text`.
 - **Botones y navegación en mono**: 600–700, 14–16 px, `letter-spacing` −0,01 em, una sola línea, ≥ 44 px de alto (48 en los rótulos de la portada).
 - **Cuerpo en Bricolage**: 1–1,125 rem a 1,55–1,6 de interlínea y ≤ 38 rem de medida.
-- **Galería, visor y 404** (`data-ui="classic"`): no tienen párrafos, así que usan una sola familia (todo mono, incluido el rubro bajo cada ejemplo): un archivo de fuente en vez de dos, y un LCP de imagen que no espera por el segundo.
+- **Visor y 404** (`data-ui="classic"`): no tienen párrafos, así que usan una sola familia (todo mono): un archivo de fuente en vez de dos, y un LCP de imagen que no espera por el segundo.
 - Etiquetas de campo en mono 13–14 px, `--muted`, minúscula, sin corchetes. Nada de texto con degradado.
 
 ## Gramática de la página: «cara + sombra proyectada»
@@ -29,9 +29,9 @@ Definidos en `src/styles/tokens.css` y espejados en `src/styles/tokens.json` (`n
 - **Escenario:** la mitad de pantalla que se lee sobre el cartel; el texto empieza en una fila de la retícula y nunca cae sobre la palabra. En la portada el texto va anclado al fondo de la pantalla, con un **suelo** (`--floor`, en filas de la retícula) bajo la palabra, su aro y su sombra: en pantallas bajas la portada crece en vez de pisar la palabra (y el titular baja hasta ~50 px en portátiles de 650–900 px de alto). `scripts/home-check.mjs` lo comprueba en quince tamaños de pantalla.
 - **Índice de servicios:** cuatro filas con regla, cada una con su palabra mini (6 filas), nombre, promesa, «Ver detalle» y WhatsApp. No es una cuadrícula de tarjetas.
 - **Fichas de servicio:** no comparten plantilla; alternan el lado del texto y de la placa y el reparto interno. En móvil, «Más detalles» va plegado.
-- **Ejemplos:** filas con emblema de sector, nombre, rubro, «Ver ejemplo» y «Quiero una así»; sello «Datos ficticios» junto al título y bajo cada emblema.
+- **Ejemplos:** viven en la portada (`#ejemplos` · `#samples`), una pieza por ejemplo con nombre, rubro, «Ver ejemplo» (abre el visor) y «Quiero una así» (WhatsApp); sello «Datos ficticios» junto al título. No hay galería aparte: `/referencias/` y `/en/references/` solo redirigen a esta sección.
 - **Proceso:** el hilo de HOLA a LISTO, arte en DOM con el `ol` real.
-- **Menú:** píldora fija en escritorio; en móvil, barra inferior con WhatsApp dominante y un `popover` con los destinos. Logo compacto del kit (`Logo.astro`); en la portada, a una tinta sobre el naranja.
+- **Barra:** en la portada, fija, con la marca, los destinos (escritorio), el idioma y WhatsApp; el visor lleva la suya, con la salida a los ejemplos de la portada. Logo compacto del kit (`Logo.astro`); en la portada, a una tinta sobre el naranja.
 
 ## Movimiento
 Ignición de GAYA, marea entre carteles, llegada de cada escena, calor del puntero y anillos de toque: todo opcional, por tiempo y ≤ 2,4 s. La marea corre aunque el dedo se detenga. Reposo sin bucle. El estado estático es un fotograma del mismo motor (nunca una imagen aparte).

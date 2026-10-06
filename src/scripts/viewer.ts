@@ -1,5 +1,5 @@
 // Visor: conmutador de tamaño, teclas (también reenviadas desde el iframe), favorita, copiar enlace y CTA.
-import { getFavs, onFavs, readContactData, setLastRef, toggleFav, whatsappFor } from './favs';
+import { getFavs, onFavs, readContactData, toggleFav, whatsappFor } from './favs';
 
 export function initViewer() {
   const root = document.querySelector<HTMLElement>('.viewer');
@@ -7,7 +7,6 @@ export function initViewer() {
   const slug = root.dataset.slug ?? '';
   const frame = root.querySelector<HTMLElement>('.frame');
   const iframe = root.querySelector<HTMLIFrameElement>('.frame__live');
-  setLastRef(slug);
 
   // La captura se muestra hasta que la web en vivo carga
   iframe?.addEventListener('load', () => frame?.classList.add('is-live'));
@@ -45,10 +44,10 @@ export function initViewer() {
   }
   setDevice(saved && radios.some((r) => r.dataset.device === saved) ? saved : 'desktop');
 
-  // Teclas: Esc vuelve a la galería; ← → cambian de referencia (también reenviadas desde el marco)
+  // Teclas: Esc vuelve a los ejemplos de la portada; ← → cambian de referencia (también reenviadas desde el marco)
   const go = (href?: string) => href && (location.href = href);
   const onKey = (key: string) => {
-    if (key === 'Escape') go(root.dataset.gallery);
+    if (key === 'Escape') go(root.dataset.back);
     else if (key === 'ArrowLeft') go(root.dataset.prev);
     else if (key === 'ArrowRight') go(root.dataset.next);
   };
@@ -105,11 +104,4 @@ export function initViewer() {
       if (status) status.textContent = '';
     }, 1800);
   });
-
-  // Transición: la ventana del visor recibe el mismo nombre que la tarjeta pulsada
-  window.addEventListener('pagereveal', ((e: Event & { viewTransition?: unknown }) => {
-    if (!e.viewTransition) return;
-    const stage = root.querySelector<HTMLElement>('.frame');
-    if (stage) stage.style.viewTransitionName = 'ref-stage';
-  }) as EventListener);
 }

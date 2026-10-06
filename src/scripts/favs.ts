@@ -1,6 +1,5 @@
-// Favoritas (hasta 3) y última referencia vista. Todo en localStorage, con tolerancia a que no esté disponible.
+// Favoritas del visor (hasta 3). En localStorage, con tolerancia a que no esté disponible.
 const KEY = 'gaya-favs';
-const LAST = 'gaya-last-ref';
 export const MAX_FAVS = 3;
 
 function read(): string[] {
@@ -23,7 +22,6 @@ function write(list: string[]) {
 let memory: string[] | null = null;
 
 export const getFavs = (): string[] => memory ?? read();
-export const isFav = (slug: string) => getFavs().includes(slug);
 
 /** Alterna una favorita. Devuelve el estado final; si ya hay 3, la más antigua sale. */
 export function toggleFav(slug: string): boolean {
@@ -46,21 +44,6 @@ export function onFavs(cb: (list: string[]) => void) {
     window.removeEventListener('gaya:favs', fn);
     window.removeEventListener('storage', fn);
   };
-}
-
-export function setLastRef(slug: string) {
-  try {
-    sessionStorage.setItem(LAST, slug);
-  } catch {
-    /* ignorar */
-  }
-}
-export function getLastRef(): string | null {
-  try {
-    return sessionStorage.getItem(LAST);
-  } catch {
-    return null;
-  }
 }
 
 export type ContactData = {

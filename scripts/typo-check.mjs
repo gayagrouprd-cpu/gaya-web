@@ -173,8 +173,6 @@ const PAGES = [
   { lang: 'en', path: '/en/', tag: 'home', home: true },
   ...(extra
     ? [
-        { lang: 'es', path: '/referencias/', tag: 'galería', home: false },
-        { lang: 'en', path: '/en/references/', tag: 'gallery', home: false },
         { lang: 'es', path: '/referencias/fogon/', tag: 'visor', home: false },
         { lang: 'en', path: '/en/references/cimiento/', tag: 'viewer', home: false },
         { lang: 'es', path: '/404.html', tag: '404', home: false },

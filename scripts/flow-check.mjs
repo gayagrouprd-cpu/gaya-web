@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Recorrido de punta a punta de la galería y el visor (dist/ servido como GitHub Pages), con teclado y puntero.
+// Recorrido de punta a punta de los ejemplos (dist/ servido como GitHub Pages), con teclado y puntero: la sección de ejemplos de la
+// portada, la galería vieja que solo redirige allí, y el visor de cada ejemplo con su salida de vuelta a la portada.
 // Uso: node scripts/flow-check.mjs [--dir dist]
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +22,8 @@ const ok = (cond, msg) => {
 };
 const settle = (page, ms = 700) => page.waitForTimeout(ms);
 const path = (page) => new URL(page.url()).pathname;
+const hash = (page) => new URL(page.url()).hash;
+const SECTION = { es: { home: '/', anchor: '#ejemplos', viewer: '/referencias/' }, en: { home: '/en/', anchor: '#samples', viewer: '/en/references/' } };
 
 async function fresh(viewport = { width: 1440, height: 900 }, extra = {}) {
   const ctx = await browser.newContext({ viewport, ...extra });
@@ -31,38 +34,47 @@ async function fresh(viewport = { width: 1440, height: 900 }, extra = {}) {
   return { ctx, page, errors };
 }
 
-// ── Galería ────────────────────────────────────────────────────────────────
-console.log('Galería');
-{
+/** La sección de ejemplos está a la vista (su borde superior cerca del de la pantalla). */
+const sectionInView = (page, anchor) => page.evaluate((id) => Math.abs(document.getElementById(id)?.getBoundingClientRect().top ?? 1e4) < 4, anchor.slice(1));
+
+// ── Portada → ejemplos ─────────────────────────────────────────────────────
+for (const lang of ['es', 'en']) {
+  const S = SECTION[lang];
+  console.log(`Portada → ejemplos (${lang})`);
   const { ctx, page, errors } = await fresh();
-  await page.goto(`${base}/referencias/`, { waitUntil: 'load' });
+  await page.goto(`${base}${S.home}`, { waitUntil: 'load' });
   await settle(page);
-  const total = await page.locator('.card:visible').count();
-  ok(total >= 3, `muestra ${total} tarjetas`);
-  ok((await page.locator('h1').textContent())?.trim() === 'Ejemplos', 'título de la galería: «Ejemplos» (la URL sigue siendo /referencias/)');
-
-  const firstType = await page.locator('[data-filter]:not([data-filter="all"])').first().getAttribute('data-filter');
-  await page.locator(`[data-filter="${firstType}"]`).click();
-  const filtered = await page.locator('.card:visible').count();
-  ok(filtered > 0 && filtered < total, `filtro «${firstType}» deja ${filtered} de ${total}`);
-  ok((await page.locator(`[data-filter="${firstType}"]`).getAttribute('aria-pressed')) === 'true', 'el filtro activo marca aria-pressed');
-  await page.locator('[data-filter="all"]').click();
-  ok((await page.locator('.card:visible').count()) === total, '«Todas» restaura la lista');
-
-  const favs = page.locator('[data-fav]');
-  await favs.nth(0).click();
-  ok(await page.locator('#tray').isVisible(), 'la bandeja aparece con la primera favorita');
-  await favs.nth(1).click();
-  const n = await page.locator('#tray-n').textContent();
-  const href = await page.locator('#tray-cta').getAttribute('href');
-  ok(n === '2', `la bandeja cuenta ${n}`);
-  ok(/^https:\/\/wa\.me\/\d+\?text=/.test(href ?? ''), 'la bandeja abre WhatsApp con texto');
-  const text = decodeURIComponent((href ?? '').split('text=')[1] ?? '');
-  const names = await page.locator('[data-fav]').evaluateAll((els) => els.slice(0, 2).map((e) => e.getAttribute('data-fav')));
-  ok(names.length === 2 && text.split('«').length - 1 === 2, 'el mensaje de WhatsApp lista las 2 elegidas');
-  await page.reload({ waitUntil: 'load' });
-  ok((await page.locator('#tray-n').textContent()) === '2', 'las favoritas sobreviven a recargar');
+  const old = await page.locator('a[href="/referencias/"], a[href="/en/references/"]').count();
+  ok(old === 0, `ningún enlace a la galería retirada (${old})`);
+  await page.locator('.px-hero .px-btn:not(.px-btn--solid)').click();
+  await settle(page, 1200);
+  ok(hash(page) === S.anchor && path(page) === S.home, `el botón secundario baja a ${S.anchor} (${path(page)}${hash(page)})`);
+  ok(await sectionInView(page, S.anchor), 'la sección de ejemplos queda arriba de la pantalla');
+  const cards = await page.locator(`${S.anchor} .px-sample`).count();
+  ok(cards >= 3, `la sección muestra ${cards} ejemplos`);
+  const view = page.locator(`${S.anchor} .px-sample-actions a:not(.solid)`).first();
+  const href = await view.getAttribute('href');
+  ok(href?.startsWith(S.viewer) && href !== S.viewer, `«Ver ejemplo» abre el visor (${href})`);
+  await view.click();
+  await page.waitForURL(`**${href}`);
+  await page.locator('.frame.is-live').waitFor({ timeout: 8000 });
+  ok(true, 'el visor carga la web en vivo');
+  await page.locator('.vback').click();
+  await page.waitForURL((u) => u.pathname === S.home && u.hash === S.anchor);
+  await settle(page, 1200);
+  ok(await sectionInView(page, S.anchor), `la salida del visor vuelve a ${S.home}${S.anchor} con la sección a la vista`);
   ok(errors.length === 0, `consola limpia (${errors.join(' | ') || 'sin mensajes'})`);
+  await ctx.close();
+}
+
+// ── La galería vieja redirige ──────────────────────────────────────────────
+console.log('Galería retirada');
+for (const [from, lang] of [['/referencias/', 'es'], ['/en/references/', 'en']]) {
+  const S = SECTION[lang];
+  const { ctx, page } = await fresh();
+  await page.goto(`${base}${from}`, { waitUntil: 'load' });
+  await page.waitForURL((u) => u.pathname === S.home && u.hash === S.anchor, { timeout: 5000 }).catch(() => {});
+  ok(path(page) === S.home && hash(page) === S.anchor, `${from} lleva a ${S.home}${S.anchor} (${path(page)}${hash(page)})`);
   await ctx.close();
 }
 
@@ -70,21 +82,15 @@ console.log('Galería');
 console.log('Visor');
 {
   const { ctx, page, errors } = await fresh();
-  await page.goto(`${base}/referencias/`, { waitUntil: 'load' });
-  await settle(page);
-  const firstHref = await page.locator('[data-ref-link]').first().getAttribute('href');
-  await page.locator('[data-ref-link]').first().click();
-  await page.waitForURL(`**${firstHref}`);
-  const slug = path(page).split('/').filter(Boolean).pop();
+  const slug = 'fogon';
+  await page.goto(`${base}/referencias/${slug}/`, { waitUntil: 'load' });
   await page.locator('.frame.is-live').waitFor({ timeout: 8000 });
-  ok(true, `abre ${slug} y la web en vivo reemplaza la captura`);
 
   // Orden de tabulación: el enlace de salto y luego la salida
   await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');
   const focusLabel = await page.evaluate(() => document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent?.trim());
-  ok(/galer|gallery|volver|back/i.test(focusLabel ?? ''), `el segundo Tab llega a la salida (${focusLabel})`);
-  ok(/ejemplos/i.test(focusLabel ?? ''), `la salida del visor dice «ejemplos» (${focusLabel})`);
+  ok(/volver|back/i.test(focusLabel ?? '') && /ejemplos/i.test(focusLabel ?? ''), `el segundo Tab llega a la salida, que dice «ejemplos» (${focusLabel})`);
 
   // Conmutador de tamaño
   const w = async () => Math.round((await page.locator('.frame').boundingBox()).width);
@@ -103,13 +109,12 @@ console.log('Visor');
   await page.keyboard.press('ArrowRight');
   ok(path(page).includes(slug), 'las flechas dentro del conmutador no cambian de referencia');
   await page.keyboard.press('Escape');
-  await page.waitForURL(/\/referencias\/$/);
-  ok(true, 'Esc desde el conmutador vuelve a la galería');
+  await page.waitForURL((u) => u.pathname === '/' && u.hash === '#ejemplos');
+  ok(true, 'Esc vuelve a los ejemplos de la portada');
 
   // Flechas ← → entre referencias
   await page.goto(`${base}/referencias/${slug}/`, { waitUntil: 'load' });
   await page.locator('.frame.is-live').waitFor({ timeout: 8000 });
-  await page.locator('.vname').click({ trial: true }).catch(() => {});
   await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
   await page.keyboard.press('ArrowRight');
   await page.waitForURL((u) => !u.pathname.includes(`/${slug}/`) && /\/referencias\/[^/]+\/$/.test(u.pathname));
@@ -122,15 +127,17 @@ console.log('Visor');
   await settle(page, 400);
   ok(path(page) === `/referencias/${slug}/`, 'Alt+← no cambia de referencia (se deja al navegador)');
 
-  // Favorita y CTA
-  await page.goto(`${base}/referencias/${slug}/`, { waitUntil: 'load' });
+  // Favoritas y CTA: el mensaje lleva esta referencia y, si hay favoritas, también ellas
   await page.evaluate(() => localStorage.clear());
   await page.reload({ waitUntil: 'load' });
-  const cta = () => page.locator('#cta').getAttribute('href');
-  const solo = decodeURIComponent(((await cta()) ?? '').split('text=')[1] ?? '');
-  ok(solo.length > 20 && solo.includes('/referencias/'), 'el CTA lleva el mensaje de esta referencia');
+  const cta = async () => decodeURIComponent(((await page.locator('#cta').getAttribute('href')) ?? '').split('text=')[1] ?? '');
+  const solo = await cta();
+  ok(solo.length > 20 && solo.includes(`/referencias/${slug}/`), 'el CTA lleva el mensaje de esta referencia');
   await page.locator('.vfav').click();
   ok((await page.locator('.vfav').getAttribute('aria-pressed')) === 'true', 'la favorita se marca');
+  await page.goto(`${base}/referencias/${next}/`, { waitUntil: 'load' });
+  const both = await cta();
+  ok(both.includes(`/referencias/${slug}/`) && both.includes(`/referencias/${next}/`), `en ${next}, el CTA lista la favorita y la actual`);
   ok(errors.length === 0, `consola limpia (${errors.join(' | ') || 'sin mensajes'})`);
   await ctx.close();
 }
@@ -151,8 +158,8 @@ console.log('Teclas dentro del marco');
   await settle(page, 600);
   ok(path(page) === '/referencias/nodo/', 'Esc cierra la paleta sin salir del visor');
   await page.keyboard.press('Escape');
-  await page.waitForURL(/\/referencias\/$/, { timeout: 4000 }).catch(() => {});
-  ok(path(page) === '/referencias/', 'un segundo Esc (sin nada abierto) vuelve a la galería');
+  await page.waitForURL((u) => u.pathname === '/' && u.hash === '#ejemplos', { timeout: 4000 }).catch(() => {});
+  ok(path(page) === '/' && hash(page) === '#ejemplos', 'un segundo Esc (sin nada abierto) vuelve a los ejemplos de la portada');
   await ctx.close();
 }
 
@@ -160,11 +167,14 @@ console.log('Teclas dentro del marco');
 console.log('Móvil');
 {
   const { ctx, page, errors } = await fresh({ width: 390, height: 844 }, { isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
-  await page.goto(`${base}/referencias/`, { waitUntil: 'load' });
+  await page.goto(`${base}/`, { waitUntil: 'load' });
   await settle(page);
   const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-  ok(over <= 0, `galería sin desborde horizontal (${over})`);
-  await page.locator('[data-ref-link]').first().tap();
+  ok(over <= 0, `portada sin desborde horizontal (${over})`);
+  await page.locator('.px-hero .px-btn:not(.px-btn--solid)').tap();
+  await settle(page, 1200);
+  ok(hash(page) === '#ejemplos', 'el botón secundario baja a #ejemplos');
+  await page.locator('#ejemplos .px-sample-actions a:not(.solid)').first().tap();
   await page.locator('.frame.is-live').waitFor({ timeout: 8000 });
   ok(await page.locator('.vdevices').isHidden(), 'el conmutador de tamaño se oculta en móvil');
   const small = await page.locator('.vbar a, .vbar button').evaluateAll((els) =>
@@ -181,15 +191,15 @@ console.log('Móvil');
 console.log('Inglés');
 {
   const { ctx, page } = await fresh();
-  await page.goto(`${base}/en/references/`, { waitUntil: 'load' });
-  ok((await page.locator('h1').textContent())?.trim() === 'Samples', 'título de la galería en inglés');
-  await page.locator('[data-ref-link]').first().click();
+  await page.goto(`${base}/en/references/cimiento/`, { waitUntil: 'load' });
   await page.locator('.frame.is-live').waitFor({ timeout: 8000 });
-  ok(path(page).startsWith('/en/references/'), 'el visor conserva el idioma');
   ok(/samples/i.test((await page.locator('.vback').getAttribute('aria-label')) ?? ''), 'la salida del visor en inglés dice «samples»');
+  await page.keyboard.press('ArrowRight');
+  await page.waitForURL((u) => /^\/en\/references\/[^/]+\/$/.test(u.pathname) && !u.pathname.includes('/cimiento/'));
+  ok(true, 'el visor conserva el idioma al cambiar de ejemplo');
   await page.keyboard.press('Escape');
-  await page.waitForURL(/\/en\/references\/$/);
-  ok(true, 'Esc vuelve a la galería en inglés');
+  await page.waitForURL((u) => u.pathname === '/en/' && u.hash === '#samples');
+  ok(true, 'Esc vuelve a /en/#samples');
   await ctx.close();
 }
 

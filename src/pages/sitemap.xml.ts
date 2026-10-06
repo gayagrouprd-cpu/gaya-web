@@ -2,12 +2,12 @@ import type { APIRoute } from 'astro';
 import references from '../data/references.json';
 import { alternates, indexableRoutes, url, type RouteKey, type RouteParams } from '../routes';
 
-// Solo se listan las páginas que existen: las referencias entran cuando están construidas.
+// Solo se listan las páginas que existen: la portada y el visor de cada referencia construida. /referencias/ y /en/references/
+// no entran: solo redirigen a la sección de ejemplos de la portada.
 const builtSlugs = references.refs.filter((r) => r.status === 'built').map((r) => r.slug);
-const hasGallery = builtSlugs.length > 0;
 
 export const GET: APIRoute = () => {
-  const routes = indexableRoutes(builtSlugs).filter((r) => hasGallery || r.key === 'home');
+  const routes = indexableRoutes(builtSlugs);
   const urlset = routes
     .flatMap(({ key, params }: { key: RouteKey; params: RouteParams }) =>
       (['es', 'en'] as const).map((lang) => {

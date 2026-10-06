@@ -1,6 +1,6 @@
 # PRODUCT — Gaya Digital (gaya.com.do)
 
-**Registro:** marca (el diseño ES el producto). Sitio de presentación: una serie de ocho carteles hechos de luz, más una galería de ejemplos.
+**Registro:** marca (el diseño ES el producto). Sitio de presentación: una serie de carteles en una sola página, con los ejemplos en la propia portada y un visor para cada uno.
 
 ## Quién y para qué
 - **Quién visita:** dueños de negocios pequeños y medianos de República Dominicana (sobre todo desde el celular, llegando por el enlace de Instagram, TikTok o WhatsApp) y clientes internacionales. No son técnicos.
@@ -13,7 +13,7 @@
 - **Servicios:** desarrollo web y apps · automatización e IA · marketing digital y manejo de redes · soporte e infraestructura IT. Orden de la página: ese.
 - **Voz:** cercana y directa, sin jerga; español dominicano neutro con «tú», inglés simple. Titulares cortos (≤ 7 palabras). «Wao» es de la casa.
 - **Bilingüe:** español por defecto, inglés en `/en/`, con los mismos componentes y paridad de copia.
-- **Colores:** los de la marca: azul marino #14213D, naranja #FCA311 y blanco/crema. En la portada, naranja · crema · azul marino; en galería, visor y 404, 16 tonos T0–T15 derivados de `--glow-0..3` (noche azul marino → luz naranja → blanco cálido). **Logo:** del kit de marca (`src/assets/marca/`): el compacto (dos olas + «gaya») en la barra y el menú, en línea en `Logo.astro`; el horizontal (con «digital») en las imágenes para compartir; iconos del kit en `public/` (favicon.svg/.ico, apple-touch-icon, icon-512).
+- **Colores:** los de la marca: azul marino #14213D, naranja #FCA311 y blanco/crema. En la portada, naranja · crema · azul marino; en el visor y la 404, 16 tonos T0–T15 derivados de `--glow-0..3` (noche azul marino → luz naranja → blanco cálido). **Logo:** del kit de marca (`src/assets/marca/`): el compacto (dos olas + «gaya») en la barra, en línea en `Logo.astro`; el horizontal (con «digital») en las imágenes para compartir; iconos del kit en `public/` (favicon.svg/.ico, apple-touch-icon, icon-512).
 
 ## Reglas (del dueño y del oficio)
 - **La interfaz se explica sola.** Cero texto instructivo, cero «cómo funciona», cero subtítulos que narran el control. Etiquetas, iconos, layout y estado.
@@ -29,5 +29,6 @@ La landing SaaS crema-y-violeta, la agencia con cuatro tarjetas iguales y un cha
 
 ## Sitio
 - `/` y `/en/` — ocho carteles (`GAYA · HOLA · WEB · LISTO · ECO · ON · VER · TÚ`; en inglés `GAYA · HELLO · WEB · READY · ECHO · ON · SEE · YOU`) que una marea cambia: portada, quiénes somos, servicios (índice y cuatro fichas), ejemplos, proceso y contacto. Especificación cerrada: `docs/ascii/DIRECTION.md`.
-- `/referencias/` y `/en/references/` — galería de **Ejemplos** (la URL conserva «referencias»); `/referencias/<slug>/` — visor con la web de ejemplo en vivo.
+- `/referencias/<slug>/` y `/en/references/<slug>/` — visor con la web de ejemplo en vivo: se abre con «Ver ejemplo» desde la sección de ejemplos de la portada (`#ejemplos` · `#samples`) y su salida vuelve allí.
+- `/referencias/` y `/en/references/` — la galería vieja ya no existe: solo redirigen a esa sección (`noindex`, fuera del sitemap).
 - `/ref/<slug>/` — las webs de ejemplo (estáticas, `noindex`).

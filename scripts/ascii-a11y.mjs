@@ -16,7 +16,7 @@
 //                 horizontal, sin texto recortado, y el lienzo con ≥ 52 columnas o apagado.
 //
 // Uso: node scripts/ascii-a11y.mjs [--dir dist] [--base http://127.0.0.1:4173] [--only axe,forced,contrast,print,tab,zoom,selftest]
-//        [--paths /,/en/,/referencias/,/en/references/] [--shots reports/ascii/wp11/a11y]
+//        [--paths /,/en/,/referencias/fogon/] [--shots reports/ascii/wp11/a11y]
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,7 +54,7 @@ const slug = (() => {
     return null;
   }
 })();
-const PAGES = arg('paths', null) ? String(arg('paths')).split(',') : [...HOMES, '/referencias/', '/en/references/', ...(slug ? [`/referencias/${slug}/`] : [])];
+const PAGES = arg('paths', null) ? String(arg('paths')).split(',') : [...HOMES, ...(slug ? [`/referencias/${slug}/`, `/en/references/${slug}/`] : [])];
 const isHome = (p) => HOMES.includes(p);
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 

@@ -348,9 +348,9 @@ for (const lang of ['es', 'en']) {
         const ld = [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent));
         const det = [...document.querySelectorAll('details[data-more]')].map((d) => [d.open, getComputedStyle(d.querySelector('summary')).display]);
         const clock = [...document.querySelectorAll('[data-clock]')].map((c) => c.textContent);
-        const samples = [...document.querySelectorAll('.smp__row')].map((r) => ({ name: r.querySelector('h3')?.textContent, view: r.querySelector('a.btn--ghost')?.getAttribute('href'), want: [...r.querySelectorAll('a[href^="https://wa.me/"]')].map((a) => dec(a.href)) }));
-        const all = document.querySelector('.smp__all');
-        return { wa, ld, det, clock, samples, all: all && { text: all.textContent.trim(), href: all.getAttribute('href') }, secondary: document.querySelector('.cover__actions .btn--ghost')?.getAttribute('href') };
+        const samples = [...document.querySelectorAll('.smp__row, .px-sample')].map((r) => ({ name: r.querySelector('h3')?.textContent, view: r.querySelector('a.btn--ghost, .px-sample-actions a:not(.solid)')?.getAttribute('href'), want: [...r.querySelectorAll('a[href^="https://wa.me/"]')].map((a) => dec(a.href)) }));
+        const all = document.querySelector('.smp__all, a[href$="/referencias/"], a[href$="/en/references/"]');
+        return { wa, ld, det, clock, samples, all: all && { text: all.textContent.trim(), href: all.getAttribute('href') }, secondary: document.querySelector('.cover__actions .btn--ghost, .px-hero .px-btn:not(.px-btn--solid)')?.getAttribute('href') };
       });
       const graph = r.ld[0]?.['@graph'] ?? [];
       if (r.ld.length !== 1 || !graph.some((g) => g['@type'] === 'Organization') || graph.filter((g) => g['@type'] === 'Service').length !== 4) fail(lang, 'JSON-LD: se espera Organization + 4 Service en un solo bloque');
@@ -364,9 +364,9 @@ for (const lang of ['es', 'en']) {
         if (!sm.want.some((t) => t.includes(`«${sm.name}»`) && t.includes('gaya.com.do/'))) fail(lang, `«Quiero una así» de ${sm.name} no lleva el mensaje del ejemplo`);
         if (!sm.view?.includes(lang === 'es' ? '/referencias/' : '/en/references/')) fail(lang, `«Ver ejemplo» de ${sm.name} apunta a ${sm.view}`);
       }
-      if (r.all?.href !== (lang === 'es' ? '/referencias/' : '/en/references/')) fail(lang, `enlace final de ejemplos: ${r.all?.href}`);
-      if (!r.all?.text.includes(String(r.samples.length))) fail(lang, `el enlace final («${r.all?.text}») no lleva el número real ${r.samples.length}`);
-      if (r.secondary !== (lang === 'es' ? '/referencias/' : '/en/references/')) fail(lang, `botón secundario de la portada: ${r.secondary}`);
+      // la galería vieja ya no existe: sin enlace final bajo los ejemplos, y el botón secundario baja a la sección de la portada
+      if (r.all) fail(lang, `enlace a la galería retirada bajo los ejemplos: ${r.all.href}`);
+      if (r.secondary !== (lang === 'es' ? '#ejemplos' : '#samples')) fail(lang, `botón secundario de la portada: ${r.secondary}`);
       if (!r.det.every(([open, disp]) => open === true && disp === 'none')) fail(lang, 'escritorio: «Más detalles» debe estar abierto y su resumen oculto');
       if (!r.clock.every((c) => /\d{2}:\d{2}/.test(c))) fail(lang, `reloj sin hora: ${r.clock.join(' | ')}`);
       notes.push(`[${lang}] WhatsApp: ${r.wa.length} enlaces (${generic.length} generales · ${svc.length} por servicio · ${r.samples.length} por ejemplo) · JSON-LD ${graph.length} nodos · reloj «${r.clock[0]}»`);

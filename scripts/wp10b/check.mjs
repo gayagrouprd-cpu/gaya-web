@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Comprobaciones del cromo y del arte en DOM (WP10b): DIRECTION §4.5, §5.10, §6.9, §7.8, §10 y las pruebas T4, T11, T14.
 // Se ejecuta contra una URL ya servida (astro dev, astro preview o dist con `npm run pages`); no construye nada.
-//   node scripts/wp10b/check.mjs [--base http://127.0.0.1:4332] [--paths /,/en/] [--gallery /referencias/,/en/references/]
+//   node scripts/wp10b/check.mjs [--base http://127.0.0.1:4332] [--paths /,/en/] [--gallery /ruta/]  (la galería vieja ya no existe: por omisión, ninguna)
 //                                [--only nav,axe,focus,menu,spy,poster,thread,anim,art,print] [--shots reports/ascii/wp10b]
 // `anim` (las animaciones con view()) SOLO es fiable contra un build de producción: en `astro dev` el CSS no se minifica y
 // el fallo que busca (lightningcss funde `animation` + `animation-timeline` en un atajo que Chrome rechaza) no aparece.
@@ -25,7 +25,7 @@ const arg = (n, d) => {
 };
 const base = arg('base', 'http://127.0.0.1:4332');
 const homes = arg('paths', '/,/en/').split(',');
-const galleries = arg('gallery', '/referencias/,/en/references/').split(',').filter(Boolean);
+const galleries = arg('gallery', '').split(',').filter(Boolean);
 const only = arg('only', '') ? new Set(arg('only', '').split(',')) : null;
 const shots = resolve(arg('shots', 'reports/ascii/wp10b'));
 mkdirSync(shots, { recursive: true });

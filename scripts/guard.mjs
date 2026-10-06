@@ -71,7 +71,17 @@ export async function guardPage(context, base, path, { viewport, selfTest = fals
     });
   }
 
-  await page.goto(base + path, { waitUntil: 'load' });
+  const res = await page.goto(base + path, { waitUntil: 'load' });
+  // Una página que solo redirige (meta refresh: la galería retirada) navega sola: se espera a que llegue y se revisa el destino
+  if (/http-equiv="refresh"/i.test((await res?.text().catch(() => '')) ?? '')) {
+    const from = page.url();
+    const moved = await page.waitForURL((u) => u.href !== from, { timeout: 5000 }).then(
+      () => true,
+      () => false,
+    );
+    if (!moved) findings.push('la redirección (meta refresh) no lleva a ninguna parte');
+    await page.waitForLoadState('load').catch(() => {});
+  }
   // sin JavaScript no hay `evaluate` (Chrome tumba la pestaña): solo se espera a la red
   if (!noScript) await scrollThrough(page);
   await page.waitForLoadState('networkidle', { timeout: 6000 }).catch(() => {});

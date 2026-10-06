@@ -489,7 +489,7 @@ function redData(d) {
   r.copy.en.about.rows.pop();
   delete r.copy.en.nav.skip;
   // «Referencias» en la copia visible y nombre de marca alternativo
-  r.copy.es.gallery.title = 'Referencias de Gaya Group';
+  r.copy.es.viewer.back = 'Volver a referencias de Gaya Group';
   // dato local: grado C, sin https, caducado antes de verificarse
   r.facts[0].grade = 'C';
   r.facts[1].src = 'http://ejemplo.test/';

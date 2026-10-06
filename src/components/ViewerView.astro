@@ -7,6 +7,7 @@ import ContactData from './ContactData.astro';
 import { builtRefs, ogPoster, poster, refMail, refWhatsApp, type Ref } from '../lib/refs';
 import { oklchToHex } from '../lib/color.mjs';
 import { path, url, type Lang } from '../routes';
+import { sectionId } from '../data/services';
 import { t } from '../i18n/copy';
 
 interface Props {
@@ -20,7 +21,8 @@ const i = refs.findIndex((r) => r.slug === slug);
 const ref = refs[i] as Ref;
 const prev = refs[(i - 1 + refs.length) % refs.length];
 const next = refs[(i + 1) % refs.length];
-const gallery = path(lang, 'refs');
+// Salida del visor (botón, Esc): la sección de ejemplos de la portada del mismo idioma
+const back = `${path(lang, 'home')}#${sectionId(lang, 'samples')}`;
 const live = `/ref/${ref.slug}/?lang=${lang}`;
 const wa = refWhatsApp(lang, [ref]);
 const mail = refMail(lang, ref);
@@ -30,15 +32,15 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
 <Base
   lang={lang}
   title={`${ref.name} · ${ref.sector[lang]} · ${brand.name}`}
-  description={`${ref.name}: ${ref.sector[lang]}. ${t(lang).gallery.metaDescription}`}
+  description={`${ref.name}: ${ref.sector[lang]}. ${c.metaDescription}`}
   routeKey="ref"
   params={{ slug: ref.slug }}
   ogImage={ogPoster(ref.slug)}
   themeColor={oklchToHex(ref.palette.surface)}
 >
-  <div class="viewer" style={`--stage-bg:${ref.palette.surface}`} data-slug={ref.slug} data-prev={path(lang, 'ref', { slug: prev.slug })} data-next={path(lang, 'ref', { slug: next.slug })} data-gallery={gallery} data-canonical={canonical}>
+  <div class="viewer" style={`--stage-bg:${ref.palette.surface}`} data-slug={ref.slug} data-prev={path(lang, 'ref', { slug: prev.slug })} data-next={path(lang, 'ref', { slug: next.slug })} data-back={back} data-canonical={canonical}>
     <header class="vbar" aria-label={`${brand.name} · ${ref.name}`}>
-      <a class="vbtn vback" href={gallery} aria-label={c.back}><LIcon name="arrow-left" /></a>
+      <a class="vbtn vback" href={back} aria-label={c.back}><LIcon name="arrow-left" /></a>
 
       <div class="vtitle">
         <h1 class="vname">{ref.name}</h1>
@@ -57,7 +59,7 @@ const canonical = url(lang, 'ref', { slug: ref.slug });
       </nav>
 
       <div class="vactions">
-        <button type="button" class="vbtn vfav" data-fav={ref.slug} aria-pressed="false" aria-label={t(lang).gallery.fav(ref.name)} data-label-on={t(lang).gallery.unfav(ref.name)} data-label-off={t(lang).gallery.fav(ref.name)}><LIcon name="heart" /></button>
+        <button type="button" class="vbtn vfav" data-fav={ref.slug} aria-pressed="false" aria-label={c.fav(ref.name)} data-label-on={c.unfav(ref.name)} data-label-off={c.fav(ref.name)}><LIcon name="heart" /></button>
         <a class="vbtn vopen" href={live} target="_blank" rel="noopener" aria-label={c.open} title={c.open}><LIcon name="external-link" /></a>
         <button type="button" class="vbtn" id="copy" aria-label={c.copy} title={c.copy} data-done={c.copied}><LIcon name="link" /></button>
         <a class="vbtn vmail" href={mail} aria-label={c.email} title={c.email}><LIcon name="mail" /></a>

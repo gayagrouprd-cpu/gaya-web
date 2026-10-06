@@ -1,7 +1,7 @@
 # gaya-web
 
 Sitio de **Gaya Digital** (https://gaya.com.do): portada «Cartel» (ocho carteles de luz hechos con celdas de texto y una marea que los cambia),
-galería de ejemplos y las webs de ejemplo. Astro 7 estático, español e inglés, sin frameworks de interfaz y sin peticiones a terceros.
+el visor de cada ejemplo y las webs de ejemplo. Astro 7 estático, español e inglés, sin frameworks de interfaz y sin peticiones a terceros.
 Dirección de arte y reglas: `docs/ascii/DIRECTION.md` (es la ley). Hace falta **Node 24** (las pruebas importan `.ts` directamente).
 
 ## Empezar
@@ -20,7 +20,7 @@ npm test             # node --test: núcleo, escenas, palabras, póster SSR, con
 |---|---|
 | `src/ascii/` | Motor del arte: rejilla, kit, marea, pozos, render WebGL2 y Canvas 2D, escenas y palabras. Corre en el navegador y en Node |
 | `src/ascii/data/words/` | Palabras de los carteles como arte de cuadrantes (`.txt` editables a mano; `npm run words:pack` las compila) |
-| `src/components/` · `src/pages/` | La página (`/` y `/en/`), la galería y el visor |
+| `src/components/` · `src/pages/` | La página (`/` y `/en/`, con la sección de ejemplos), el visor de cada ejemplo y las redirecciones de la galería retirada (`/referencias/`, `/en/references/`) |
 | `src/styles/` | Tokens, los 16 tonos T0–T15 (`tones.css`, generado), tipografía mixta y estilos de la página |
 | `src/data/` · `src/i18n/copy.ts` | Servicios, datos locales con fuente y caducidad, emblemas, y todo el texto visible (ES/EN) |
 | `brand.json` | Nombre, contacto, redes, mensajes de WhatsApp y banderas de lo que el dueño ha confirmado |
@@ -82,7 +82,7 @@ Las URL con `?still&poster=<id>` muestran el fotograma fijo de un cartel (`cover
 npm run ref:check <slug>         # puerta de calidad de una referencia (CONTRACT.md)
 npm run fonts -- <paquete>:<ejes>  # prepara fuentes para una referencia
 npm run photo -- --slug <slug> --name hero --id <pexels-id> --ar 16:9   # foto optimizada + crédito
-npm run posters -- --slug <slug> # capturas (escritorio, móvil, tira, imagen para compartir)
+npm run posters -- --slug <slug> # capturas (escritorio, móvil, miniatura, imagen para compartir)
 ```
 
 | Ruta | Qué es |

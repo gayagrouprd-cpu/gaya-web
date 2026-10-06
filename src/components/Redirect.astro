@@ -1,0 +1,37 @@
+---
+// Página mínima en una URL retirada (la galería vieja /referencias/ y /en/references/): lleva al instante a `to` con meta refresh
+// (GitHub Pages no hace redirecciones de servidor), apunta `canonical` a la portada del idioma y no se indexa ni entra en el sitemap.
+// El enlace queda por si el navegador no sigue el refresh.
+import brand from '../../brand.json';
+import { oklchToHex } from '../lib/color.mjs';
+import { path, url, type Lang } from '../routes';
+import { sectionId } from '../data/services';
+import { t } from '../i18n/copy';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const to = `${path(lang, 'home')}#${sectionId(lang, 'samples')}`;
+const label = t(lang).nav.samples;
+const bg = oklchToHex('oklch(0.15 0.035 264)');
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${to}`} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={url(lang, 'home')} />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>{`${label} · ${brand.name}`}</title>
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style set:html={`html{background:${bg};color:#f7f5f1;font:1rem/1.5 system-ui,sans-serif}body{margin:0;padding:1.5rem}a{color:inherit}`}></style>
+  </head>
+  <body>
+    <a href={to}>{label}</a>
+  </body>
+</html>

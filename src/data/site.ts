@@ -3,15 +3,13 @@ import brand from '../../brand.json';
 import { anyBuilt, builtRefs } from '../lib/refs';
 
 export const READY = {
-  refs: anyBuilt(), // /referencias/ y #ejemplos (aparecen en cuanto hay referencias construidas)
+  refs: anyBuilt(), // #ejemplos y los visores /referencias/<slug>/ (aparecen en cuanto hay referencias construidas)
   services: true, // #servicios y las cuatro fichas (Index y ServiceArticle)
   process: true, // #proceso (Process)
   contact: true, // #contacto (Contact)
 };
 
-// ── Datos de contacto y navegación (el texto de las etiquetas vive en src/i18n/copy.ts) ───────────────────────
-/** Destinos del menú, en orden. Sus ids localizados salen de `sectionId()` (src/data/services.ts) y sus etiquetas de `t(lang).nav`. */
-export const NAV_KEYS = ['about', 'services', 'samples', 'process', 'contact'] as const;
+// ── Datos de contacto (el texto de las etiquetas vive en src/i18n/copy.ts) ───────────────────────────────────
 
 /** Redes en el orden de §8.8: Instagram · TikTok · YouTube · X · Facebook. La etiqueta accesible sale de `t(lang).contact.social`. */
 export const SOCIALS = [

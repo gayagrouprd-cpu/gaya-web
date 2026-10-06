@@ -16,11 +16,6 @@
         "avifKB": 44.3,
         "webpKB": 66.4
       },
-      "strip": {
-        "avifKB": 81.6,
-        "webpKB": 134.7,
-        "h": 3409
-      },
       "og": {
         "KB": 65.4,
         "q": 84
@@ -48,11 +43,6 @@
         "avifKB": 44.6,
         "webpKB": 75.7
       },
-      "strip": {
-        "avifKB": 121.3,
-        "webpKB": 213.8,
-        "h": 4985
-      },
       "og": {
         "KB": 87,
         "q": 84
@@ -79,11 +69,6 @@
       "mobile": {
         "avifKB": 29.2,
         "webpKB": 46.3
-      },
-      "strip": {
-        "avifKB": 16.4,
-        "webpKB": 25.1,
-        "h": 648
       },
       "og": {
         "KB": 53.9,

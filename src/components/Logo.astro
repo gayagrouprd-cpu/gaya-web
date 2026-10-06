@@ -6,9 +6,9 @@
 //     --logo-a (ola izquierda, naranja) y --logo-b (ola derecha y «gaya», blanco): quien lo usa los cambia por fondo (la portada lo
 //     pasa a una tinta sobre el naranja y a azul marino sobre el crema). En colores forzados, todo CanvasText.
 //   · El dibujo es decoración (aria-hidden); el nombre accesible del enlace es el de brand.json.
-//   · El CSS va en línea (`is:inline`): Logo lo comparten Nav (galería, visor), la portada y la 404, y una hoja propia sería una
-//     petición más que bloquea el pintado. Si la página pone dos logos (píldora y menú) solo el primero lleva el CSS y el dibujo
-//     (`styles={false}` en los demás, que lo reutilizan con <use>).
+//   · El CSS va en línea (`is:inline`): Logo lo comparten la portada y la 404, y una hoja propia sería una petición más que bloquea
+//     el pintado. Si una página pusiera dos logos, solo el primero lleva el CSS y el dibujo (`styles={false}` en los demás, que lo
+//     reutilizan con <use>).
 import brand from '../../brand.json';
 import kit from '../assets/marca/gaya-digital-compacto-sobre-oscuro.svg?raw';
 

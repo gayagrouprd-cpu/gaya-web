@@ -112,13 +112,12 @@ gate('meta', 'ascii-meta: canonical, hreflang recíproco, og:image, JSON-LD, sit
 // Lo construido, en Chrome real
 gate('guard', 'guard: 0 peticiones a otro origen y 0 errores de consola en las 11 páginas', ['T3'], script('guard.mjs'), { dist: true });
 gate('guard-matrix', 'guard --matrix: las portadas en normal, ?still, ?nogl, movimiento reducido, saveData y sin JS', ['T3', 'T10'], script('guard.mjs', '--matrix'), { dist: true });
-gate('flow', 'flow: recorrido de la galería y el visor con teclado y puntero', ['T4'], script('flow-check.mjs'), { dist: true });
+gate('flow', 'flow: portada → ejemplos, la galería vieja redirige, y el visor con teclado y puntero', ['T4'], script('flow-check.mjs'), { dist: true });
 for (const [id, p] of [['page-check-es', '/'], ['page-check-en', '/en/']]) {
   gate(id, `page-check ${p}: red, desborde a 7 anchos, axe (3 perfiles), objetivos táctiles${FAST ? '' : ' (Lighthouse lo hace lighthouse-routes)'}`, ['T3', 'T4'], script('page-check.mjs', '--path', p, '--fast'), { dist: true });
 }
-gate('page-check-gallery', `page-check /referencias/${FAST ? '' : ' con Lighthouse'}`, ['T1', 'T4'], script('page-check.mjs', '--path', '/referencias/', ...(FAST ? ['--fast'] : [])), { dist: true, lh: true });
-gate('page-check-gallery-en', `page-check /en/references/${FAST ? '' : ' con Lighthouse'}`, ['T1', 'T4'], script('page-check.mjs', '--path', '/en/references/', ...(FAST ? ['--fast'] : [])), { dist: true, lh: true });
 if (slug) gate('page-check-viewer', `page-check /referencias/${slug}/ (el visor)${FAST ? '' : ' con Lighthouse'}`, ['T1', 'T4'], script('page-check.mjs', '--path', `/referencias/${slug}/`, ...(FAST ? ['--fast'] : [])), { dist: true, lh: true });
+if (slug) gate('page-check-viewer-en', `page-check /en/references/${slug}/ (el visor en inglés)${FAST ? '' : ' con Lighthouse'}`, ['T1', 'T4'], script('page-check.mjs', '--path', `/en/references/${slug}/`, ...(FAST ? ['--fast'] : [])), { dist: true, lh: true });
 gate('home-check', 'home-check: estructura, 2.5.3, 2.5.8, Tab completo, 360×800, 15 tamaños sin pisar la palabra, paridad ES/EN, axe', ['T4', 'T14', 'T22'], script('home-check.mjs', '--shots', 'reports/ascii/wp11/home'), { dist: true });
 gate('home-nojs', 'home-nojs --matrix: la portada sin JavaScript (póster SSR) en 13 tamaños', ['T6', 'T10'], script('home-nojs.mjs', '--matrix', '--out', 'reports/ascii/wp11/nojs/home'), { dist: true });
 gate('home-media-es', 'home-media (ES): forced-colors, prefers-contrast: more con topes T4/T2, impresión', ['T7', 'T11'], script('home-media.mjs', '--lang', 'es', '--out', 'reports/ascii/wp11/media/home-es'), { dist: true });

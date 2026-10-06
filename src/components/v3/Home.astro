@@ -69,7 +69,7 @@ const NUM = (n: number) => String(n).padStart(2, '0');
       <p class="px-lead" data-up style="--d:.75s">{c.home.lead}</p>
       <div class="px-actions" data-up style="--d:.95s">
         <a class="px-btn px-btn--solid" href={waGeneric(lang)} target="_blank" rel="noopener" data-cta><Icon name="whatsapp" />{c.home.primary}</a>
-        <a class="px-btn" href={path(lang, 'refs')}>{c.home.secondary}<Icon name="arrow-right" /></a>
+        <a class="px-btn" href={`#${id('samples')}`}>{c.home.secondary}<Icon name="arrow-down" /></a>
       </div>
     </div>
   </section>
@@ -172,9 +172,6 @@ const NUM = (n: number) => String(n).padStart(2, '0');
             </article>
           ))
         }
-      </div>
-      <div class="px-actions" data-up style="--d:.6s">
-        <a class="px-btn" href={path(lang, 'refs')}>{c.samples.all(refs.length)}<Icon name="arrow-right" /></a>
       </div>
     </div>
   </section>

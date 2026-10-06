@@ -120,7 +120,7 @@ section('1. Fuentes');
       .map((f) => readFileSync(join(DIST, String(f)), 'utf8'))
       .join('\n') + css;
   ok(!/85\.986|132\.57/.test(htmlAll), 'sin el respaldo roto de Astro Fonts (size-adjust 85,986 % / 132,57 %)');
-  for (const p of ['/', '/en/', '/referencias/', '/en/references/', '/404.html']) {
+  for (const p of ['/', '/en/', '/referencias/fogon/', '/en/references/fogon/', '/404.html']) {
     const { ctx, page } = await (async () => {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
       const page = await ctx.newPage();
@@ -386,7 +386,7 @@ async function cls(base, path, { mobile = false, delay = 0 } = {}) {
   await ctx.close();
   return v;
 }
-for (const path of ['/', '/en/', '/referencias/', '/en/references/']) {
+for (const path of ['/', '/en/', '/referencias/fogon/', '/en/references/fogon/']) {
   for (const mobile of [false, true]) {
     const row = [];
     for (const delay of [0, DELAY]) {

@@ -39,7 +39,7 @@ export function builtRefs(): Ref[] {
 
 export const anyBuilt = () => builtRefs().length > 0;
 
-export function poster(slug: string, kind: 'desktop' | 'mobile' | 'strip' | 'thumb', ext: 'avif' | 'webp' = 'avif'): string {
+export function poster(slug: string, kind: 'desktop' | 'mobile' | 'thumb', ext: 'avif' | 'webp' = 'avif'): string {
   const info = (posters as unknown as Record<string, PosterInfo>)[slug];
   return `/posters/${slug}-${info.hash}-${kind}.${ext}`;
 }
@@ -47,7 +47,6 @@ export const ogPoster = (slug: string) => {
   const info = (posters as unknown as Record<string, PosterInfo>)[slug];
   return `/posters/${slug}-${info.hash}-og.jpg`;
 };
-export const stripHeight = (slug: string) => (posters as unknown as Record<string, PosterInfo>)[slug]?.sizes?.strip?.h ?? 4000;
 
 export const refWhatsApp = (lang: Lang, refs: Ref[]) => {
   const msg =

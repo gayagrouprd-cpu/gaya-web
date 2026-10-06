@@ -143,21 +143,29 @@ test('secciones: ids localizados, únicos y en el orden de §4.1', () => {
 });
 
 // ── Copia ────────────────────────────────────────────────────────────────────────────────────────────────────
-test('copia: «Referencias» → «Ejemplos» / «Samples» en nav, galería, visor y portada', () => {
+test('copia: «Referencias» → «Ejemplos» / «Samples» en nav, visor y portada', () => {
   const { es, en } = copyMod.copy;
-  assert.deepEqual([es.nav.samples, es.gallery.title, es.home.secondary], ['Ejemplos', 'Ejemplos', 'Ver ejemplos']);
-  assert.deepEqual([en.nav.samples, en.gallery.title, en.home.secondary], ['Samples', 'Samples', 'See samples']);
+  assert.deepEqual([es.nav.samples, es.home.secondary], ['Ejemplos', 'Ver ejemplos']);
+  assert.deepEqual([en.nav.samples, en.home.secondary], ['Samples', 'See samples']);
   assert.equal(es.viewer.back, 'Volver a ejemplos');
   assert.equal(en.viewer.back, 'Back to samples');
-  assert.equal(es.gallery.count(1), '1 ejemplo');
-  assert.equal(en.gallery.count(3), '3 samples');
   assert.match(es.nav.switchTo.label, /English/);
 });
 
-test('copia: las claves que usan hoy Nav, portada, galería y visor siguen ahí', () => {
+test('galería retirada: sin ruta /referencias/ (índice) ni copia de galería; los ejemplos viven en la portada', () => {
   for (const l of ['es', 'en']) {
     const c = copyMod.t(l);
-    for (const k of ['label', 'samples', 'services', 'process', 'contact', 'menu', 'close', 'whatsapp', 'language']) assert.equal(typeof c.nav[k], 'string', `nav.${k}`);
+    assert.equal(c.gallery, undefined, 'la galería vieja ya no existe: nada de `gallery` en la copia');
+    assert.equal(c.samples.all, undefined, 'sin «Ver los n ejemplos» bajo las tarjetas');
+  }
+  assert.equal(svc.sectionId('es', 'samples'), 'ejemplos');
+  assert.equal(svc.sectionId('en', 'samples'), 'samples');
+});
+
+test('copia: las claves que usan hoy la portada y el visor siguen ahí', () => {
+  for (const l of ['es', 'en']) {
+    const c = copyMod.t(l);
+    for (const k of ['label', 'samples', 'services', 'process', 'contact', 'whatsapp', 'language']) assert.equal(typeof c.nav[k], 'string', `nav.${k}`);
     for (const k of ['lead', 'primary', 'secondary']) assert.equal(typeof c.home[k], 'string', `home.${k}`);
     // la palabra de acento es la tercera del titular (el CSS la pone en su propia línea)
     const words = c.home.h1.split(' ');
@@ -165,10 +173,8 @@ test('copia: las claves que usan hoy Nav, portada, galería y visor siguen ahí'
     assert.equal(words[2].toLowerCase(), c.home.accent);
     assert.equal(c.hero, undefined, 'la portada WebGL antigua ya no existe: nada de `hero` en la copia');
     assert.equal(typeof c.footer.rights, 'string');
-    for (const k of ['title', 'metaTitle', 'metaDescription', 'all', 'filter', 'favorites', 'sendFavs']) assert.equal(typeof c.gallery[k], 'string', `gallery.${k}`);
-    for (const k of ['count', 'fav', 'unfav']) assert.equal(typeof c.gallery[k], 'function');
-    for (const k of ['back', 'device', 'desktop', 'tablet', 'phone', 'open', 'copy', 'copied', 'prev', 'next', 'cta', 'email']) assert.equal(typeof c.viewer[k], 'string', `viewer.${k}`);
-    assert.equal(typeof c.viewer.preview, 'function');
+    for (const k of ['metaDescription', 'back', 'device', 'desktop', 'tablet', 'phone', 'open', 'copy', 'copied', 'prev', 'next', 'cta', 'email']) assert.equal(typeof c.viewer[k], 'string', `viewer.${k}`);
+    for (const k of ['preview', 'fav', 'unfav']) assert.equal(typeof c.viewer[k], 'function', `viewer.${k}`);
   }
 });
 
@@ -186,7 +192,6 @@ test('copia §8: textos literales de la portada, contacto y microcopy', () => {
   assert.equal(es.services.whatsappFor('Automatización e IA'), 'Escríbenos por WhatsApp sobre Automatización e IA');
   assert.ok(es.services.whatsappFor('X').includes(es.services.whatsapp), '2.5.3: el nombre accesible contiene el texto visible');
   assert.ok(es.samples.wantFor('X').includes(es.samples.want));
-  assert.equal(es.samples.all(3), 'Ver los 3 ejemplos');
   assert.equal(copyMod.aboutRows('es')[0].value, 'Gaya Digital');
   assert.equal(es.about.signature, 'Gaya Digital · Santo Domingo');
 });
@@ -260,7 +265,9 @@ test('Vite (SSR): los mismos módulos cargan y wa.ts coincide con refWhatsApp de
     const [vs, vc, vw, vr, vroutes, vj] = await Promise.all([v('/src/data/services.ts'), v('/src/i18n/copy.ts'), v('/src/lib/wa.ts'), v('/src/lib/refs.ts'), v('/src/routes.ts'), v('/src/lib/jsonld.ts')]);
     assert.equal(vs.SERVICES.length, 4);
     assert.deepEqual(JSON.parse(JSON.stringify(vs.SERVICES)), JSON.parse(JSON.stringify(svc.SERVICES)));
-    assert.equal(vc.t('es').gallery.title, 'Ejemplos');
+    assert.equal(vc.t('es').nav.samples, 'Ejemplos');
+    // sitemap: la portada y los visores; /referencias/ (índice) ya no es una página
+    assert.deepEqual([...new Set(vroutes.indexableRoutes(['fogon']).map((r) => r.key))], ['home', 'ref']);
     assert.deepEqual(vj.jsonLd('en'), jl.jsonLd('en'));
     const rs = vr.builtRefs();
     assert.ok(rs.length >= 1);

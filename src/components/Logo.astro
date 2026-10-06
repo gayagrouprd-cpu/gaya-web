@@ -1,28 +1,40 @@
 ---
-// Marca provisional: «▞ Gaya Digital». Cuando llegue el logo del diseñador se cambia solo este archivo: el marcado y los
-// estilos de la marca viven aquí y no dependen de ninguna hoja de cromo.
-//   · El cuadrante ▞ se dibuja con dos cuadrados de CSS (es el mismo glifo, sin pedir `symbols2`: el logo no debe añadir ese archivo
-//     a la galería ni al 404) + el nombre en Geist Mono 700 (tipografía mixta, 30-sep-2026): la marca es un rótulo, y en mono
-//     encaja con el cuadrante, que es un bloque de la misma fuente. El nombre solo usa `latin`, que esas páginas ya cargan.
-//     El cuadrante es decoración: aria-hidden, sin texto.
-//   · El CSS va en línea (`is:inline`) y no en una hoja aparte: Logo lo comparten Nav (galería, visor, portada) y la 404, así que
-//     Astro lo sacaría a una hoja propia de 0,4 KB gz = una petición más que bloquea el pintado en cada página con cromo. Si
-//     la página pone dos logos (píldora y menú) solo el primero lleva el CSS (`styles={false}` en los demás); la 404 carga solo esto.
-//   · El nombre sale de brand.json.
+// Marca: logo compacto de Gaya Digital (dos olas + «gaya», sin «digital»), del kit de marca, con las letras ya en trazos.
+// El archivo del kit vive en src/assets/marca/ y se usa tal cual (scripts/og.mjs lee de ahí el horizontal). Para cambiar la marca se
+// cambia ese archivo o este componente: el marcado y los estilos viven aquí.
+//   · SVG en línea, sin petición aparte. El viewBox va recortado al dibujo (el margen libre lo pone el cromo). Los dos colores salen de
+//     --logo-a (ola izquierda, naranja) y --logo-b (ola derecha y «gaya», blanco): quien lo usa los cambia por fondo (la portada lo
+//     pasa a una tinta sobre el naranja y a azul marino sobre el crema). En colores forzados, todo CanvasText.
+//   · El dibujo es decoración (aria-hidden); el nombre accesible del enlace es el de brand.json.
+//   · El CSS va en línea (`is:inline`): Logo lo comparten Nav (galería, visor), la portada y la 404, y una hoja propia sería una
+//     petición más que bloquea el pintado. Si la página pone dos logos (píldora y menú) solo el primero lleva el CSS y el dibujo
+//     (`styles={false}` en los demás, que lo reutilizan con <use>).
 import brand from '../../brand.json';
+import kit from '../assets/marca/gaya-digital-compacto-sobre-oscuro.svg?raw';
 
 interface Props {
   href: string;
-  /** Heredada de la versión anterior: el nombre accesible es el texto visible, así que no se usa. */
+  /** Heredada de la versión anterior: el nombre accesible sale de brand.json, así que no se usa. */
   label?: string;
-  /** Emite el CSS de la marca (por omisión sí). En una página con varios logos, solo el primero lo necesita. */
+  /** Emite el CSS y el dibujo (por omisión sí). En una página con varios logos, solo el primero; los demás usan <use>. */
   styles?: boolean;
+  /** Clase extra para quien lo coloca (la portada). */
+  class?: string;
 }
-const { href, styles = true } = Astro.props;
+const { href, styles = true, class: extra } = Astro.props;
+
+// Trazados del kit tal cual; solo los dos colores pasan a variables.
+const ART = kit
+  .replace(/^[\s\S]*?<svg[^>]*>/, '')
+  .replace(/<\/svg>\s*$/, '')
+  .replace(/<title>[\s\S]*?<\/title>/, '')
+  .replace(/(stroke|fill)="#FCA311"/gi, 'style="$1:var(--logo-a)"')
+  .replace(/(stroke|fill)="#FFFFFF"/gi, 'style="$1:var(--logo-b)"');
 ---
 
-{styles && <style is:inline>.logo{display:inline-flex;align-items:center;gap:.4rem;min-height:2.75rem;color:var(--ink);text-decoration:none}.logo__mark{flex:none;width:1.25rem;height:1.25rem;background:linear-gradient(var(--t13),var(--t13)) top right/50% 50% no-repeat,linear-gradient(var(--t10),var(--t10)) bottom left/50% 50% no-repeat;transition:filter .12s}.logo__name{font:700 1rem/1 var(--font-head);letter-spacing:-.03em;white-space:nowrap}@media (hover:hover){.logo:hover .logo__mark{filter:brightness(1.25)}}@media (forced-colors:active){.logo__mark{forced-color-adjust:none;background:linear-gradient(CanvasText,CanvasText) top right/50% 50% no-repeat,linear-gradient(CanvasText,CanvasText) bottom left/50% 50% no-repeat}}</style>}
-<a class="logo" href={href}>
-  <span class="logo__mark" aria-hidden="true"></span>
-  <span class="logo__name" translate="no">{brand.name}</span>
+{styles && <style is:inline>.logo{--logo-a:#fca311;--logo-b:#fff;display:inline-flex;align-items:center;min-height:2.75rem;text-decoration:none}.logo__art{display:block;height:var(--logo-h,1.75rem);width:auto;aspect-ratio:363.5/81;overflow:visible}@media (forced-colors:active){.logo{--logo-a:CanvasText;--logo-b:CanvasText}.logo__art{forced-color-adjust:none}}</style>}
+<a class:list={['logo', extra]} href={href} aria-label={brand.name}>
+  <svg class="logo__art" viewBox="10 34.5 363.5 81" width="126" height="28" aria-hidden="true" focusable="false">
+    {styles ? <g id="gaya-logo" set:html={ART} /> : <use href="#gaya-logo" />}
+  </svg>
 </a>

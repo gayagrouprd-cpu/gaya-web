@@ -1,5 +1,5 @@
 /* Tokens de gaya.com.do — OKLCH. Espejo verificable: tokens.json (npm run contrast).
-   Iluminación elegida: COBALTO — luz fría de pantalla bajo el agua, azul eléctrico que se vuelve hielo.
+   Iluminación: MARCA — noche azul marino (#14213D) y luz naranja (#FCA311) que se vuelve blanco cálido, los colores del logo.
    Para cambiar la marca se editan solo estos valores: los 16 tonos del arte (--t0 … --t15) salen de --glow-0..3 y se
    regeneran con `npm run tones`, no se editan a mano.
    Las familias tipográficas (--font-display, --font-mono, --font-body, --font-head) viven en fonts.css. */
@@ -10,22 +10,22 @@
   color-scheme: dark;
 
   /* Color */
-  --surface: oklch(0.13 0.05 268);
-  --surface-2: oklch(0.18 0.06 268);
-  --ink: oklch(0.96 0.01 250);
-  --muted: oklch(0.77 0.04 255);
-  --line: oklch(0.96 0.01 250 / 0.16);
-  --accent: oklch(0.62 0.24 265);
-  --accent-text: oklch(0.82 0.13 250);
-  --on-accent: oklch(0.13 0.05 268);
+  --surface: oklch(0.15 0.035 264);
+  --surface-2: oklch(0.2 0.045 264);
+  --ink: oklch(0.97 0.006 85);
+  --muted: oklch(0.79 0.03 260);
+  --line: oklch(0.97 0.006 85 / 0.16);
+  --accent: oklch(0.7859 0.1674 70.04);
+  --accent-text: oklch(0.84 0.13 75);
+  --on-accent: oklch(0.15 0.035 264);
   /* Párrafo sobre la luz: más claro que --muted para mantener ≥ 4,5:1 aunque la lente pase cerca */
   --lead: color-mix(in oklch, var(--ink) 84%, var(--muted));
 
   /* Luz de la marca: fondo, cuerpo, luz, chispa. De aquí salen los 16 tonos del arte (npm run tones) */
-  --glow-0: oklch(0.13 0.05 268);
-  --glow-1: oklch(0.38 0.2 266);
-  --glow-2: oklch(0.66 0.22 258);
-  --glow-3: oklch(0.94 0.05 225);
+  --glow-0: oklch(0.15 0.035 264);
+  --glow-1: oklch(0.31 0.065 264);
+  --glow-2: oklch(0.7859 0.1674 70.04);
+  --glow-3: oklch(0.96 0.04 85);
 
   /* Espacio (base 4 pt) */
   --space-1: 0.25rem;

@@ -13,7 +13,7 @@
 - **Servicios:** desarrollo web y apps · automatización e IA · marketing digital y manejo de redes · soporte e infraestructura IT. Orden de la página: ese.
 - **Voz:** cercana y directa, sin jerga; español dominicano neutro con «tú», inglés simple. Titulares cortos (≤ 7 palabras). «Wao» es de la casa.
 - **Bilingüe:** español por defecto, inglés en `/en/`, con los mismos componentes y paridad de copia.
-- **Colores:** paleta Cobalto (luz fría de pantalla bajo el agua): 16 tonos T0–T15 derivados de `--glow-0..3`. **Logo:** lo hace un diseñador externo; la marca en el sitio es provisional (`▞ Gaya Digital`) y se sustituye editando un solo archivo (`Logo.astro`).
+- **Colores:** los de la marca: azul marino #14213D, naranja #FCA311 y blanco/crema. En la portada, naranja · crema · azul marino; en galería, visor y 404, 16 tonos T0–T15 derivados de `--glow-0..3` (noche azul marino → luz naranja → blanco cálido). **Logo:** del kit de marca (`src/assets/marca/`): el compacto (dos olas + «gaya») en la barra y el menú, en línea en `Logo.astro`; el horizontal (con «digital») en las imágenes para compartir; iconos del kit en `public/` (favicon.svg/.ico, apple-touch-icon, icon-512).
 
 ## Reglas (del dueño y del oficio)
 - **La interfaz se explica sola.** Cero texto instructivo, cero «cómo funciona», cero subtítulos que narran el control. Etiquetas, iconos, layout y estado.

@@ -6,7 +6,7 @@
 1. **Carteles.** La página es una serie de ocho carteles, cada uno una palabra cuya materia es lo que el servicio hace (vidrio con agua, olas, obra, celdas que se ensamblan, anillos, neón, barrido de luz, y al final tu palabra). Entre uno y el siguiente sube una **marea**. Todo lo que se lee es texto real; todo lo que se ve es arte.
 2. **La interfaz se explica sola.** Sin texto instructivo. Etiquetas, iconos, layout y estado.
 3. **Tipografía mixta** (decisión del dueño, 30-sep-2026). Lo que rotula —titulares, botones, navegación, etiquetas, la marca— en Geist Mono, como el arte; lo que se lee de corrido —párrafos, lead, listas, textos de placa— en Bricolage Grotesque.
-4. **Oscuro con intención.** Superficie casi negra tintada hacia el cobalto; el color vive en la luz, no en los rellenos. Una sola familia de color, acento ≤ 5 % del área.
+4. **Oscuro con intención.** Superficie casi negra tintada hacia el azul marino de la marca (#14213D), luz y acento en su naranja (#FCA311); el color vive en la luz, no en los rellenos. Una sola familia de color, acento ≤ 5 % del área.
 5. **Movimiento con sentido.** Nada se mueve solo salvo la ignición (≤ 2,6 s); la marea corre por tiempo, el scroll solo la dispara; todo duerme a los 1,6 s. Con `prefers-reduced-motion`: fotograma fijo hermoso.
 
 ## Tokens
@@ -31,7 +31,7 @@ Definidos en `src/styles/tokens.css` y espejados en `src/styles/tokens.json` (`n
 - **Fichas de servicio:** no comparten plantilla; alternan el lado del texto y de la placa y el reparto interno. En móvil, «Más detalles» va plegado.
 - **Ejemplos:** filas con emblema de sector, nombre, rubro, «Ver ejemplo» y «Quiero una así»; sello «Datos ficticios» junto al título y bajo cada emblema.
 - **Proceso:** el hilo de HOLA a LISTO, arte en DOM con el `ol` real.
-- **Menú:** píldora fija en escritorio; en móvil, barra inferior con WhatsApp dominante y un `popover` con los destinos. Logo provisional `▞ Gaya Digital`.
+- **Menú:** píldora fija en escritorio; en móvil, barra inferior con WhatsApp dominante y un `popover` con los destinos. Logo compacto del kit (`Logo.astro`); en la portada, a una tinta sobre el naranja.
 
 ## Movimiento
 Ignición de GAYA, marea entre carteles, llegada de cada escena, calor del puntero y anillos de toque: todo opcional, por tiempo y ≤ 2,4 s. La marea corre aunque el dedo se detenga. Reposo sin bucle. El estado estático es un fotograma del mismo motor (nunca una imagen aparte).

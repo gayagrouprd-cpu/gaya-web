@@ -71,7 +71,7 @@ npm run test:browser             # pruebas del motor en Chrome real (necesita FI
 ```bash
 npm run tour -- --url http://127.0.0.1:4321/ [--mobile] [--lang en]   # una captura por sección, con el motor ya asentado
 npm run shot -- --url http://127.0.0.1:4321/ --out reports/shots/home.png [--w 1440 --h 900] [--still] [--reduced] [--nogl]
-npm run og                       # imágenes para compartir (public/og*.jpg) desde el fotograma fijo de la portada; --out DIR para probar sin pisarlas
+npm run og                       # imágenes para compartir (public/og*.jpg): logo, titular y semitono en azul marino y naranja; --out DIR para probar sin pisarlas
 ```
 
 Las URL con `?still&poster=<id>` muestran el fotograma fijo de un cartel (`cover`, `hola`, `mist`…) sin pozos, para revisarlo a cualquier ancho.

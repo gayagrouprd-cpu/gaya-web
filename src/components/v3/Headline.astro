@@ -1,0 +1,46 @@
+---
+// Titular de cartel: líneas en mayúsculas y el acento en cursiva, partidos en palabras que suben al entrar (--i).
+// El punto final de la última línea en mayúsculas se dibuja como una bola. El nombre accesible es el texto entero.
+import type { Headline } from '../../i18n/v3';
+
+interface Props {
+  h: Headline;
+  as?: 'h1' | 'h2';
+  class?: string;
+  /** Nombre accesible si no basta con el texto del titular (p. ej. «Servicio: titular»). */
+  label?: string;
+}
+const { h, as: Tag = 'h2', class: cls = 'px-h2', label } = Astro.props;
+
+const out: Array<{ kind: 'line' | 'em'; words: string[]; dot?: boolean }> = [];
+const at = h.emBefore ?? h.lines.length;
+h.lines.forEach((l, k) => {
+  if (k === at && h.em) out.push({ kind: 'em', words: h.em.split(' ') });
+  out.push({ kind: 'line', words: l.split(' ') });
+});
+if (at >= h.lines.length && h.em) out.push({ kind: 'em', words: h.em.split(' ') });
+const last = [...out].reverse().find((b) => b.kind === 'line');
+if (last) {
+  const w = last.words[last.words.length - 1];
+  if (w.endsWith('.')) {
+    last.words[last.words.length - 1] = w.slice(0, -1);
+    last.dot = true;
+  }
+}
+const plain = out.map((b) => b.words.join(' ')).join(' ');
+let i = 0;
+---
+
+<Tag class={cls} aria-label={label ?? plain}>
+  {
+    out.map((b) => (
+      <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
+        {b.words.map((w, wk) => (
+          <>
+            <span class="w"><span style={`--i:${i++}`}>{w}</span></span>{b.dot && wk === b.words.length - 1 ? <span class="px-dot" /> : ' '}
+          </>
+        ))}
+      </span>
+    ))
+  }
+</Tag>

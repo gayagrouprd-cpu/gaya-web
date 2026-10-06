@@ -1,12 +1,15 @@
 ---
 // Inicio en estilo «cartel editorial» + ASCII (decisión del dueño, 5-oct-2026). Un cartel por sección, a pantalla completa,
-// alternando naranja, crema y negro. El contenido real sale de copy.ts, services.ts y facts.ts; los titulares de cartel, de v3.ts.
+// alternando naranja, crema y negro. Pocas palabras por cartel (6-oct). Cada servicio lleva una escena 3D dibujada con
+// caracteres (src/ascii3d): el primer cuadro sale del servidor y se ve sin JS; el navegador la anima.
 import Icon from '../Icon.astro';
+import Headline from './Headline.astro';
 import brand from '../../../brand.json';
-import { t, aboutRows } from '../../i18n/copy';
-import { v3, type Headline } from '../../i18n/v3';
-import { SERVICES, publishedIncludes, serviceFact, sectionId, type ServiceId } from '../../data/services';
-import { SERVICE_ART } from '../../data/ascii-art';
+import { t } from '../../i18n/copy';
+import { v3 } from '../../i18n/v3';
+import { SERVICES, publishedLines, sectionId, type ServiceId } from '../../data/services';
+import { render } from '../../ascii3d/render';
+import { scene, STILL_T } from '../../ascii3d/scenes';
 import { waGeneric, waServiceOf } from '../../lib/wa';
 import { builtRefs, poster, refWhatsApp } from '../../lib/refs';
 import { path, otherLang, type Lang } from '../../routes';
@@ -24,42 +27,20 @@ const id = (k: Parameters<typeof sectionId>[1]) => sectionId(lang, k);
 // Tonos de cada cartel (se alternan; el de la portada es naranja como la referencia)
 const SVC_TONE: Record<ServiceId, 'orange' | 'paper' | 'ink'> = { web: 'orange', automation: 'paper', marketing: 'ink', it: 'orange' };
 
-/** Parte un titular en palabras animables. Devuelve bloques: líneas en mayúsculas y el acento en cursiva en su sitio. */
-function blocks(h: Headline) {
-  const out: Array<{ kind: 'line' | 'em'; words: string[]; dot?: boolean }> = [];
-  const lines = h.lines.map((l) => l);
-  const at = h.emBefore ?? lines.length;
-  lines.forEach((l, k) => {
-    if (k === at && h.em) out.push({ kind: 'em', words: h.em.split(' ') });
-    out.push({ kind: 'line', words: l.split(' ') });
-  });
-  if (at >= lines.length && h.em) out.push({ kind: 'em', words: h.em.split(' ') });
-  // El punto final de la última línea en mayúsculas se dibuja como una bola (decoración)
-  const lastLine = [...out].reverse().find((b) => b.kind === 'line');
-  if (lastLine) {
-    const w = lastLine.words[lastLine.words.length - 1];
-    if (w.endsWith('.')) {
-      lastLine.words[lastLine.words.length - 1] = w.slice(0, -1);
-      lastLine.dot = true;
-    }
-  }
-  return out;
-}
-const plain = (h: Headline) => {
-  const b = blocks(h);
-  return b.map((x) => x.words.join(' ')).join(' ');
-};
-let wi = 0;
-const nextI = () => wi++;
-const resetI = () => {
-  wi = 0;
+// Primer cuadro de cada escena 3D (mismo tamaño de rejilla que usa el navegador en pantallas anchas)
+const COLS = 76;
+const ROWS = 38;
+const still = Object.fromEntries(SERVICES.map((s) => [s.id, render(scene(s.id), { cols: COLS, rows: ROWS, dark: SVC_TONE[s.id] === 'ink' }, STILL_T, 0, 1)]));
+
+/** Las líneas cortas de «Incluye» que están publicadas (las mismas banderas que services.ts). */
+const shortIncludes = (sid: ServiceId) => {
+  const s = SERVICES.find((v) => v.id === sid);
+  const live = new Set(s ? publishedLines(s).map((l) => l.id) : []);
+  return x.includes[sid].filter((l) => live.has(l.id));
 };
 
-const time = new Intl.DateTimeFormat(lang === 'es' ? 'es-DO' : 'en-US', { timeZone: 'America/Santo_Domingo', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
 const socials = Object.entries(brand.social) as Array<[keyof typeof c.contact.social, string]>;
 const NUM = (n: number) => String(n).padStart(2, '0');
-/** Ancho del arte en columnas: el tamaño de letra se ajusta para que llene su caja. */
-const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map((l) => l.length));
 ---
 
 <div class="px-chrome">
@@ -75,33 +56,15 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
     <a class="px-lang" href={path(other, 'home')} hreflang={other} lang={other} aria-label={c.nav.switchTo.label}>{c.nav.switchTo.code}</a>
     <a class="px-wa" href={waGeneric(lang)} target="_blank" rel="noopener" aria-label={c.nav.whatsapp}><Icon name="whatsapp" /></a>
   </div>
-  <div class="px-foot" aria-hidden="true">
-    <span data-px-label>01 · {c.nav.label}</span>
-    <span class="px-where">{x.chrome.place} · <span data-px-clock>{time}</span></span>
-  </div>
 </div>
 <div class="px-progress" aria-hidden="true"></div>
 
 <main id="contenido">
   {/* ── Portada ── */}
-  <section class="px-sec px-hero px-orange" id={id('home')} data-tone="orange" data-label={`01 · ${lang === 'es' ? 'Inicio' : 'Home'}`}>
+  <section class="px-sec px-hero px-orange" id={id('home')} data-tone="orange">
     <div class="px-tone" data-px-tone="hero" aria-hidden="true"></div>
     <div class="px-wrap">
-      <p class="px-mono" data-up style="--d:.05s">{x.hero.kicker}</p>
-      {resetI()}
-      <h1 class="px-mega" aria-label={c.home.h1}>
-        {
-          blocks(x.hero.title).map((b) => (
-            <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
-              {b.words.map((w, wk) => (
-                <>
-                  <span class="w"><span style={`--i:${nextI()}`}>{w}</span></span>{b.dot && wk === b.words.length - 1 ? <span class="px-dot" /> : ' '}
-                </>
-              ))}
-            </span>
-          ))
-        }
-      </h1>
+      <Headline h={x.hero.title} as="h1" class="px-mega" label={c.home.h1} />
       <p class="px-lead" data-up style="--d:.75s">{c.home.lead}</p>
       <div class="px-actions" data-up style="--d:.95s">
         <a class="px-btn px-btn--solid" href={waGeneric(lang)} target="_blank" rel="noopener" data-cta><Icon name="whatsapp" />{c.home.primary}</a>
@@ -110,76 +73,33 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
     </div>
   </section>
 
-  {/* ── Quiénes somos ── */}
-  <section class="px-sec px-paper" id={id('about')} data-tone="paper" data-label={`02 · ${c.nav.about}`}>
+  {/* ── Quién está detrás ── */}
+  <section class="px-sec px-paper px-about" id={id('about')} data-tone="paper">
     <div class="px-tone" data-px-tone="about" aria-hidden="true"></div>
     <div class="px-wrap">
       <p class="px-mono" data-up style="--d:.05s">{x.about.kicker}</p>
-      {resetI()}
-      <h2 class="px-mega" aria-label={plain(x.about.title)}>
-        {
-          blocks(x.about.title).map((b) => (
-            <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
-              {b.words.map((w, wk) => (
-                <>
-                  <span class="w"><span style={`--i:${nextI()}`}>{w}</span></span>{b.dot && wk === b.words.length - 1 ? <span class="px-dot" /> : ' '}
-                </>
-              ))}
-            </span>
-          ))
-        }
-      </h2>
-      <dl class="px-rows" data-up style="--d:.55s">
-        {
-          aboutRows(lang)
-            .filter((r) => r.id !== 'brand')
-            .map((r) => (
-              <div class="px-row">
-                <dt>{r.label}</dt>
-                <dd>{r.value}</dd>
-              </div>
-            ))
-        }
-      </dl>
-      <div class="px-sign px-mono" data-up style="--d:.8s"><span>{c.about.signature}</span><span>{c.about.place} · {time}</span></div>
+      <Headline h={x.about.title} class="px-mega" />
+      <p class="px-lead" data-up style="--d:.6s">{x.about.lead}</p>
     </div>
   </section>
 
   {/* ── Servicios (índice) ── */}
-  <section class="px-sec px-ink px-grid" id={id('services')} data-tone="ink" data-label={`03 · ${c.nav.services}`}>
+  <section class="px-sec px-ink px-grid" id={id('services')} data-tone="ink">
     <div class="px-wrap">
-      <p class="px-mono px-kicker" data-up style="--d:.05s"><b>&gt;</b>{x.services.kicker}</p>
-      {resetI()}
-      <h2 class="px-h2" aria-label={plain(x.services.title)}>
-        {
-          blocks(x.services.title).map((b) => (
-            <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
-              {b.words.map((w, wk) => (
-                <>
-                  <span class="w"><span style={`--i:${nextI()}`}>{w}</span></span>{b.dot && wk === b.words.length - 1 ? <span class="px-dot" /> : ' '}
-                </>
-              ))}
-            </span>
-          ))
-        }
-      </h2>
-      <div class="px-index" data-up style="--d:.45s">
+      <Headline h={x.services.title} />
+      <ol class="px-index" data-up style="--d:.45s">
         {
           SERVICES.map((s, k) => (
-            <div class="px-index-row">
-              <b aria-hidden="true">{NUM(k + 1)}</b>
-              <h3>
-                <a href={`#${s.section[lang]}`}>{s.name[lang]}</a>
-              </h3>
-              <p>{s.promise[lang]}</p>
-              <a class="px-btn" href={waServiceOf(lang, s.id)} target="_blank" rel="noopener" aria-label={c.services.whatsappFor(s.name[lang])}>
-                <Icon name="whatsapp" />
-                {c.services.whatsapp}
+            <li>
+              <a href={`#${s.section[lang]}`}>
+                <b aria-hidden="true">{NUM(k + 1)}</b>
+                <span>{s.name[lang]}</span>
+                <Icon name="arrow-right" />
               </a>
-            </div>
+            </li>
           ))
         }
-      </div>
+      </ol>
     </div>
   </section>
 
@@ -187,40 +107,20 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
   {
     SERVICES.map((s, k) => {
       const tone = SVC_TONE[s.id];
-      const fact = serviceFact(s);
-      const head = x.service[s.id];
-      resetI();
+      const art = still[s.id];
       return (
-        <section class:list={['px-sec', `px-${tone}`]} id={s.section[lang]} data-tone={tone} data-label={`${NUM(k + 4)} · ${s.name[lang]}`}>
+        <section class:list={['px-sec', `px-${tone}`]} id={s.section[lang]} data-tone={tone}>
           <div class="px-wrap">
             <div class:list={['px-svc', { 'px-svc--flip': k % 2 === 1 }]}>
               <div class="px-svc-head">
                 <p class="px-mono" data-up style="--d:.05s">
                   {NUM(k + 1)} — {s.name[lang]}
                 </p>
-                <h2 class="px-h2" aria-label={`${s.name[lang]}: ${plain(head)}`}>
-                  {blocks(head).map((b) => (
-                    <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
-                      {b.words.map((w, wk) => (
-                        <>
-                          <span class="w">
-                            <span style={`--i:${nextI()}`}>{w}</span>
-                          </span>{' '}
-                        </>
-                      ))}
-                    </span>
-                  ))}
-                </h2>
-                <p class="px-lead" data-up style="--d:.5s">
-                  {s.promise[lang]}
-                </p>
+                <Headline h={x.service[s.id]} label={`${s.name[lang]}: ${[...x.service[s.id].lines, x.service[s.id].em ?? ''].join(' ')}`} />
                 <ul class="px-toggles" data-px-toggles aria-label={c.services.fields.includes}>
-                  {publishedIncludes(s, lang).map((line, n) => (
+                  {shortIncludes(s.id).map((l, n) => (
                     <li style={`--n:${n}`}>
-                      <span>
-                        <small>{NUM(n + 1)}</small>
-                        {line}
-                      </span>
+                      <span>{l.text}</span>
                       <span class="px-switch" aria-hidden="true" />
                     </li>
                   ))}
@@ -232,32 +132,11 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
                   </a>
                 </div>
               </div>
-              <div class="px-svc-art" data-up style="--d:.35s" aria-hidden="true">
-                <pre class="px-art" data-px-type style={`--cols:${artCols(s.id)}`}>{SERVICE_ART[s.id]}</pre>
+              <div class="px-svc-art" data-up style={`--d:.2s;--cols:${COLS}`} data-px-3d={s.id} data-dark={tone === 'ink' ? '' : undefined} aria-hidden="true">
+                <pre class="a">{art.a}</pre>
+                <pre class="b">{art.b}</pre>
               </div>
             </div>
-            <div class="px-cards" data-up style="--d:.3s">
-              <div class="px-card px-card--ink">
-                <h4>{c.services.fields.audience}</h4>
-                <p>{s.audience[lang]}</p>
-              </div>
-              <div class="px-card px-card--line">
-                <h4>{c.services.fields.needs}</h4>
-                <p>{s.needs[lang]}</p>
-              </div>
-              <div class="px-card px-card--ink">
-                <h4>{c.services.fields.result}</h4>
-                <p>{s.result[lang]}</p>
-              </div>
-            </div>
-            {fact && (
-              <div class="px-fact" data-up style="--d:.35s">
-                <p>{fact.text[lang]}</p>
-                <a class="px-mono" href={fact.src} rel="noopener" target="_blank">
-                  {c.services.source(fact.source[lang])}
-                </a>
-              </div>
-            )}
           </div>
         </section>
       );
@@ -265,23 +144,10 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
   }
 
   {/* ── Ejemplos ── */}
-  <section class="px-sec px-paper" id={id('samples')} data-tone="paper" data-label={`08 · ${c.nav.samples}`}>
+  <section class="px-sec px-paper" id={id('samples')} data-tone="paper">
     <div class="px-wrap">
       <p class="px-mono" data-up style="--d:.05s">{x.samples.kicker}</p>
-      {resetI()}
-      <h2 class="px-h2" aria-label={plain(x.samples.title)}>
-        {
-          blocks(x.samples.title).map((b) => (
-            <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
-              {b.words.map((w, wk) => (
-                <>
-                  <span class="w"><span style={`--i:${nextI()}`}>{w}</span></span>{b.dot && wk === b.words.length - 1 ? <span class="px-dot" /> : ' '}
-                </>
-              ))}
-            </span>
-          ))
-        }
-      </h2>
+      <Headline h={x.samples.title} />
       <div class="px-samples" data-up style="--d:.45s">
         {
           refs.map((r) => (
@@ -313,7 +179,7 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
   </section>
 
   {/* ── Proceso ── */}
-  <section class="px-sec px-orange" id={id('process')} data-tone="orange" data-label={`09 · ${c.nav.process}`}>
+  <section class="px-sec px-orange" id={id('process')} data-tone="orange">
     <div class="px-tone" data-px-tone="process" aria-hidden="true"></div>
     <div class="px-wrap">
       <h2 class="px-mono" data-up style="--d:.05s">{x.process.kicker}</h2>
@@ -331,24 +197,10 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
   </section>
 
   {/* ── Contacto ── */}
-  <section class="px-sec px-ink" id={id('contact')} data-tone="ink" data-label={`10 · ${c.nav.contact}`}>
+  <section class="px-sec px-ink" id={id('contact')} data-tone="ink">
     <div class="px-tone" data-px-tone="contact" aria-hidden="true"></div>
     <div class="px-wrap">
-      <p class="px-mono px-kicker" data-up style="--d:.05s"><b>&gt;</b>{x.contact.kicker}</p>
-      {resetI()}
-      <h2 class="px-mega" aria-label={plain(x.contact.title)}>
-        {
-          blocks(x.contact.title).map((b) => (
-            <span class:list={[b.kind === 'em' ? 'px-em' : 'line']} aria-hidden="true">
-              {b.words.map((w, wk) => (
-                <>
-                  <span class="w"><span style={`--i:${nextI()}`}>{w}</span></span>{b.dot && wk === b.words.length - 1 ? <span class="px-dot" /> : ' '}
-                </>
-              ))}
-            </span>
-          ))
-        }
-      </h2>
+      <Headline h={x.contact.title} class="px-mega" />
       <div class="px-actions" data-up style="--d:.6s">
         <a class="px-btn px-btn--solid" href={waGeneric(lang)} target="_blank" rel="noopener"><Icon name="whatsapp" />{c.contact.primary}</a>
       </div>
@@ -366,7 +218,7 @@ const artCols = (sid: ServiceId) => Math.max(...SERVICE_ART[sid].split('\n').map
         {socials.map(([k, href]) => <a href={href} target="_blank" rel="noopener me">{c.contact.social[k]}</a>)}
       </div>
       <div class="px-footer px-mono" data-up style="--d:.9s">
-        <span>{brand.name}</span><span>{c.footer.rights}</span><span>©{new Date().getFullYear()}</span>
+        <span>{c.about.signature}</span><span>{brand.name} · ©{new Date().getFullYear()}</span>
       </div>
     </div>
   </section>

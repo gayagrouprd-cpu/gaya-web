@@ -1,28 +1,20 @@
 // Inicio «cartel editorial» + ASCII: esquinas que cambian de tono con el cartel, barra de avance, revelados al entrar,
-// interruptores que se encienden, arte ASCII que se escribe solo y semitonos hechos de caracteres que reaccionan al puntero.
-// Todo es decoración o refuerzo visual: sin JS la página se lee entera. Nada se mueve solo más de ~2 s (WCAG 2.2.2).
+// interruptores que se encienden, escenas 3D hechas de caracteres y semitonos de caracteres que reaccionan al puntero.
+// Todo es decoración o refuerzo visual: sin JS la página se lee entera. Nada se mueve solo más de unos segundos (WCAG 2.2.2):
+// las escenas giran con el scroll y el puntero y se detienen solas.
+import { render, type Scene } from '../ascii3d/render';
+import { scene, STILL_T } from '../ascii3d/scenes';
+import type { ServiceId } from '../data/services';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const root = document.documentElement;
 root.classList.add('js');
 
 const sections = [...document.querySelectorAll<HTMLElement>('main > .px-sec')];
-const label = document.querySelector<HTMLElement>('[data-px-label]');
 const progress = document.querySelector<HTMLElement>('.px-progress');
 const links = [...document.querySelectorAll<HTMLAnchorElement>('.px-links a')];
 
-// ── Hora de Santo Domingo (una vez: no es un reloj que corre) ──────────────────────────────────────────────
-const clock = document.querySelector<HTMLElement>('[data-px-clock]');
-if (clock) {
-  clock.textContent = new Intl.DateTimeFormat(root.lang === 'en' ? 'en-US' : 'es-DO', {
-    timeZone: 'America/Santo_Domingo',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(new Date());
-}
-
-// ── Tono de las esquinas, etiqueta de sección, enlace activo y avance ─────────────────────────────────────
+// ── Tono de las esquinas, enlace activo y avance ─────────────────────────────────────
 let tops: number[] = [];
 const measure = () => {
   tops = sections.map((s) => s.getBoundingClientRect().top + scrollY);
@@ -44,9 +36,7 @@ const onScroll = () => {
     }
     const sTop = sections[top];
     if (sTop) document.body.dataset.tone = sTop.dataset.tone ?? 'ink';
-    const sMid = sections[mid];
-    if (sMid && label && label.textContent !== sMid.dataset.label) label.textContent = sMid.dataset.label ?? '';
-    const idMid = sMid?.id;
+    const idMid = sections[mid]?.id;
     for (const a of links) {
       const on = a.hash === `#${idMid}`;
       if (on) a.setAttribute('aria-current', 'location');
@@ -54,6 +44,7 @@ const onScroll = () => {
     }
     const max = Math.max(1, document.documentElement.scrollHeight - h);
     progress?.style.setProperty('--p', String(Math.min(1, y / max)));
+    for (const a of arts) if (a.visible) aim(a);
   });
 };
 measure();
@@ -92,33 +83,136 @@ for (const list of document.querySelectorAll<HTMLElement>('[data-px-toggles]')) 
   if (sec) chain(sec, on);
 }
 
-// ── Arte ASCII que se escribe (con su caja reservada: sin saltos de diseño) ──────────────────────────────────
-for (const pre of document.querySelectorAll<HTMLElement>('[data-px-type]')) {
-  const full = pre.textContent ?? '';
-  const ghost = document.createElement('span');
-  ghost.className = 'ghost';
-  ghost.textContent = full;
-  const live = document.createElement('span');
-  live.className = 'live';
-  pre.textContent = '';
-  pre.append(ghost, live);
-  pre.classList.add('is-typing');
-  const sec = pre.closest('.px-sec');
-  const run = () => {
-    if (reduce.matches) {
-      live.textContent = full;
-      return;
-    }
-    const t0 = performance.now() + 420;
-    const dur = Math.min(1600, 260 + full.length * 1.6);
-    const step = (now: number) => {
-      const p = Math.max(0, Math.min(1, (now - t0) / dur));
-      live.textContent = full.slice(0, Math.round(full.length * p));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+// ── Escenas 3D de los servicios: giran con el scroll y el puntero, y se quedan quietas al soltar ────────────────
+type Art = {
+  box: HTMLElement;
+  a: HTMLElement;
+  b: HTMLElement;
+  s: Scene;
+  dark: boolean;
+  cols: number;
+  rows: number;
+  t: number;
+  energy: number;
+  spin: number;
+  scrollSpin: number;
+  hover: number;
+  reveal: number;
+  visible: boolean;
+  raf: number;
+  last: number;
+};
+const arts: Art[] = [];
+const SSR_COLS = 76;
+const colsFor = (w: number) => (w < 520 ? 58 : SSR_COLS);
+
+function paint(a: Art) {
+  const f = render(a.s, { cols: a.cols, rows: a.rows, dark: a.dark }, a.t, a.spin, a.reveal);
+  a.a.textContent = f.a;
+  a.b.textContent = f.b;
+}
+function fit(a: Art) {
+  const cols = colsFor(a.box.clientWidth);
+  if (cols === a.cols) return;
+  a.cols = cols;
+  a.rows = Math.round(cols / 2);
+  a.box.style.setProperty('--cols', String(cols));
+  paint(a);
+}
+/** Giro según dónde está la escena en la pantalla: el scroll la hace girar. */
+function aim(a: Art) {
+  const r = a.box.getBoundingClientRect();
+  const p = (innerHeight - r.top) / (innerHeight + r.height);
+  const next = (Math.min(1, Math.max(0, p)) - 0.5) * 1.1;
+  if (Math.abs(next - a.scrollSpin) > 0.002) {
+    a.scrollSpin = next;
+    a.energy = Math.max(a.energy, 0.55);
+    wakeArt(a);
+  }
+}
+function wakeArt(a: Art) {
+  if (!a.raf && !reduce.matches) a.raf = requestAnimationFrame((n) => tickArt(a, n));
+}
+function tickArt(a: Art, now: number) {
+  a.raf = 0;
+  if (!a.visible) {
+    a.last = 0;
+    return;
+  }
+  if (a.last && now - a.last < 33) {
+    a.raf = requestAnimationFrame((n) => tickArt(a, n));
+    return;
+  }
+  const dt = a.last ? Math.min(0.05, (now - a.last) / 1000) : 0.016;
+  a.last = now;
+  a.t += dt * a.energy;
+  a.energy *= Math.exp(-dt / 1.25);
+  const target = a.scrollSpin + a.hover;
+  a.spin += (target - a.spin) * Math.min(1, dt * 4.5);
+  if (a.reveal < 1) a.reveal = Math.min(1, a.reveal + dt / 0.95);
+  paint(a);
+  if (a.energy > 0.015 || Math.abs(target - a.spin) > 0.003 || a.reveal < 1) a.raf = requestAnimationFrame((n) => tickArt(a, n));
+  else a.last = 0;
+}
+
+const artIO = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    const a = arts.find((v) => v.box === e.target);
+    if (!a) continue;
+    a.visible = e.isIntersecting;
+    if (a.visible) aim(a);
+  }
+});
+for (const box of document.querySelectorAll<HTMLElement>('[data-px-3d]')) {
+  const pa = box.querySelector<HTMLElement>('pre.a');
+  const pb = box.querySelector<HTMLElement>('pre.b');
+  if (!pa || !pb) continue;
+  const a: Art = {
+    box,
+    a: pa,
+    b: pb,
+    s: scene(box.getAttribute('data-px-3d') as ServiceId),
+    dark: box.hasAttribute('data-dark'),
+    cols: SSR_COLS,
+    rows: SSR_COLS / 2,
+    t: STILL_T,
+    energy: 0,
+    spin: 0,
+    scrollSpin: 0,
+    hover: 0,
+    reveal: 1,
+    visible: false,
+    raf: 0,
+    last: 0,
   };
-  if (sec) chain(sec, run);
+  arts.push(a);
+  fit(a);
+  artIO.observe(box);
+  new ResizeObserver(() => fit(a)).observe(box);
+  const sec = box.closest('.px-sec');
+  if (!sec || reduce.matches) continue;
+  // Al entrar por primera vez: se dibuja celda a celda y arranca
+  chain(sec, () => {
+    a.reveal = 0;
+    a.energy = 1;
+    wakeArt(a);
+  });
+  if (matchMedia('(pointer: fine)').matches) {
+    sec.addEventListener(
+      'pointermove',
+      (e) => {
+        const r = box.getBoundingClientRect();
+        a.hover = ((e as PointerEvent).clientX - r.left - r.width / 2) / Math.max(1, r.width) * 1.2;
+        a.energy = 1;
+        wakeArt(a);
+      },
+      { passive: true },
+    );
+    sec.addEventListener('pointerleave', () => {
+      a.hover = 0;
+      wakeArt(a);
+    });
+  }
 }
 
 function chain(sec: Element, fn: () => void) {
@@ -213,8 +307,18 @@ function size(t: Tone) {
   t.color = getComputedStyle(t.box).color;
   // Celdas bajo el texto del cartel: el semitono las respeta (pozo de lectura)
   t.clear = new Uint8Array(t.cols * t.rows);
-  for (const el of t.sec.querySelectorAll<HTMLElement>('.px-mega, .px-h2, .px-lead, .px-actions, .px-rows, .px-sign, .px-steps, .px-mono, .px-contact, .px-social, .px-footer')) {
-    const e = el.getBoundingClientRect();
+  // Se mide el texto de verdad (cajas de línea) y las piezas con fondo o raya, no los bloques enteros:
+  // así el semitono rodea las letras y no deja franjas vacías a lo ancho
+  const rects: DOMRect[] = [];
+  const range = document.createRange();
+  const walker = document.createTreeWalker(t.sec, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    if (!n.textContent?.trim() || n.parentElement?.closest('[aria-hidden="true"]:not(.px-mega *):not(.px-h2 *)')) continue;
+    range.selectNodeContents(n);
+    rects.push(...range.getClientRects());
+  }
+  for (const b of t.sec.querySelectorAll('.px-btn, .px-row, .px-social a, .px-dot, .px-steps li, .px-footer')) rects.push(b.getBoundingClientRect());
+  for (const e of rects) {
     if (!e.width) continue;
     const x0 = Math.floor((e.left - r.left) / t.cw) - 1;
     const x1 = Math.ceil((e.right - r.left) / t.cw) + 1;

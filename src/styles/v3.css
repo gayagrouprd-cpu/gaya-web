@@ -165,15 +165,6 @@ body[data-tone='ink'] .px-wa {
   width: 20px;
   height: 20px;
 }
-.px-foot {
-  position: absolute;
-  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-  left: var(--gut);
-  right: var(--gut);
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-}
 .px-progress {
   position: fixed;
   left: 0;
@@ -408,14 +399,6 @@ body[data-ui='poster'] button:focus-visible {
 }
 
 /* ── Filas de datos (quiénes somos) y servicios ──────────────────────────────────────────────────────────── */
-.px-rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-  max-width: 56rem;
-}
 .px-row {
   display: grid;
   grid-template-columns: minmax(7.5rem, 11rem) 1fr;
@@ -441,64 +424,49 @@ body[data-ui='poster'] button:focus-visible {
   font-stretch: 104%;
   text-transform: uppercase;
 }
-.px-sign {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px 24px;
-  flex-wrap: wrap;
-  border-top: 2px solid currentColor;
-  padding-top: 12px;
-  max-width: 56rem;
-}
-
 .px-index {
+  list-style: none;
+  margin: clamp(8px, 2vh, 20px) 0 0;
+  padding: 0;
   display: grid;
-  margin-top: clamp(8px, 2vh, 20px);
 }
-.px-index-row {
-  display: grid;
-  grid-template-columns: 4.6rem 1fr auto;
-  align-items: center;
-  gap: 6px 22px;
-  padding: 16px 0;
+.px-index li {
   border-top: 1px solid var(--line-dark);
 }
-.px-index-row:last-child {
+.px-index li:last-child {
   border-bottom: 1px solid var(--line-dark);
 }
-.px-index-row b {
-  font: 900 clamp(1.6rem, 2.8vw, 2.5rem) / 1 var(--sans);
-  font-stretch: 110%;
-  color: var(--orange);
-}
-.px-index-row h3 {
-  margin: 0;
-  word-spacing: 0.14em;
-  font: 900 clamp(1.2rem, 2.4vw, 2.1rem) / 1.02 var(--sans);
-  font-stretch: 108%;
-  text-transform: uppercase;
-}
-.px-index-row h3 a {
+.px-index a {
+  display: grid;
+  grid-template-columns: clamp(3rem, 6vw, 5.4rem) 1fr auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 64px;
+  padding: clamp(14px, 2.4vh, 24px) 0;
   color: inherit;
   text-decoration: none;
+  word-spacing: 0.14em;
+  font: 900 clamp(1.35rem, 3.4vw, 3rem) / 1 var(--sans);
+  font-stretch: 110%;
+  text-transform: uppercase;
 }
-.px-index-row h3 a:hover {
+.px-index b {
+  font: inherit;
+  color: var(--orange);
+}
+.px-index svg {
+  width: clamp(22px, 2.4vw, 34px);
+  height: auto;
+  transition: transform 0.35s var(--ease);
+}
+.px-index a:hover svg,
+.px-index a:focus-visible svg {
+  transform: translateX(8px);
+}
+.px-index a:hover span {
   text-decoration: underline;
   text-decoration-thickness: 3px;
   text-underline-offset: 6px;
-}
-.px-index-row p {
-  grid-column: 2;
-  margin: 0;
-  opacity: 0.72;
-  font: 450 clamp(0.95rem, 1.25vw, 1.1rem) / 1.35 var(--sans);
-}
-.px-index-row .px-btn {
-  grid-row: 1 / span 2;
-  grid-column: 3;
-  min-height: 46px;
-  padding: 0 1.1em;
-  font-size: 0.86rem;
 }
 
 /* ── Ficha de servicio ───────────────────────────────────────────────────────────────────────────────────── */
@@ -509,7 +477,11 @@ body[data-ui='poster'] button:focus-visible {
 }
 @media (min-width: 62rem) {
   .px-svc {
-    grid-template-columns: 1.05fr 1fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+  }
+  .px-svc .px-h2 {
+    font-size: clamp(2.4rem, 4.9vw, 5.2rem);
   }
   .px-svc--flip .px-svc-art {
     order: -1;
@@ -533,25 +505,18 @@ body[data-ui='poster'] button:focus-visible {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 14px;
-  min-height: 54px;
-  padding: 10px 14px 10px 18px;
+  min-height: 58px;
+  padding: 10px 14px 10px 20px;
   border-radius: 14px;
   background: var(--ink);
   color: var(--paper);
-  font: 800 clamp(0.88rem, 1.2vw, 1.04rem) / 1.25 var(--sans);
+  font: 800 clamp(1rem, 1.45vw, 1.25rem) / 1.2 var(--sans);
   font-stretch: 104%;
   text-transform: uppercase;
 }
 .px-ink .px-toggles li {
   background: var(--ink-2);
   border: 1px solid var(--line-dark);
-}
-.px-toggles li small {
-  display: block;
-  margin-bottom: 3px;
-  font: 500 0.62rem / 1 var(--mono);
-  letter-spacing: 0.07em;
-  color: var(--orange);
 }
 .px-switch {
   position: relative;
@@ -580,90 +545,40 @@ body[data-ui='poster'] button:focus-visible {
 .is-on .px-switch::after {
   transform: translateX(22px);
 }
-.px-cards {
-  display: grid;
-  gap: 10px;
-}
-@media (min-width: 48rem) {
-  .px-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-.px-card {
-  border-radius: 22px;
-  padding: clamp(16px, 1.8vw, 22px);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.px-card h4 {
-  margin: 0;
-  font: 500 0.7rem / 1 var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-.px-card p {
-  margin: 0;
-  font: 450 clamp(0.92rem, 1.15vw, 1.04rem) / 1.4 var(--sans);
-}
-.px-card--ink {
-  background: var(--ink);
-  color: var(--paper);
-}
-.px-card--ink h4 {
-  color: var(--orange);
-}
-.px-card--line {
-  border: 2px solid currentColor;
-}
-.px-card--orange {
-  background: var(--orange);
-  color: var(--ink);
-}
-.px-fact {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px 22px;
-  flex-wrap: wrap;
-  border-top: 2px solid currentColor;
-  padding-top: 14px;
-}
-.px-fact p {
-  flex: 1 1 22rem;
-  margin: 0;
-  font: 700 clamp(1rem, 1.5vw, 1.3rem) / 1.3 var(--sans);
-}
-.px-fact a {
-  color: inherit;
-}
-
-/* Arte ASCII de cada servicio */
+/* Escena 3D de cada servicio, dibujada con caracteres (src/ascii3d). Dos capas: color principal y acento.
+   El interlineado 1.08 y el avance 0.6 de la mono son la proporción de celda de render.ts (CELL): cambiarlos a la vez. */
 .px-svc-art {
   container-type: inline-size;
-  position: relative;
-  border-radius: 22px;
-  padding: clamp(14px, 2vw, 28px);
-  overflow: hidden;
+  display: grid;
+  align-self: center;
 }
-.px-orange .px-svc-art {
-  background: var(--ink);
-  color: var(--orange);
-}
-.px-paper .px-svc-art {
-  background: var(--ink);
-  color: var(--paper);
-}
-.px-ink .px-svc-art {
-  background: var(--orange);
-  color: var(--ink);
-}
-.px-art {
+.px-svc-art pre {
+  grid-area: 1 / 1;
   margin: 0;
-  font: 500 clamp(8px, calc(100cqi / (var(--cols, 42) * 0.6)), 21px) / 1.32 var(--mono);
+  font: 700 calc(100cqi / (var(--cols, 76) * 0.6)) / 1.08 var(--mono);
+  letter-spacing: 0;
   white-space: pre;
   overflow: hidden;
   user-select: none;
+  font-kerning: none;
   font-variant-ligatures: none;
+  font-feature-settings: 'calt' 0, 'liga' 0;
+}
+.px-orange .px-svc-art .a,
+.px-paper .px-svc-art .a {
+  color: var(--ink);
+}
+.px-orange .px-svc-art .b {
+  color: var(--paper);
+}
+.px-paper .px-svc-art .b {
+  color: var(--orange);
+}
+.px-ink .px-svc-art .a {
+  color: var(--orange);
+}
+.px-ink .px-svc-art .b {
+  color: var(--paper);
 }
 
 /* ── Ejemplos ────────────────────────────────────────────────────────────────────────────────────────────── */
@@ -880,16 +795,6 @@ body[data-ui='poster'] button:focus-visible {
     transform: translateY(26px);
   }
 }
-/* Arte que se escribe: la copia fantasma reserva la caja */
-.px-art.is-typing {
-  display: grid;
-}
-.px-art.is-typing > span {
-  grid-area: 1 / 1;
-}
-.px-art .ghost {
-  visibility: hidden;
-}
 @keyframes px-drop {
   0% {
     transform: translateY(-3em);
@@ -934,27 +839,16 @@ body[data-ui='poster'] button:focus-visible {
     grid-template-columns: 1fr;
     gap: 6px;
   }
-  .px-index-row {
-    grid-template-columns: 3rem 1fr;
-  }
-  .px-index-row .px-btn {
-    grid-row: auto;
-    grid-column: 2;
-    justify-self: start;
-  }
   .px-tone {
     width: 100vw;
     height: 46svh;
-  }
-  .px-foot {
-    display: none;
   }
 }
 
 /* ── Accesibilidad de color e impresión ──────────────────────────────────────────────────────────────────── */
 @media (forced-colors: active) {
   .px-tone,
-  .px-art {
+  .px-svc-art {
     display: none;
   }
 }

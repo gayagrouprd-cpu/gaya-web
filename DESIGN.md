@@ -31,7 +31,7 @@ Definidos en `src/styles/tokens.css` y espejados en `src/styles/tokens.json` (`n
 - **Fichas de servicio:** no comparten plantilla; alternan el lado del texto y de la placa y el reparto interno. En móvil, «Más detalles» va plegado.
 - **Ejemplos:** filas con emblema de sector, nombre, rubro, «Ver ejemplo» y «Quiero una así»; sello «Datos ficticios» junto al título y bajo cada emblema.
 - **Proceso:** el hilo de HOLA a LISTO, arte en DOM con el `ol` real.
-- **Menú:** píldora fija en escritorio; en móvil, barra inferior con WhatsApp dominante y un `popover` con los destinos. Logo provisional `▞ Gaya Digital`.
+- **Menú:** píldora fija en escritorio; en móvil, barra inferior con WhatsApp dominante y un `popover` con los destinos. Logo horizontal del kit (`Logo.astro`); en la portada, a una tinta sobre el naranja.
 
 ## Movimiento
 Ignición de GAYA, marea entre carteles, llegada de cada escena, calor del puntero y anillos de toque: todo opcional, por tiempo y ≤ 2,4 s. La marea corre aunque el dedo se detenga. Reposo sin bucle. El estado estático es un fotograma del mismo motor (nunca una imagen aparte).

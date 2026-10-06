@@ -3,6 +3,7 @@
 // alternando naranja, crema y negro. Pocas palabras por cartel (6-oct). Cada servicio lleva una escena 3D dibujada con
 // caracteres (src/ascii3d): el primer cuadro sale del servidor y se ve sin JS; el navegador la anima.
 import Icon from '../Icon.astro';
+import Logo from '../Logo.astro';
 import Headline from './Headline.astro';
 import brand from '../../../brand.json';
 import { t } from '../../i18n/copy';
@@ -45,7 +46,7 @@ const NUM = (n: number) => String(n).padStart(2, '0');
 
 <div class="px-chrome">
   <div class="px-top">
-    <a class="px-brand" href={`#${id('home')}`} aria-label={brand.name}><i aria-hidden="true"></i><span>{brand.name}</span></a>
+    <Logo href={`#${id('home')}`} class="px-brand" />
     <nav class="px-links" aria-label={c.nav.label}>
       <a href={`#${id('about')}`}>{c.nav.about}</a>
       <a href={`#${id('services')}`}>{c.nav.services}</a>

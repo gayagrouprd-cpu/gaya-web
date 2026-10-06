@@ -30,15 +30,17 @@
 }
 
 /* ── Tokens ──────────────────────────────────────────────────────────────────────────────────────────────── */
-/* Naranja algo más profundo que el de la referencia (#f94a1b → #f2461a) para que el crema sobre naranja llegue a 3:1 (texto grande)
-   y la tinta sobre naranja a 5,3:1. Medido: crema/naranja 3,07 · tinta/naranja 5,30 · naranja/tinta 5,30 · tinta/crema 16,3. */
+/* Colores de la marca: naranja #FCA311 y azul marino #14213D (la «tinta»), con el crema de siempre. El naranja de la marca es claro:
+   sobre él va la tinta (7,9:1) y no el crema (1,7:1); sobre el crema, el texto naranja usa --orange-text (3,4:1, solo texto grande).
+   Medido: tinta/naranja 7,90 · naranja/tinta 7,90 · crema/tinta 13,2 · naranja-texto/crema 3,41. */
 body[data-ui='poster'] {
   --paper: #efe9dd;
-  --ink: #0b0b0b;
-  --ink-2: #161616;
-  --orange: #f2461a;
+  --ink: #14213d;
+  --ink-2: #1e2d4c;
+  --orange: #fca311;
+  --orange-text: #bb6800;
   --line-dark: rgba(239, 233, 221, 0.16);
-  --line-light: rgba(11, 11, 11, 0.18);
+  --line-light: rgba(20, 33, 61, 0.2);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --wipe: cubic-bezier(0.77, 0, 0.18, 1);
   --sans: 'Archivo V', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
@@ -281,9 +283,11 @@ body[data-tone='orange'] .px-progress {
   padding: 0.04em 0 0.08em;
 }
 .px-orange .px-em {
-  color: var(--paper);
+  color: var(--ink);
 }
-.px-paper .px-em,
+.px-paper .px-em {
+  color: var(--orange-text);
+}
 .px-ink .px-em {
   color: var(--orange);
 }

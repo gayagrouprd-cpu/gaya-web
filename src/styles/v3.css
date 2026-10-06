@@ -102,8 +102,8 @@ body[data-tone='ink'] {
   align-items: center;
   gap: 18px;
 }
-/* Logo (Logo.astro). Sobre el naranja, a una tinta (el color del cromo); sobre crema y negro, la ola izquierda y «digital»
-   vuelven al naranja de la marca. */
+/* Logo compacto (Logo.astro), como las versiones del kit: sobre el naranja, a una tinta (el azul marino del cromo); sobre el crema,
+   ola izquierda naranja y el resto azul marino; sobre el azul marino, naranja y blanco. */
 .px-top .px-brand {
   --logo-a: currentColor;
   --logo-b: currentColor;
@@ -111,9 +111,12 @@ body[data-tone='ink'] {
   min-height: 44px;
   color: inherit;
 }
-body[data-tone='paper'] .px-top .px-brand,
+body[data-tone='paper'] .px-top .px-brand {
+  --logo-a: #fca311;
+}
 body[data-tone='ink'] .px-top .px-brand {
   --logo-a: #fca311;
+  --logo-b: #fff;
 }
 .px-brand .logo__art g,
 .px-brand .logo__art path {
@@ -310,7 +313,7 @@ body[data-tone='orange'] .px-progress {
   background: currentColor;
 }
 .px-orange .px-dot {
-  background: var(--paper);
+  background: var(--ink);
 }
 .px-paper .px-dot,
 .px-ink .px-dot {

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Paleta del arte: 16 tonos T0–T15 derivados de --glow-0..3 (DIRECTION §5.4).
-//   T0 = --glow-0 · T5 = --glow-1 · T10 = --glow-2 · T15 = --glow-3; el resto, interpolación lineal en OKLCH
+//   T0 = --glow-0 · T5 = --glow-1 · T10 = --glow-2 · T15 = --glow-3; el resto, interpolación lineal en OKLCH, salvo entre claves
+//   de matices opuestos, que se cruzan por el gris (ver HUE_PIVOT_DEG)
 //   (el recorte de croma al salir de sRGB es el de src/lib/color.mjs, el mismo que usa `npm run contrast`).
 // Una sola fuente: tokens.css. De aquí salen dos archivos que nadie edita a mano:
 //   src/styles/tones.css     --t0 … --t15 para el DOM (hex; el oklch de origen va en un comentario)
@@ -30,12 +31,32 @@ function readGlow(tokensCss, n) {
   return parseOklch(m[1]);
 }
 
-/** Interpolación de matiz por el arco corto (con los matices actuales coincide con la lineal). */
-function lerpHue(a, b, f) {
+/** Diferencia de matiz por el arco corto, en grados (−180…180). */
+function hueDelta(a, b) {
   let d = b - a;
   if (d > 180) d -= 360;
   else if (d < -180) d += 360;
-  return (((a + d * f) % 360) + 360) % 360;
+  return d;
+}
+
+/** Interpolación de matiz por el arco corto. */
+function lerpHue(a, b, f) {
+  return (((a + hueDelta(a, b) * f) % 360) + 360) % 360;
+}
+
+/** Por encima de este salto de matiz entre dos claves, el tramo no gira por el círculo: de azul marino a naranja el arco
+ *  corto pasa por violeta y rosa (y el largo, por verde). En su lugar va por el gris: la primera mitad conserva el matiz de
+ *  salida y apaga su croma, la segunda toma el de llegada y la enciende (un tramo azul y otro naranja). Con claves de
+ *  matices cercanos (la escala Cobalto: 268 → 225) no cambia nada. */
+const HUE_PIVOT_DEG = 90;
+
+/** L, C y h del punto f (0…1) entre dos claves. */
+function lerpKey(a, b, f) {
+  const L = a.L + (b.L - a.L) * f;
+  if (Math.abs(hueDelta(a.h, b.h)) > HUE_PIVOT_DEG) {
+    return f < 0.5 ? { L, C: a.C * (1 - f / 0.5), h: a.h } : { L, C: b.C * ((f - 0.5) / 0.5), h: b.h };
+  }
+  return { L, C: a.C + (b.C - a.C) * f, h: lerpHue(a.h, b.h, f) };
 }
 
 /** @param {string} tokensCss contenido de tokens.css */
@@ -45,11 +66,7 @@ export function computeTones(tokensCss) {
   for (let i = 0; i < TONE_COUNT; i++) {
     const k = Math.min(K.length - 2, Math.floor(i / 5));
     const f = (i - k * 5) / 5;
-    const a = K[k];
-    const b = K[k + 1];
-    const L = a.L + (b.L - a.L) * f;
-    const C = a.C + (b.C - a.C) * f;
-    const h = lerpHue(a.h, b.h, f);
+    const { L, C, h } = lerpKey(K[k], K[k + 1], f);
     oklch.push(`oklch(${L.toFixed(4)} ${C.toFixed(4)} ${h.toFixed(3)})`);
   }
   return { oklch, hex: oklch.map(oklchToHex), rgb: oklch.map(oklchToRgb255) };

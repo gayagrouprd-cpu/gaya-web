@@ -9,25 +9,32 @@
 <link rel="icon" href="icono.png">
 <link rel="apple-touch-icon" href="icono.png">
 <style>
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #174d48; color: #fff; font: 600 18px system-ui, sans-serif; }
+  html, body { height: 100%; margin: 0; background: #174d48; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+  #s { position: fixed; inset: 0; display: grid; place-items: center; color: #fff; font: 600 18px system-ui, sans-serif; }
 </style>
 </head>
 <body>
 <div id="s">…</div>
 <script>
-  // La clave viaja en el fragmento (#), que el navegador nunca manda a ningún servidor.
+  // La clave viaja en el fragmento (#), que el navegador nunca manda a ningún servidor, y queda guardada en este teléfono.
   const KEY_STORE = 'alinea-bandeja-key';
   const hash = new URLSearchParams(location.hash.slice(1));
   let key = hash.get('key');
   try { if (key) localStorage.setItem(KEY_STORE, key); else key = localStorage.getItem(KEY_STORE); } catch {}
   const u = hash.get('u');
+  if (hash.has('key')) history.replaceState(null, '', location.pathname + (u ? '#u=' + encodeURIComponent(u) : ''));
+  const status = document.getElementById('s');
   fetch('tunel.json?t=' + Date.now(), { cache: 'no-store' })
     .then((r) => r.json())
     .then(({ url }) => {
-      if (!key) { document.getElementById('s').textContent = 'Sin clave'; return; }
-      location.replace(url.replace(/\/+$/, '') + '/bandeja?key=' + encodeURIComponent(key) + (u ? '&u=' + encodeURIComponent(u) : ''));
+      if (!key) { status.textContent = 'Sin clave'; return; }
+      const frame = document.createElement('iframe');
+      frame.src = url.replace(/\/+$/, '') + '/bandeja?key=' + encodeURIComponent(key) + (u ? '&u=' + encodeURIComponent(u) : '');
+      frame.onload = () => status.remove();
+      document.body.appendChild(frame);
     })
-    .catch(() => { document.getElementById('s').textContent = 'Bandeja fuera de línea'; });
+    .catch(() => { status.textContent = 'Bandeja fuera de línea'; });
 </script>
 </body>
 </html>

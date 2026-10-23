@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conectar WhatsApp · Alinèa</title>
+<style>
+  :root { --bg: #f5f4ef; --ink: #14213d; --accent: #25d366; --ok: #1a7f4b; --err: #b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #111412; --ink: #f5f4ef; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; }
+  main { display: grid; gap: 20px; justify-items: center; padding: 24px; text-align: center; }
+  button { padding: 18px 32px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  #badge { font-weight: 600; min-height: 24px; }
+  #badge.ok { color: var(--ok); } #badge.err { color: var(--err); }
+  pre { font-size: 13px; margin: 0; }
+</style>
+</head>
+<body>
+<main>
+  <button id="connect" disabled>Conectar WhatsApp</button>
+  <div id="badge" role="status"></div>
+  <pre id="ids"></pre>
+</main>
+<script>
+  const APP_ID = '1495891745887954';
+  const CONFIG_ID = '1675613364141690';
+  const button = document.getElementById('connect');
+  const badge = document.getElementById('badge');
+  const ids = document.getElementById('ids');
+  const show = (t, k) => { badge.textContent = t; badge.className = k || ''; };
+
+  window.addEventListener('message', (event) => {
+    if (!event.origin.endsWith('facebook.com')) return;
+    let data; try { data = JSON.parse(event.data); } catch { return; }
+    if (data.type !== 'WA_EMBEDDED_SIGNUP') return;
+    if (data.event === 'CANCEL') { show('Cancelado', 'err'); button.disabled = false; return; }
+    if (data.event === 'ERROR') { show((data.data && data.data.error_message) || 'Error', 'err'); button.disabled = false; return; }
+    const d = data.data || {};
+    show(data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING' ? '✓ Conectado (app + bot)' : '✓ Conectado', 'ok');
+    ids.textContent = 'phone_number_id: ' + (d.phone_number_id || '—') + '\nwaba_id: ' + (d.waba_id || '—');
+  });
+
+  window.fbAsyncInit = function () {
+    FB.init({ appId: APP_ID, autoLogAppEvents: true, xfbml: true, version: 'v26.0' });
+    button.disabled = false;
+  };
+
+  button.addEventListener('click', () => {
+    button.disabled = true; show(''); ids.textContent = '';
+    FB.login((r) => { if (!r.authResponse && !badge.textContent) { show('Cancelado', 'err'); button.disabled = false; } }, {
+      config_id: CONFIG_ID,
+      response_type: 'code',
+      override_default_response_type: true,
+      extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' }
+    });
+  });
+</script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js"></script>
+</body>
+</html>

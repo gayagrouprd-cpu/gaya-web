@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp conectado · Alinèa Stretch Studio</title>
+<style>
+  :root { --bg: #faf8f5; --text: #2b2724; --muted: #6f6760; --rule: #e4ded7; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1c1a18; --text: #ece7e1; --muted: #a79f97; --rule: #3a3531; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 1.75rem; line-height: 1.25; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 32px 0 8px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  .date { color: var(--muted); margin: 0 0 24px; }
+  ul { padding-left: 1.25rem; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="t">✓ WhatsApp conectado</h1>
+  <p class="date" id="s"></p>
+  <script>
+    const p = new URLSearchParams(location.search);
+    if (p.get("error") || p.get("error_reason")) {
+      document.getElementById("t").textContent = "✕ No se conectó";
+      document.getElementById("s").textContent = p.get("error_description") || p.get("error_reason") || p.get("error");
+    }
+  </script>
+</main>
+</body>
+</html>

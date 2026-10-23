@@ -6,6 +6,10 @@ name: Deploy to GitHub Pages
 
 on:
   workflow_dispatch:
+  # Las páginas legales del asistente de Alinèa se publican solas al cambiar.
+  push:
+    branches: [main]
+    paths: ["public/alinea/**"]
 
 permissions:
   contents: read

@@ -1,0 +1,10 @@
+{
+  "name": "Bandeja Alinèa",
+  "short_name": "Bandeja",
+  "start_url": "bandeja.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#174d48",
+  "theme_color": "#174d48",
+  "icons": [{ "src": "icono.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }]
+}

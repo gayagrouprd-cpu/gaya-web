@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#174d48">
+<title>Bandeja Alinèa</title>
+<link rel="manifest" href="bandeja.webmanifest">
+<link rel="icon" href="icono.png">
+<link rel="apple-touch-icon" href="icono.png">
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #174d48; color: #fff; font: 600 18px system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<div id="s">…</div>
+<script>
+  // La clave viaja en el fragmento (#), que el navegador nunca manda a ningún servidor.
+  const KEY_STORE = 'alinea-bandeja-key';
+  const hash = new URLSearchParams(location.hash.slice(1));
+  let key = hash.get('key');
+  try { if (key) localStorage.setItem(KEY_STORE, key); else key = localStorage.getItem(KEY_STORE); } catch {}
+  const u = hash.get('u');
+  fetch('tunel.json?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => r.json())
+    .then(({ url }) => {
+      if (!key) { document.getElementById('s').textContent = 'Sin clave'; return; }
+      location.replace(url.replace(/\/+$/, '') + '/bandeja?key=' + encodeURIComponent(key) + (u ? '&u=' + encodeURIComponent(u) : ''));
+    })
+    .catch(() => { document.getElementById('s').textContent = 'Bandeja fuera de línea'; });
+</script>
+</body>
+</html>

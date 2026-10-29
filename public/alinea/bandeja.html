@@ -12,15 +12,12 @@
   html, body { height: 100%; margin: 0; background: #174d48; }
   iframe { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
   #s { position: fixed; inset: 0; display: grid; place-items: center; color: #fff; font: 600 18px system-ui, sans-serif; }
-  form { display: grid; gap: 12px; width: min(320px, calc(100vw - 32px)); }
-  input { font: inherit; padding: 14px; border: 0; border-radius: 10px; }
-  button { font: inherit; padding: 14px; border: 0; border-radius: 10px; background: #e8945f; color: #fff; cursor: pointer; }
 </style>
 </head>
 <body>
 <div id="s">…</div>
 <script>
-  // La clave viaja en el fragmento (#), que el navegador nunca manda a ningún servidor, y queda guardada en este teléfono.
+  // Sin clave guardada entra igual (bandeja abierta mientras se prueba). La clave viaja en el fragmento (#), que el navegador nunca manda a ningún servidor, y queda guardada en este teléfono.
   const KEY_STORE = 'alinea-bandeja-key';
   const hash = new URLSearchParams(location.hash.slice(1));
   let key = hash.get('key');
@@ -28,20 +25,11 @@
   const u = hash.get('u');
   if (hash.has('key')) history.replaceState(null, '', location.pathname + (u ? '#u=' + encodeURIComponent(u) : ''));
   const status = document.getElementById('s');
-  if (!key) {
-    status.innerHTML = '<form><input type="password" placeholder="Clave" autocomplete="current-password" required><button>Entrar</button></form>';
-    status.querySelector('form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const value = status.querySelector('input').value.trim();
-      try { localStorage.setItem(KEY_STORE, value); } catch {}
-      location.reload();
-    });
-  } else
   fetch('tunel.json?t=' + Date.now(), { cache: 'no-store' })
     .then((r) => r.json())
     .then(({ url }) => {
       const frame = document.createElement('iframe');
-      frame.src = url.replace(/\/+$/, '') + '/bandeja?key=' + encodeURIComponent(key) + (u ? '&u=' + encodeURIComponent(u) : '');
+      frame.src = url.replace(/\/+$/, '') + '/bandeja?key=' + encodeURIComponent(key || '') + (u ? '&u=' + encodeURIComponent(u) : '');
       frame.onload = () => status.remove();
       document.body.appendChild(frame);
     })

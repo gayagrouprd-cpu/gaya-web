@@ -9,7 +9,7 @@ on:
   # Las páginas legales del asistente de Alinèa se publican solas al cambiar.
   push:
     branches: [main]
-    paths: ["public/alinea/**"]
+    paths: ["public/alinea/**", "public/privacidad/**", "public/terminos/**", "public/borrar-datos/**", ".github/workflows/deploy.yml"]
 
 permissions:
   contents: read
